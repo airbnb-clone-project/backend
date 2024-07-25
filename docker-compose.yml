@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  mysql:
+    image: "mysql:8.0.36"
+    container_name: airbnb-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: airbnb
+      MYSQL_USER: airbnb
+      # 문자 인코딩 설정
+      MYSQL_CHARSET: 'utf8mb4'
+      MYSQL_COLLATION: 'utf8mb4_unicode_ci'
+    ports:
+      - "3306:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --lower_case_table_names=1
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-tier
+
+volumes:
+  mysql-data:
