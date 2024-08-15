@@ -10,9 +10,11 @@ services:
     container_name: airbnb-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: airbnb!@#
       MYSQL_DATABASE: airbnb
       MYSQL_USER: airbnb
+      MYSQL_PASSWORD: airbnb!@#
+      MYSQL_ROOT_HOST: '%'
       # 문자 인코딩 설정
       MYSQL_CHARSET: 'utf8mb4'
       MYSQL_COLLATION: 'utf8mb4_unicode_ci'
@@ -22,10 +24,31 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --lower_case_table_names=1
+      - --bind-address=0.0.0.0
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - app-tier
 
+  mongo:
+    image: "mongo:8.0-rc"
+    container_name: airbnb-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: airbnb!!
+      MONGO_INITDB_DATABASE: airbnb
+    ports:
+      - "27017:27017"
+    command:
+      - --auth
+      - --bind_ip_all
+    volumes:
+      - mongo-data:/data/db
+      - ./setup/database/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app-tier
+
 volumes:
   mysql-data:
+  mongo-data:

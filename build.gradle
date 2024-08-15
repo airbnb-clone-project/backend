@@ -27,6 +27,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-docker-compose'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 	implementation 'com.mysql:mysql-connector-j:9.0.0'
 	runtimeOnly 'com.h2database:h2:2.2.224'
