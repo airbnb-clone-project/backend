@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import java.util.Date;
  */
 @Component
 @RequiredArgsConstructor
+@Profile("local")
 public class MongoDBInitializer {
     private final MongoTemplate mongoTemplate;
     

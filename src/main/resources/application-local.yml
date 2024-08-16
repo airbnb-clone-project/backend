@@ -1,9 +1,9 @@
 spring:
   application:
     name: airbnb
-
-  profiles:
-    active: local
+  sql:
+    init:
+      mode: always
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
