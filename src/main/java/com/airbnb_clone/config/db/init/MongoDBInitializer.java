@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -31,40 +32,48 @@ public class MongoDBInitializer {
     @Bean
     CommandLineRunner initMongoDB() {
         return args -> {
-            // `PIN_TEMPS` 컬렉션이 존재하지 않으면 생성
-            if (!mongoTemplate.collectionExists("PIN_TEMPS")) {
-                mongoTemplate.createCollection("PIN_TEMPS");
-                mongoTemplate.insert(new Document("user_no", "유저 번호").append("temp_pins", new ArrayList<>()), "PIN_TEMPS");
+            // 만약 이미 콜렉션이 존재한다면 삭제
+            if (mongoTemplate.collectionExists("PIN_TEMPS")) {
+                mongoTemplate.dropCollection("PIN_TEMPS");
             }
             
-            // `TEMP_PIN` 컬렉션이 존재하지 않으면 생성
-            if (!mongoTemplate.collectionExists("TEMP_PIN")) {
-                mongoTemplate.createCollection("TEMP_PIN");
-                mongoTemplate.insert(new Document("IMG_URL", "핀 이미지 URL")
-                                             .append("TITLE", "핀 제목")
-                                             .append("DESCRIPTION", "핀 설명")
-                                             .append("LINK", "링크 URL")
-                                             .append("BOARD_NO", 0L)
-                                             .append("IS_COMMENT_ALLOWED", true)
-                                             .append("created_at", new Date())
-                                             .append("updated_at", new Date()), "TEMP_PIN");
+            mongoTemplate.createCollection("PIN_TEMPS");
+            mongoTemplate.insert(new Document("USER_NO", "유저 번호").append("TEMP_PINS", new ArrayList<>()), "PIN_TEMPS");
+            
+            // 만약 이미 콜렉션이 존재한다면 삭제
+            if (mongoTemplate.collectionExists("TEMP_PIN")) {
+                mongoTemplate.dropCollection("TEMP_PIN");
             }
             
-            // `CHATROOM` 컬렉션이 존재하지 않으면 생성
-            if (!mongoTemplate.collectionExists("CHATROOM")) {
-                mongoTemplate.createCollection("CHATROOM");
-                mongoTemplate.insert(new Document("PATICIPANTS", new ArrayList<>())
-                                             .append("CREATED_AT", new Date()), "CHATROOM");
+            mongoTemplate.createCollection("TEMP_PIN");
+            mongoTemplate.insert(new Document("IMG_URL", "핀 이미지 URL")
+                                         .append("TITLE", "핀 제목")
+                                         .append("DESCRIPTION", "핀 설명")
+                                         .append("LINK", "링크 URL")
+                                         .append("BOARD_NO", 0L)
+                                         .append("IS_COMMENT_ALLOWED", true)
+                                         .append("CREATED_AT", LocalDateTime.now())
+                                         .append("UPDATED_AT", LocalDateTime.now()), "TEMP_PIN");
+            
+            // 만약 이미 콜렉션이 존재한다면 삭제
+            if (mongoTemplate.collectionExists("CHATROOM")) {
+                mongoTemplate.dropCollection("CHATROOM");
             }
             
-            // `MESSAGE` 컬렉션이 존재하지 않으면 생성
-            if (!mongoTemplate.collectionExists("MESSAGE")) {
-                mongoTemplate.createCollection("MESSAGE");
-                mongoTemplate.insert(new Document("CHATROOM_ID", new org.bson.types.ObjectId())
-                                             .append("SENDER_NO", 0L)
-                                             .append("CONTENT", "채팅내용")
-                                             .append("CREATED_AT", new Date()), "MESSAGE");
+            mongoTemplate.createCollection("CHATROOM");
+            mongoTemplate.insert(new Document("PATICIPANTS", new ArrayList<>())
+                                         .append("CREATED_AT", LocalDateTime.now()), "CHATROOM");
+            
+            // 만약 이미 콜렉션이 존재한다면 삭제
+            if (mongoTemplate.collectionExists("MESSAGE")) {
+                mongoTemplate.dropCollection("MESSAGE");
             }
+            
+            mongoTemplate.createCollection("MESSAGE");
+            mongoTemplate.insert(new Document("CHATROOM_ID", new org.bson.types.ObjectId())
+                                         .append("SENDER_NO", 0L)
+                                         .append("CONTENT", "채팅내용")
+                                         .append("CREATED_AT", LocalDateTime.now()), "MESSAGE");
         };
     }
 }

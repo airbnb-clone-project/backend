@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: airbnb
   sql:
     init:
       mode: always

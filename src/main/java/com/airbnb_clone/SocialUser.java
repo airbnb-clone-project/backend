@@ -9,16 +9,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = true)
-public class Board extends BaseTime {
+public class SocialUser extends BaseTime {
     private Long no;
-    private String name;
     private Long userNo;
+    private String provider;
+    private String providerId;
 
     @Builder
-    public Board(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String name, Long userNo) {
+    public SocialUser(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
+                      Long userNo, String provider, String providerId) {
         super(createdAt, updatedAt);
         this.no = no;
-        this.name = name;
         this.userNo = userNo;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 }
