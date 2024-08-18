@@ -1,3 +1,5 @@
+package com.airbnb_clone;
+
 import com.airbnb_clone.common.BaseTime;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
