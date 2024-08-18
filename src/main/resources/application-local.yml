@@ -1,0 +1,14 @@
+spring:
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/airbnb?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: airbnb
+    password: airbnb!@#
+  data:
+    mongodb:
+      uri: mongodb://airbnb:airbnb%21%21@mongo:27017/airbnb
+      database: airbnb
