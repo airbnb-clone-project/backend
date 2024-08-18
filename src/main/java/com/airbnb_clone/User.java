@@ -18,13 +18,15 @@ public class User extends BaseTime {
     private String password;
     private String firstName; // 닉네임
     private String lastName; // 닉네임
+    private String spokenLanguage;
+    private String country;
     private LocalDate birthday;
     private String profileImgUrl; // 프로필 사진
     private boolean isSocial;
 
     @Builder
     public User(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
-                boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl) {
+                boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl,String country, String spokenLanguage) {
         super(createdAt, updatedAt);
         this.no = no;
         this.username = username;
@@ -33,5 +35,7 @@ public class User extends BaseTime {
         this.lastName = lastName;
         this.birthday = birthday;
         this.profileImgUrl = profileImgUrl;
+        this.country = country;
+        this.spokenLanguage = spokenLanguage;
     }
 }
