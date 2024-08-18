@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Objects;
 
 /**
  * packageName    : com.airbnb_clone.config.db.init
@@ -33,17 +33,13 @@ public class MongoDBInitializer {
     CommandLineRunner initMongoDB() {
         return args -> {
             // 만약 이미 콜렉션이 존재한다면 삭제
-            if (mongoTemplate.collectionExists("PIN_TEMPS")) {
-                mongoTemplate.dropCollection("PIN_TEMPS");
-            }
+            dropIfExists("PIN_TEMPS");
             
             mongoTemplate.createCollection("PIN_TEMPS");
             mongoTemplate.insert(new Document("USER_NO", "유저 번호").append("TEMP_PINS", new ArrayList<>()), "PIN_TEMPS");
             
             // 만약 이미 콜렉션이 존재한다면 삭제
-            if (mongoTemplate.collectionExists("TEMP_PIN")) {
-                mongoTemplate.dropCollection("TEMP_PIN");
-            }
+            dropIfExists("TEMP_PIN");
             
             mongoTemplate.createCollection("TEMP_PIN");
             mongoTemplate.insert(new Document("IMG_URL", "핀 이미지 URL")
@@ -56,18 +52,14 @@ public class MongoDBInitializer {
                                          .append("UPDATED_AT", LocalDateTime.now()), "TEMP_PIN");
             
             // 만약 이미 콜렉션이 존재한다면 삭제
-            if (mongoTemplate.collectionExists("CHATROOM")) {
-                mongoTemplate.dropCollection("CHATROOM");
-            }
+            dropIfExists("CHATROOM");
             
             mongoTemplate.createCollection("CHATROOM");
             mongoTemplate.insert(new Document("PATICIPANTS", new ArrayList<>())
                                          .append("CREATED_AT", LocalDateTime.now()), "CHATROOM");
             
             // 만약 이미 콜렉션이 존재한다면 삭제
-            if (mongoTemplate.collectionExists("MESSAGE")) {
-                mongoTemplate.dropCollection("MESSAGE");
-            }
+            dropIfExists("MESSAGE");
             
             mongoTemplate.createCollection("MESSAGE");
             mongoTemplate.insert(new Document("CHATROOM_ID", new org.bson.types.ObjectId())
@@ -75,5 +67,13 @@ public class MongoDBInitializer {
                                          .append("CONTENT", "채팅내용")
                                          .append("CREATED_AT", LocalDateTime.now()), "MESSAGE");
         };
+    }
+    
+    private void dropIfExists(String collectionName) {
+        Objects.requireNonNull(collectionName);
+        
+        if (mongoTemplate.collectionExists(collectionName)) {
+            mongoTemplate.dropCollection(collectionName);
+        }
     }
 }
