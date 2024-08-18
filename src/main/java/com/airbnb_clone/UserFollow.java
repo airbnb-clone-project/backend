@@ -17,8 +17,7 @@ public class UserFollow extends BaseTime {
     private Long followedNo;
     private boolean isActive;
 
-    @Builder
-    public UserFollow(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
+    private UserFollow(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
                       Long followerNo, Long followedNo, boolean isActive) {
         super(createdAt, updatedAt);
         this.no = no;

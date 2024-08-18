@@ -17,8 +17,7 @@ public class SocialUser extends BaseTime {
     private String provider;
     private String providerId;
 
-    @Builder
-    public SocialUser(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
+    private SocialUser(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
                       Long userNo, String provider, String providerId) {
         super(createdAt, updatedAt);
         this.no = no;

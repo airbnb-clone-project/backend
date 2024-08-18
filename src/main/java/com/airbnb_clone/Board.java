@@ -16,8 +16,7 @@ public class Board extends BaseTime {
     private String name;
     private Long userNo;
 
-    @Builder
-    public Board(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String name, Long userNo) {
+    private Board(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String name, Long userNo) {
         super(createdAt, updatedAt);
         this.no = no;
         this.name = name;

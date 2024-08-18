@@ -18,8 +18,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ChatRoomServiceTest {
@@ -33,7 +34,7 @@ class ChatRoomServiceTest {
     @Test
     @DisplayName("채팅방 저장")
     void save_chat_room_and_find() {
-        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(0, 1)));
+        ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
         ObjectId objectId = new ObjectId(new Date());
 
         when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(objectId);

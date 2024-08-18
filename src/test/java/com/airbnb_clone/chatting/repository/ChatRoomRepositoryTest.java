@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
 class ChatRoomRepositoryTest {
@@ -31,7 +31,7 @@ class ChatRoomRepositoryTest {
     @Test
     @DisplayName("채팅방 저장 및 조회")
     void save_user_and_find() {
-        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(0, 1)));
+        ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
 
         ObjectId savedId = chatRoomRepository.save(chatRoom);
 

@@ -17,8 +17,7 @@ public class PinLike extends BaseTime {
     private Long liker;
     private int emojiNo;
 
-    @Builder
-    public PinLike(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
+    private PinLike(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
                    Long targetPinNo, Long liker, int emojiNo) {
         super(createdAt, updatedAt);
         this.no = no;

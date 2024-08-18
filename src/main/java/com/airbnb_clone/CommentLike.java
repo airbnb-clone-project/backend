@@ -17,8 +17,7 @@ public class CommentLike extends BaseTime {
     private Long liker;
     private int emojiNo;
 
-    @Builder
-    public CommentLike(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
+    private CommentLike(LocalDateTime createdAt, LocalDateTime updatedAt, Long no,
                        Long targetCommentNo, Long liker, int emojiNo) {
         super(createdAt, updatedAt);
         this.no = no;

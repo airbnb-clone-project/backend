@@ -20,8 +20,7 @@ public class Notification extends BaseTime {
     private String name;
     private String content;
 
-    @Builder
-    public Notification(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, Long userNo,
+    private Notification(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, Long userNo,
                         String type, Long relatedPinNo, boolean isRead, String name, String content) {
         super(createdAt, updatedAt);
         this.no = no;
