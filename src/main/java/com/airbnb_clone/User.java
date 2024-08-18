@@ -2,12 +2,14 @@ package com.airbnb_clone;
 
 import com.airbnb_clone.common.BaseTime;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class User extends BaseTime {
     private Long no;
@@ -15,7 +17,7 @@ public class User extends BaseTime {
     private boolean isSocial;
     private String refreshToken;
     private LocalDateTime tokenExpireAt;
-
+    
     @Builder
     public User(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String email,
                 boolean isSocial, String refreshToken, LocalDateTime tokenExpireAt) {

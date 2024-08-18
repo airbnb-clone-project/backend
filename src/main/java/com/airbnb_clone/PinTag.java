@@ -1,12 +1,12 @@
 package com.airbnb_clone;
 
 import lombok.*;
-import java.time.LocalDateTime;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode
 public class PinTag {
     private Long no;

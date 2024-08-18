@@ -2,12 +2,14 @@ package com.airbnb_clone;
 
 import com.airbnb_clone.common.BaseTime;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class PinLike extends BaseTime {
     private Long no;
