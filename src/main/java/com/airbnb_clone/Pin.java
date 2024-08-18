@@ -21,8 +21,7 @@ public class Pin extends BaseTime {
     private boolean isCommentAllowed;
     private int likeCount;
 
-    @Builder
-    public Pin(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String imgUrl,
+    private Pin(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String imgUrl,
                String title, String description, String link, Long boardNo,
                boolean isCommentAllowed, int likeCount) {
         super(createdAt, updatedAt);

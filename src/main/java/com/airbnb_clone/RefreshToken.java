@@ -17,8 +17,7 @@ public class RefreshToken extends BaseTime {
     private String refreshToken;
     private LocalDateTime expiration;
 
-    @Builder
-    public RefreshToken(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username, String refreshToken, LocalDateTime expiration) {
+    private RefreshToken(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username, String refreshToken, LocalDateTime expiration) {
         super(createdAt, updatedAt);
         this.no = no;
         this.username = username;
@@ -26,4 +25,3 @@ public class RefreshToken extends BaseTime {
         this.expiration = expiration;
     }
 }
-

@@ -1,10 +1,12 @@
 package com.airbnb_clone.chatting.domain;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ChatRoom {
         this.participants = participants;
     }
 
-    public static ChatRoom createChatRoom(List<Integer> participants) {
+    public static ChatRoom of(List<Integer> participants) {
         return ChatRoom.builder()
                 .participants(participants)
                 .build();

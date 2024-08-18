@@ -20,8 +20,7 @@ public class Comment extends BaseTime {
     private String content;
     private int likeCount;
 
-    @Builder
-    public Comment(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, Long targetPinNo,
+    private Comment(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, Long targetPinNo,
                    Long commenterNo, Long parentCommentNo, int depth, String content, int likeCount) {
         super(createdAt, updatedAt);
         this.no = no;

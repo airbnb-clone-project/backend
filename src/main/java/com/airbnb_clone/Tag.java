@@ -15,8 +15,7 @@ public class Tag extends BaseTime {
     private Long no;
     private String name;
 
-    @Builder
-    public Tag(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String name) {
+    private Tag(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String name) {
         super(createdAt, updatedAt);
         this.no = no;
         this.name = name;

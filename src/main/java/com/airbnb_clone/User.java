@@ -24,8 +24,7 @@ public class User extends BaseTime {
     private String profileImgUrl; // 프로필 사진
     private boolean isSocial;
 
-    @Builder
-    public User(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
+    private User(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
                 boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl,String country, String spokenLanguage) {
         super(createdAt, updatedAt);
         this.no = no;
