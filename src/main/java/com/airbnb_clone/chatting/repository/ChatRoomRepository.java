@@ -1,12 +1,15 @@
 package com.airbnb_clone.chatting.repository;
 
 import com.airbnb_clone.chatting.domain.ChatRoom;
+import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -23,8 +26,6 @@ public class ChatRoomRepository {
      * @return chatRoom
      */
     public ObjectId save(ChatRoom chatRoom) {
-        PreparedStatement preparedStatement = null;
-        
         mt.insert(chatRoom);
 
         return chatRoom.getNo();
