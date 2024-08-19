@@ -1,0 +1,7 @@
+###
+POST {{url}}/api/chat-room
+Content-Type: application/json
+
+{
+    "participants": []
+}
