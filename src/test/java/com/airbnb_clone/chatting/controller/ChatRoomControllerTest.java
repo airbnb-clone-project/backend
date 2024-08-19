@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.airbnb_clone.exception.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,11 +61,7 @@ class ChatRoomControllerTest {
         ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
         ChatRoomNewResDto chatRoomNewResDto = new ChatRoomNewResDto(objectId.toString());
 
-        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.<ChatRoomNewResDto>builder()
-                .status(200)
-                .message("생성 성공!")
-                .data(chatRoomNewResDto)
-                .build();
+        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.of("생성 성공!", 200, chatRoomNewResDto);
         String expectedJson = new Gson().toJson(resApi);
 
         doReturn(chatRoomNewResDto).when(chatRoomService).save(any(ChatRoomNewReqDto.class));
@@ -89,11 +86,8 @@ class ChatRoomControllerTest {
 
         when(chatRoomService.save(any(ChatRoomNewReqDto.class))).thenThrow(new DuplicateChatRoomException());
 
-        ApiResponse<ErrorResponse> expectedResponse = ApiResponse.<ErrorResponse>builder()
-                .status(ErrorCode.DUPLICATE_CHAT_ROOM.getStatus())
-                .message(ErrorCode.DUPLICATE_CHAT_ROOM.getMessage())
-                .data(ErrorResponse.of(ErrorCode.DUPLICATE_CHAT_ROOM))
-                .build();
+        ApiResponse<ErrorResponse> expectedResponse =
+                ApiResponse.of(DUPLICATE_CHAT_ROOM.getMessage(), DUPLICATE_CHAT_ROOM.getStatus(), ErrorResponse.of(DUPLICATE_CHAT_ROOM));
         String expectedJson = new Gson().toJson(expectedResponse);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-room")
