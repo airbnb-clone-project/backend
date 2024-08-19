@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +49,7 @@ class ChatRoomServiceTest {
     @Test
     @DisplayName("채팅방 중복 저장 예외")
     void save_duplicate_chat_room_exception() {
-        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(0, 1)));
+        ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
 
         when(chatRoomRepository.checkExistingChatRoom(anyInt(), anyInt())).thenThrow(new DuplicateChatRoomException());
 
