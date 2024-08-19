@@ -28,11 +28,8 @@ public class ChatRoomController {
         ChatRoomNewResDto save = chatRoomService.save(chatRoomNewReqDto);
 
         return ResponseEntity.ok(
-                ApiResponse.<ChatRoomNewResDto>builder()
-                        .status(HttpStatus.OK.value())
-                        .message("생성 성공!")
-                        .data(save)
-                        .build()
+                ApiResponse.of("생성 성공!", HttpStatus.OK.value(), save)
         );
     }
+
 }
