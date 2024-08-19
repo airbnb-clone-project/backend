@@ -1,6 +1,6 @@
 package com.airbnb_clone.chatting.controller;
 
-import com.airbnb_clone.chatting.common.global.response.ApiResDto;
+import com.airbnb_clone.chatting.common.global.response.ApiResponse;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.service.ChatRoomService;
@@ -24,11 +24,11 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping(produces = "application/json; charset=utf8")
-    public HttpEntity<ApiResDto<ChatRoomNewResDto>> create(@RequestBody ChatRoomNewReqDto chatRoomNewReqDto) {
+    public HttpEntity<ApiResponse<ChatRoomNewResDto>> create(@RequestBody ChatRoomNewReqDto chatRoomNewReqDto) {
         ChatRoomNewResDto save = chatRoomService.save(chatRoomNewReqDto);
 
         return ResponseEntity.ok(
-                ApiResDto.<ChatRoomNewResDto>builder()
+                ApiResponse.<ChatRoomNewResDto>builder()
                         .status(HttpStatus.OK.value())
                         .message("생성 성공!")
                         .data(save)

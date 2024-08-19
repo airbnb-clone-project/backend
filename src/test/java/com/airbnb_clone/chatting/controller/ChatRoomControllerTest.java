@@ -1,6 +1,6 @@
 package com.airbnb_clone.chatting.controller;
 
-import com.airbnb_clone.chatting.common.global.response.ApiResDto;
+import com.airbnb_clone.chatting.common.global.response.ApiResponse;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.service.ChatRoomService;
@@ -60,7 +60,7 @@ class ChatRoomControllerTest {
         ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
         ChatRoomNewResDto chatRoomNewResDto = new ChatRoomNewResDto(objectId.toString());
 
-        ApiResDto<ChatRoomNewResDto> resApi = ApiResDto.<ChatRoomNewResDto>builder()
+        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.<ChatRoomNewResDto>builder()
                 .status(200)
                 .message("생성 성공!")
                 .data(chatRoomNewResDto)
@@ -76,8 +76,8 @@ class ChatRoomControllerTest {
         MvcResult mvcResult = resultActions.andExpect(status().isOk()).andReturn();
         String body = mvcResult.getResponse().getContentAsString();
 
-        ApiResDto actual = new Gson().fromJson(body, ApiResDto.class);
-        ApiResDto expected = new Gson().fromJson(expectedJson, ApiResDto.class);
+        ApiResponse actual = new Gson().fromJson(body, ApiResponse.class);
+        ApiResponse expected = new Gson().fromJson(expectedJson, ApiResponse.class);
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
@@ -89,7 +89,7 @@ class ChatRoomControllerTest {
 
         when(chatRoomService.save(any(ChatRoomNewReqDto.class))).thenThrow(new DuplicateChatRoomException());
 
-        ApiResDto<ErrorResponse> expectedResponse = ApiResDto.<ErrorResponse>builder()
+        ApiResponse<ErrorResponse> expectedResponse = ApiResponse.<ErrorResponse>builder()
                 .status(ErrorCode.DUPLICATE_CHAT_ROOM.getStatus())
                 .message(ErrorCode.DUPLICATE_CHAT_ROOM.getMessage())
                 .data(ErrorResponse.of(ErrorCode.DUPLICATE_CHAT_ROOM))
