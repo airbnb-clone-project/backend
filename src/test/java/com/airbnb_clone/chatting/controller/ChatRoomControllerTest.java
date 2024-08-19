@@ -102,4 +102,31 @@ class ChatRoomControllerTest {
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
+
+    @Test
+    @DisplayName("채팅방 중복 저장 예외")
+    void chat_room_duplicate_save_exception() throws Exception {
+        ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
+
+        when(chatRoomService.save(any(ChatRoomNewReqDto.class))).thenThrow(new DuplicateChatRoomException());
+
+        ApiResDto<ErrorResponse> expectedResponse = ApiResDto.<ErrorResponse>builder()
+                .status(ErrorCode.DUPLICATE_CHAT_ROOM.getStatus())
+                .message(ErrorCode.DUPLICATE_CHAT_ROOM.getMessage())
+                .data(ErrorResponse.of(ErrorCode.DUPLICATE_CHAT_ROOM))
+                .build();
+        String expectedJson = new Gson().toJson(expectedResponse);
+
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(chatRoomNewReqDto)));
+
+        MvcResult mvcResult = resultActions.andExpect(status().isBadRequest()).andReturn();
+        String body = mvcResult.getResponse().getContentAsString();
+
+        ErrorResponse actual = new Gson().fromJson(body, ErrorResponse.class);
+        ErrorResponse expected = new Gson().fromJson(expectedJson, ErrorResponse.class);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
 }
