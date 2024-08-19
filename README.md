@@ -18,7 +18,7 @@
 ## Docker Compose 사용시 트러블 슈팅
 
 1. DB 연결 실패
-   - Docker Compose 를 down 시킨 후 다시 up 시켜도
+   - Docker Compose 를 down 시킨 후 다시 up 시켜도 DB 에러가 발생하는 경우, 컨테이너 외부의 볼륨이 삭제되지 않아서 발생하는 문제입니다.
 
    ```text
    volumes:
