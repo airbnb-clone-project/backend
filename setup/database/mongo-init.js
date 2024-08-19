@@ -11,10 +11,4 @@
  */
 db = db.getSiblingDB('airbnb');
 
-db.createUser(
-    {
-        user: "airbnb",
-        pwd: "airbnb!!",
-        roles: [{ role: "readWrite", db: "airbnb" }]
-    }
-);
+rs.initiate()

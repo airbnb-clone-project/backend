@@ -1,6 +1,7 @@
 spring:
   application:
     name: airbnb
-
   profiles:
     active: local
+server:
+  port: 8008

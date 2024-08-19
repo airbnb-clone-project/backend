@@ -30,7 +30,6 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	//testcontainer
-	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo' //
 
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
@@ -46,6 +45,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// Test
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.16.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
