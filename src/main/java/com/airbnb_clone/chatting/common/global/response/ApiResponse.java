@@ -7,8 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 @Getter
-public class ApiResDto<T> {
-    
+public class ApiResponse<T> {
     private String message;
     private int status;
     private T data;
