@@ -25,6 +25,7 @@ class ChatRoomRepositoryTest {
     @BeforeEach
     void beforeEach() {
         chatRoomRepository = new ChatRoomRepository(mt);
+        mt.dropCollection(ChatRoom.class);
     }
 
     @Test
@@ -37,5 +38,16 @@ class ChatRoomRepositoryTest {
         ChatRoom findChatRoom = chatRoomRepository.findById(savedId).get();
 
         assertThat(findChatRoom).usingRecursiveComparison().isEqualTo(chatRoom);
+    }
+
+    @Test
+    @DisplayName("기존 채팅방이 있는 지 확인")
+    void check_existing_chat_room() {
+        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(5, 10)));
+        chatRoomRepository.save(chatRoom);
+
+        ChatRoom result = chatRoomRepository.checkExistingChatRoom(5, 10).get();
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(chatRoom);
     }
 }

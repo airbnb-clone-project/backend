@@ -4,6 +4,10 @@ import com.airbnb_clone.chatting.common.global.response.ApiResDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.service.ChatRoomService;
+import com.airbnb_clone.exception.handler.CustomExceptionHandler;
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.ErrorResponse;
+import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.bson.types.ObjectId;
@@ -20,6 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,7 +47,10 @@ class ChatRoomControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        mockMvc = MockMvcBuilders.standaloneSetup(chatRoomController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(chatRoomController)
+                .addFilter(new CharacterEncodingFilter("UTF-8", true))
+                .setControllerAdvice(new CustomExceptionHandler())
+                .build();
     }
 
     @Test
@@ -70,6 +78,33 @@ class ChatRoomControllerTest {
 
         ApiResDto actual = new Gson().fromJson(body, ApiResDto.class);
         ApiResDto expected = new Gson().fromJson(expectedJson, ApiResDto.class);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("채팅방 중복 저장 예외")
+    void chat_room_duplicate_save_exception() throws Exception {
+        ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
+
+        when(chatRoomService.save(any(ChatRoomNewReqDto.class))).thenThrow(new DuplicateChatRoomException());
+
+        ApiResDto<ErrorResponse> expectedResponse = ApiResDto.<ErrorResponse>builder()
+                .status(ErrorCode.DUPLICATE_CHAT_ROOM.getStatus())
+                .message(ErrorCode.DUPLICATE_CHAT_ROOM.getMessage())
+                .data(ErrorResponse.of(ErrorCode.DUPLICATE_CHAT_ROOM))
+                .build();
+        String expectedJson = new Gson().toJson(expectedResponse);
+
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(chatRoomNewReqDto)));
+
+        MvcResult mvcResult = resultActions.andExpect(status().isBadRequest()).andReturn();
+        String body = mvcResult.getResponse().getContentAsString();
+
+        ErrorResponse actual = new Gson().fromJson(body, ErrorResponse.class);
+        ErrorResponse expected = new Gson().fromJson(expectedJson, ErrorResponse.class);
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }

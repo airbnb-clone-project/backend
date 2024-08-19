@@ -4,6 +4,8 @@ import com.airbnb_clone.chatting.domain.ChatRoom;
 import com.airbnb_clone.chatting.repository.ChatRoomRepository;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,4 +42,17 @@ class ChatRoomServiceTest {
 
         assertThat(chatRoomNewResDto.getChatRoomId()).isEqualTo(objectId.toString());
     }
+
+    @Test
+    @DisplayName("채팅방 중복 저장 예외")
+    void save_duplicate_chat_room_exception() {
+        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(0, 1)));
+
+        when(chatRoomRepository.checkExistingChatRoom(anyInt(), anyInt())).thenThrow(new DuplicateChatRoomException());
+
+        assertThatThrownBy(() -> chatRoomRepository.checkExistingChatRoom(0, 1))
+                .isInstanceOf(DuplicateChatRoomException.class)
+                .hasMessage(ErrorCode.DUPLICATE_CHAT_ROOM.getMessage());
+    }
+
 }

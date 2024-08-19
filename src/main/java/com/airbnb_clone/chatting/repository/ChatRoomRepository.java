@@ -40,4 +40,18 @@ public class ChatRoomRepository {
     public Optional<ChatRoom> findById(ObjectId id) {
         return Optional.ofNullable(mt.findById(id, ChatRoom.class));
     }
+
+    /**
+     *
+     * 두 명의 유저 아이디를 받아 기존 채팅방이 존재하는 지 확인합니다.
+     *
+     * @param id1
+     * @param id2
+     * @return Optional&lt;ChatRoom&gt;
+     */
+    public Optional<ChatRoom> checkExistingChatRoom(Integer id1, Integer id2) {
+        Query query = new Query(Criteria.where("participants").all(id1, id2));
+
+        return Optional.ofNullable(mt.findOne(query, ChatRoom.class));
+    }
 }
