@@ -34,15 +34,11 @@ services:
     image: "mongo:8.0-rc"
     container_name: airbnb-mongo
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: airbnb!!
-      MONGO_INITDB_DATABASE: airbnb
     ports:
       - "27017:27017"
-    command:
-      - --auth
-      - --bind_ip_all
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--noauth"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - mongo-data:/data/db
       - ./setup/database/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro

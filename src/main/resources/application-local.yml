@@ -10,5 +10,5 @@ spring:
     password: airbnb!@#
   data:
     mongodb:
-      uri: mongodb://airbnb:airbnb%21%21@mongo:27017/airbnb
+      uri: mongodb://mongo:27017/airbnb
       database: airbnb
