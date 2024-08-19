@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class User extends BaseTime {
+public class Users extends BaseTime {
     private Long no;
     private String username; // 이메일
     private String password;
@@ -24,8 +24,8 @@ public class User extends BaseTime {
     private String profileImgUrl; // 프로필 사진
     private boolean isSocial;
 
-    private User(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
-                boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl,String country, String spokenLanguage) {
+    private Users(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
+                  boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl, String country, String spokenLanguage) {
         super(createdAt, updatedAt);
         this.no = no;
         this.username = username;

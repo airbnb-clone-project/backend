@@ -52,17 +52,17 @@ public class MongoDBInitializer {
                                          .append("UPDATED_AT", LocalDateTime.now()), "TEMP_PIN");
             
             // 만약 이미 콜렉션이 존재한다면 삭제
-            dropIfExists("CHATROOM");
+            dropIfExists("CHAT_ROOM");
             
-            mongoTemplate.createCollection("CHATROOM");
+            mongoTemplate.createCollection("CHAT_ROOM");
             mongoTemplate.insert(new Document("PATICIPANTS", new ArrayList<>())
-                                         .append("CREATED_AT", LocalDateTime.now()), "CHATROOM");
+                                         .append("CREATED_AT", LocalDateTime.now()), "CHAT_ROOM");
             
             // 만약 이미 콜렉션이 존재한다면 삭제
             dropIfExists("MESSAGE");
             
             mongoTemplate.createCollection("MESSAGE");
-            mongoTemplate.insert(new Document("CHATROOM_ID", new org.bson.types.ObjectId())
+            mongoTemplate.insert(new Document("ID", new org.bson.types.ObjectId())
                                          .append("SENDER_NO", 0L)
                                          .append("CONTENT", "채팅내용")
                                          .append("CREATED_AT", LocalDateTime.now()), "MESSAGE");
