@@ -43,7 +43,7 @@ class ChatRoomRepositoryTest {
     @Test
     @DisplayName("기존 채팅방이 있는 지 확인")
     void check_existing_chat_room() {
-        ChatRoom chatRoom = ChatRoom.createChatRoom(new ArrayList<>(List.of(5, 10)));
+        ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(5, 10)));
         chatRoomRepository.save(chatRoom);
 
         ChatRoom result = chatRoomRepository.checkExistingChatRoom(5, 10).get();
