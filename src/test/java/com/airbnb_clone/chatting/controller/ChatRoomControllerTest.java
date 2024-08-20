@@ -1,15 +1,14 @@
 package com.airbnb_clone.chatting.controller;
 
-import com.airbnb_clone.chatting.common.global.response.ApiResponse;
-import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
-import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
-import com.airbnb_clone.chatting.service.ChatRoomService;
-import com.airbnb_clone.exception.handler.CustomExceptionHandler;
-import com.airbnb_clone.exception.ErrorCode;
-import com.airbnb_clone.exception.ErrorResponse;
-import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import static com.airbnb_clone.exception.ErrorCode.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,14 +26,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.airbnb_clone.exception.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
+import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
+import com.airbnb_clone.chatting.service.ChatRoomService;
+import com.airbnb_clone.common.global.response.ApiResponse;
+import com.airbnb_clone.exception.ErrorResponse;
+import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
+import com.airbnb_clone.exception.handler.CustomExceptionHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 @ExtendWith(MockitoExtension.class)
 class ChatRoomControllerTest {
@@ -61,7 +62,7 @@ class ChatRoomControllerTest {
         ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
         ChatRoomNewResDto chatRoomNewResDto = new ChatRoomNewResDto(objectId.toString());
 
-        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.of("생성 성공!", 200, chatRoomNewResDto);
+        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.of("생성 성공!", HttpStatus.OK, chatRoomNewResDto);
         String expectedJson = new Gson().toJson(resApi);
 
         doReturn(chatRoomNewResDto).when(chatRoomService).save(any(ChatRoomNewReqDto.class));

@@ -1,4 +1,4 @@
-package com.airbnb_clone.chatting.config;
+package com.airbnb_clone.config.db;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
