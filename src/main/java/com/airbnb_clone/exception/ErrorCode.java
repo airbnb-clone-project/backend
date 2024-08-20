@@ -1,17 +1,18 @@
 package com.airbnb_clone.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
 
     // Chatting
-    DUPLICATE_CHAT_ROOM(400, "이미 존재하는 채팅방입니다.");
+    DUPLICATE_CHAT_ROOM(HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방입니다.");
 
-    private int status;
-    private String message;
+    private final HttpStatus status;
+    private final String message;
 
-    ErrorCode(int status, String message) {
+    ErrorCode(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
     }
