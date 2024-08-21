@@ -1,4 +1,4 @@
-package com.airbnb_clone;
+package com.airbnb_clone.pin.domain;
 
 import com.airbnb_clone.common.BaseTime;
 import lombok.*;
