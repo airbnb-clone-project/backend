@@ -88,7 +88,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         // 모든 경로 권한 허용
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 );
         // 권한 허용에 관해 정리되면 추가
