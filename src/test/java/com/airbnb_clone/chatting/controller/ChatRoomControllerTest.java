@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -61,8 +60,8 @@ class ChatRoomControllerTest {
         ObjectId objectId = new ObjectId(new Date());
         ChatRoomNewReqDto chatRoomNewReqDto = new ChatRoomNewReqDto(new ArrayList<>(List.of(0, 1)));
         ChatRoomNewResDto chatRoomNewResDto = new ChatRoomNewResDto(objectId.toString());
-
-        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.of("생성 성공!", HttpStatus.OK, chatRoomNewResDto);
+        
+        ApiResponse<ChatRoomNewResDto> resApi = ApiResponse.of("생성 성공!", 200, chatRoomNewResDto);
         String expectedJson = new Gson().toJson(resApi);
 
         doReturn(chatRoomNewResDto).when(chatRoomService).save(any(ChatRoomNewReqDto.class));
