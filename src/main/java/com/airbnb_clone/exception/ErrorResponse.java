@@ -1,17 +1,18 @@
 package com.airbnb_clone.exception;
 
-import lombok.AccessLevel;
+import static lombok.AccessLevel.*;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class ErrorResponse {
     private String message;
     private int status;
     
-    @Builder
+    @Builder(access = PRIVATE)
     private ErrorResponse(String message, int status) {
         this.message = message;
         this.status = status;
