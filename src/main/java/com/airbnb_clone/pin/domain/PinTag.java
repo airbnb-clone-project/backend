@@ -1,4 +1,4 @@
-package com.airbnb_clone;
+package com.airbnb_clone.pin.domain;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
