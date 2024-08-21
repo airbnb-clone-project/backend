@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.airbnb_clone.chatting.repository.Dto.chatRoom.UserRoomsResponseDto;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,5 +102,31 @@ class ChatRoomControllerTest {
         ErrorResponse expected = new Gson().fromJson(expectedJson, ErrorResponse.class);
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("유저가 참여중인 모든 채팅방 조회")
+    void user_join_chat_room_search() throws Exception {
+        UserRoomsResponseDto chatRoom1 = UserRoomsResponseDto.of("채팅방1", 1);
+        UserRoomsResponseDto chatRoom2 = UserRoomsResponseDto.of("채팅방2", 2);
+        List<UserRoomsResponseDto> list = new ArrayList<>(List.of(chatRoom1, chatRoom2));
+
+        ApiResponse<List<UserRoomsResponseDto>> expectedResponse = ApiResponse.of("채팅방 조회 완료!", 200, list);
+
+        String expectedJson = new Gson().toJson(expectedResponse);
+
+        when(chatRoomService.findUserRooms(0)).thenReturn(list);
+
+        ResultActions perform = mockMvc.perform(MockMvcRequestBuilders.get("/api/chat-room/0"));
+        MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
+        String body = mvcResult.getResponse().getContentAsString();
+
+        ApiResponse<List<UserRoomsResponseDto>> actual = new Gson().<ApiResponse<List<UserRoomsResponseDto>>>fromJson(body, ApiResponse.class);
+        ApiResponse<List<UserRoomsResponseDto>> expected = new Gson().<ApiResponse<List<UserRoomsResponseDto>>>fromJson(expectedJson, ApiResponse.class);
+
+        assertThat(actual.getMessage()).isEqualTo(expected.getMessage());
+        assertThat(actual.getStatus()).isEqualTo(expected.getStatus());
+        assertThat(actual.getData()).isEqualTo(expected.getData());
+
     }
 }

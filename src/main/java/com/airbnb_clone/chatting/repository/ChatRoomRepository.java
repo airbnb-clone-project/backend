@@ -2,16 +2,20 @@ package com.airbnb_clone.chatting.repository;
 
 import com.airbnb_clone.chatting.domain.ChatRoom;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ChatRoomRepository {
@@ -53,5 +57,19 @@ public class ChatRoomRepository {
         Query query = new Query(Criteria.where("participants").all(id1, id2));
 
         return Optional.ofNullable(mt.findOne(query, ChatRoom.class));
+    }
+
+    /**
+     *
+     * 유저 아이디를 받아 참여중인 모든 채팁방을 반환합니다.
+     *
+     * @param id
+     * @return List&lt;ChatRoom&gt;
+     */
+
+    public List<ChatRoom> findUserRooms(Integer id) {
+        Query query = new Query(Criteria.where("participants").is(id));
+
+        return new ArrayList<>(mt.find(query, ChatRoom.class));
     }
 }
