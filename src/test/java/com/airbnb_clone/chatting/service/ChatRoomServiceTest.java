@@ -53,7 +53,7 @@ class ChatRoomServiceTest {
         ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
         ObjectId objectId = new ObjectId(new Date());
 
-        when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(objectId);
+        doReturn(objectId).when(chatRoomRepository).save(any(ChatRoom.class));
 
         ChatRoomNewResDto chatRoomNewResDto = chatRoomService.save(new ChatRoomNewReqDto(chatRoom.getParticipants()));
 
