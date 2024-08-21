@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = PRIVATE)
 @Getter
-@Builder
+@Builder(access = PRIVATE)
 public class ApiResponse<T> {
     private String message;
     private int status;
