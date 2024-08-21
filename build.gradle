@@ -40,7 +40,7 @@ dependencies {
 	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.12.3'
 
 	// security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 
 
@@ -57,7 +57,7 @@ dependencies {
 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.16.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mockito:mockito-core'
-	testImplementation 'org.springframework.security:spring-security-test'
+//	testImplementation 'org.springframework.security:spring-security-test'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
