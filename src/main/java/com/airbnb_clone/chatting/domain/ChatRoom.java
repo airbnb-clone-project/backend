@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
+import static lombok.AccessLevel.PRIVATE;
 
 @Document(collection = "CHAT_ROOM")
 @Getter
@@ -22,7 +23,7 @@ public class ChatRoom {
     @CreatedDate
     private Date createAt;
 
-    @Builder
+    @Builder(access = PRIVATE)
     private ChatRoom(List<Integer> participants) {
         this.participants = participants;
     }
