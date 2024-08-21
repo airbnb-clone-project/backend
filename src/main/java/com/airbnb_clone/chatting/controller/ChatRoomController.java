@@ -1,7 +1,6 @@
 package com.airbnb_clone.chatting.controller;
 
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +28,7 @@ public class ChatRoomController {
         ChatRoomNewResDto save = chatRoomService.save(chatRoomNewReqDto);
 
         return ResponseEntity.ok(
-                ApiResponse.of("생성 성공!", HttpStatus.OK, save)
+                ApiResponse.of("생성 성공!", 200, save)
         );
     }
 
