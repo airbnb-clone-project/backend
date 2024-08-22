@@ -29,7 +29,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final JdbcTemplate jdbcTemplate;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
 
