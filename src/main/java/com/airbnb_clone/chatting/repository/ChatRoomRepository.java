@@ -41,7 +41,7 @@ public class ChatRoomRepository {
      * @param id 채팅방의 키 값
      * @return Optional&lt;ChatRoom&gt;
      */
-    public Optional<ChatRoom> findById(ObjectId id) {
+    public Optional<ChatRoom> findById(String id) {
         return Optional.ofNullable(mt.findById(id, ChatRoom.class));
     }
 
