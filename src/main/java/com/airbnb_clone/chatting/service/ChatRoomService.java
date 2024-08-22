@@ -5,14 +5,13 @@ import com.airbnb_clone.chatting.repository.ChatRoomRepository;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.UserRoomsResponseDto;
+import com.airbnb_clone.exception.chatting.ChatRoomNotFoundException;
 import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +31,11 @@ public class ChatRoomService {
         String savedId = chatRoomRepository.save(chatRoom).toString();
 
         return new ChatRoomNewResDto(savedId);
+    }
+
+    public ChatRoom findById(String id) {
+        return chatRoomRepository.findById(id)
+                .orElseThrow(ChatRoomNotFoundException::new);
     }
 
     public List<UserRoomsResponseDto> findUserRooms(Integer id) {

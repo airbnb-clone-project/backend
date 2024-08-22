@@ -37,7 +37,7 @@ class ChatRoomRepositoryTest {
 
         ObjectId savedId = chatRoomRepository.save(chatRoom);
 
-        ChatRoom findChatRoom = chatRoomRepository.findById(savedId).get();
+        ChatRoom findChatRoom = chatRoomRepository.findById(savedId.toString()).get();
 
         assertThat(findChatRoom).usingRecursiveComparison().isEqualTo(chatRoom);
     }
