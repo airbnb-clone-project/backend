@@ -61,6 +61,17 @@ class ChatRoomServiceTest {
     }
 
     @Test
+    @DisplayName("채팅방 조회")
+    void chat_room_find() {
+        ObjectId savedId = chatRoomRepository.save(ChatRoom.of(List.of(0, 1)));
+
+        ChatRoom chatRoom = chatRoomService.findById(savedId.toString());
+
+        assertThat(chatRoom.getNo()).isEqualTo(savedId);
+        assertThat(chatRoom.getParticipants()).usingRecursiveFieldByFieldElementComparator().containsExactly(0, 1);
+    }
+
+    @Test
     @DisplayName("채팅방 중복 저장 예외")
     void save_duplicate_chat_room_exception() {
         ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
