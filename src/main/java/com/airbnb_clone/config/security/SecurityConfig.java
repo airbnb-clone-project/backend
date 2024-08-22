@@ -86,12 +86,12 @@ public class SecurityConfig {
          *  다른 파트 개발을 위해 모든 요청에 대해 권한 허용
          */
         http
+                // 모든 경로 권한 허용
                 .authorizeHttpRequests((auth) -> auth
-                        // 모든 경로 권한 허용
                         .requestMatchers("/api/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 );
-        // 권한 허용에 관해 정리되면 추가
+                // 권한 허용에 관해 정리되면 추가
 //                .authorizeHttpRequests((auth) -> auth
 //                        // 이 경로는 권안 허용, reissue: access가 만료되어 로그인이 안되어있는 상태기 때문에 permitAll()
 //                        .requestMatchers("/api/auth/login", "/", "/api/auth/register", "/api/auth/reissue").permitAll()
