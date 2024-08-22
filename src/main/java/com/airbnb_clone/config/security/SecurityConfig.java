@@ -4,6 +4,10 @@ package com.airbnb_clone.config.security;
 //import com.airbnb_clone.jwt.JwtUtil;
 //import com.airbnb_clone.jwt.LoginFilter;
 //import com.airbnb_clone.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.jwt.JwtFilter;
+import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.jwt.LoginFilter;
+import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,22 +18,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * packageName    : com.airbnb_clone.config;
+ * packageName    : com.airbnb_clone.config.security;
  * fileName       : SecurityConfig
  * author         : DK
- * date           : 24. 8. 16.
+ * date           : 24. 8. 22.
  * description    : Security 관련 @Bean 추가
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
- * 24. 8. 16.        DK       최초 생성
- * 24. 8. 17.        DK       로그인 관련 코드 추가(logout 관련 코드 주석처리 -> 추후 로그아웃 기능 추가할 때 확인)
- * 24. 8. 17.        DK       /login, /reissue, /register, / 경로에 대해 권한 필요 없게 수정
- * 24. 8. 18.        DK       로그인 관련 필터 추가
- * 24. 8. 22.        DK       security 추가를 위해 필터 경로 열어서 추가
+ * 24. 8. 22.        DK       최초 생성
  */
 
 @Configuration
@@ -40,9 +41,9 @@ public class SecurityConfig {
     // AuthenticationManager 가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     // JwtUtil: jwt 를 다루게 될 클래스
-//    private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     // RefreshTokenRepository : refresh token 을 저장할 클래스
-//    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean // password encoder 등록
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -101,15 +102,15 @@ public class SecurityConfig {
          *  OAuth2 적용시 로그인에서 무한 루프가 일어날 경우 .addFilterBefore() -> .addFilterAfter()
          *  JWTFilter(),  JWTUtil 사용
          */
-//        http
-//                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
+        http
+                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
 
         /*
          *  필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
          *  LoginFilter(), JWTUtil
          */
-//        http
-//                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+        http
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
 
 
         /*
