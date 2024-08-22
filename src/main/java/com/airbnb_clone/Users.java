@@ -20,6 +20,7 @@ public class Users extends BaseTime {
     private String lastName; // 닉네임
     private String spokenLanguage;
     private String country;
+    private String gender;
     private LocalDate birthday;
     private String profileImgUrl; // 프로필 사진
     private boolean isSocial;
