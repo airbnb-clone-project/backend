@@ -109,13 +109,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 응답 설정 4v2
         response.setHeader("Authorization", access); // access: header의 access key에다 넣어서 넘겨준다.
         response.addCookie(createCookie("refresh", refresh)); // refresh: cookie에 담아 헤더로 넘겨준다.
-        response.setContentType("application/json");
-        response.setStatus(200);
 
-        // response json형식으로 변환해서 반환
-        ErrorResponse errorResponse = new ErrorResponse(200, "일반 로그인이 완료 되었습니다.");
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(response.getOutputStream(), errorResponse);
+        setBody(response,200,"일반 로그인이 완료 되었습니다.");
     }
 
     /*
@@ -126,14 +121,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
         // status : 401, message : 로그인 실패 했습니다.
-        response.setContentType("application/json");
-        response.setStatus(401);
-
-        // response body
-        ErrorResponse errorResponse = new ErrorResponse(401,"로그인 실패 했습니다.");
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), errorResponse);
-
+        setBody(response,401,"로그인 실패 했습니다.");
     }
 
 
@@ -169,5 +157,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    public void setBody(HttpServletResponse response, int status, String message) throws IOException {
+
+        response.setContentType("application/json");
+        response.setStatus(status);
+
+        // response body
+        ErrorResponse errorResponse = new ErrorResponse(status, message);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }
