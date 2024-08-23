@@ -36,8 +36,4 @@ public class UserController {
         return userService.register(request);
     }
 
-    @PostMapping("/reissue")
-    public ResponseEntity<?> reissueUserToken(HttpServletResponse response, HttpServletRequest request) {
-        return null;
-    }
 }

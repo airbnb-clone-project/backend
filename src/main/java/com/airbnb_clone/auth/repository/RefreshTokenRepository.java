@@ -35,8 +35,26 @@ public class RefreshTokenRepository {
 
         } catch (DataAccessException e) {
 
-            // 로그 기록
             throw new RuntimeException("토큰 등록 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
+
+    // 같은 내용의 토큰이 있으면 true 반환
+    public Boolean existsByRefresh(String token) {
+        String sql = "SELECT * FROM refresh_token WHERE refresh = ?"; // 같은 내용의 토큰 있는지 확인
+        return jdbcTemplate.query(sql, (rs, nowNum) -> 0, token).isEmpty();
+    }
+
+    // 같은 내용의 토큰 삭제
+    public void deleteRefreshToken(String token) {
+        String sql = "DELETE FROM refresh_token WHERE refresh = ?";
+        try {
+            jdbcTemplate.update(sql, token);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("토큰 삭제 중 오류가 발생했습니다." + e.getMessage());
+        }
+    }
+
+    // 토큰 저장
+
 }
