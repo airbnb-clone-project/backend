@@ -4,6 +4,7 @@ package com.airbnb_clone.config.security;
 //import com.airbnb_clone.jwt.JwtUtil;
 //import com.airbnb_clone.jwt.LoginFilter;
 //import com.airbnb_clone.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.jwt.CustomLogoutFilter;
 import com.airbnb_clone.auth.jwt.JwtFilter;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.jwt.LoginFilter;
@@ -19,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -117,8 +119,10 @@ public class SecurityConfig {
          *  refresh token entity 추가되면 추가
          *  logout filter 추가
          */
-//        http
-//                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
+                .logout((logout) -> logout.logoutUrl("/api/auth/logout"));
+
 
         // 세션 설정(stateless)
         http
