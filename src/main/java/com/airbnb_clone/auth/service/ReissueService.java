@@ -22,7 +22,8 @@ import java.time.ZoneId;
  * fileName       : RefreshTokenRepository
  * author         : DK
  * date           : 24. 8. 23.
- * description    : refresh token repository
+ * description    : 토큰 reissue
+ *                  리이슈 요청시 기존 토큰 삭제 후 새로운 토큰 저장
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
@@ -94,7 +95,7 @@ public class ReissueService {
             status : 401 , message : 인증이 불가능한 토큰 입니다.
          */
         Boolean isExist = refreshTokenRepository.existsByRefresh(givenToken);
-        if (!isExist) {
+        if (isExist) {
 
             // response status code
             ErrorResponse errorResponse = new ErrorResponse(401, "인증이 불가능한 토큰 입니다.");
