@@ -32,6 +32,8 @@ public class SubmodulePreInitializer implements ApplicationContextInitializer<Co
     }
 
     private void updateSubmodule() {
+        grantPermission();
+
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", "setup/submodules/submodule-setup.sh");
 
@@ -56,6 +58,34 @@ public class SubmodulePreInitializer implements ApplicationContextInitializer<Co
             }
         } catch (InterruptedException | IOException e) {
             log.error("서브모듈 업데이트 중 오류가 발생했습니다", e);
+        }
+    }
+
+    private void grantPermission() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("bash", "-c", "chmod +x setup/submodules/submodule-setup.sh");
+
+        try {
+            Process startedProcess = processBuilder.start();
+            int exitCode = startedProcess.waitFor();
+
+            if (isSuccess(exitCode)) {
+                log.info("권한을 성공적으로 부여했습니다");
+                return;
+            }
+
+            if (isFailed(exitCode)) {
+                log.error("권한 부여에 실패했습니다 (하위 에러 확인)");
+
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(startedProcess.getErrorStream()))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        log.error(line);
+                    }
+                }
+            }
+        } catch (InterruptedException | IOException e) {
+            log.error("권한 부여 중 오류가 발생했습니다", e);
         }
     }
 
