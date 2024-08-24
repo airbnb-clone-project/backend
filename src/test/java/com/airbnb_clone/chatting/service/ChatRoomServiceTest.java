@@ -53,7 +53,7 @@ class ChatRoomServiceTest {
         ChatRoom chatRoom = ChatRoom.of(new ArrayList<>(List.of(0, 1)));
         ObjectId objectId = new ObjectId(new Date());
 
-        doReturn(objectId).when(chatRoomRepository).save(any(ChatRoom.class));
+        doReturn(objectId.toString()).when(chatRoomRepository).save(any(ChatRoom.class));
 
         ChatRoomNewResDto chatRoomNewResDto = chatRoomService.save(new ChatRoomNewReqDto(chatRoom.getParticipants()));
 
@@ -63,11 +63,11 @@ class ChatRoomServiceTest {
     @Test
     @DisplayName("채팅방 조회")
     void chat_room_find() {
-        ObjectId savedId = chatRoomRepository.save(ChatRoom.of(List.of(0, 1)));
+        String savedId = chatRoomRepository.save(ChatRoom.of(List.of(0, 1)));
 
-        ChatRoom chatRoom = chatRoomService.findById(savedId.toString());
+        ChatRoom chatRoom = chatRoomService.findById(savedId);
 
-        assertThat(chatRoom.getNo()).isEqualTo(savedId);
+        assertThat(chatRoom.getNo().toString()).isEqualTo(savedId);
         assertThat(chatRoom.getParticipants()).usingRecursiveFieldByFieldElementComparator().containsExactly(0, 1);
     }
 
