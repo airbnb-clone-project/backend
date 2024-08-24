@@ -31,11 +31,11 @@ class MessageRepositoryTest {
     @Test
     @DisplayName("메시지 저장 및 조회")
     void save_message_and_find() {
-        ObjectId savedId = messageRepository.save(Message.of(null, 1, "content"));
+        String savedId = messageRepository.save(Message.of(null, 1, "content"));
 
-        Message message = messageRepository.findById(savedId.toString()).get();
+        Message message = messageRepository.findById(savedId).get();
 
-        assertThat(message.getNo()).isEqualTo(savedId);
+        assertThat(message.getNo().toString()).isEqualTo(savedId);
         assertThat(message.getSenderNo()).isEqualTo(1);
         assertThat(message.getContent()).isEqualTo("content");
     }

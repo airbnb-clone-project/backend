@@ -50,11 +50,11 @@ class MessageServiceTest {
     void save_message() {
         ChatRoomNewResDto chatRoomId = chatRoomService.save(new ChatRoomNewReqDto(List.of(0, 1)));
 
-        ObjectId savedId = messageService.save(new SendMessageRequestDto(chatRoomId.getChatRoomId(), 0, "메시지"));
+        String savedId = messageService.save(new SendMessageRequestDto(chatRoomId.getChatRoomId(), 0, "메시지"));
 
-        Message message = messageService.findById(savedId.toString());
+        Message message = messageService.findById(savedId);
 
-        assertThat(message.getNo()).isEqualTo(savedId);
+        assertThat(message.getNo().toString()).isEqualTo(savedId);
         assertThat(message.getChatRoom().getNo().toString()).isEqualTo(chatRoomId.getChatRoomId());
         assertThat(message.getSenderNo()).isEqualTo(0);
         assertThat(message.getContent()).isEqualTo("메시지");
