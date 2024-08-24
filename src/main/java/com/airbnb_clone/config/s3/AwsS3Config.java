@@ -1,10 +1,8 @@
 package com.airbnb_clone.config.s3;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import software.amazon.awssdk.services.s3.S3Client;
 
 /**
  * packageName    : com.airbnb_clone.config.s3
@@ -20,15 +18,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Profile(value = {"local"})
 @Configuration
 public class AwsS3Config {
-    @Value("${aws.s3.accessKey}")
+    @Value("${AWS_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${aws.s3.secretKey}")
+    @Value("${AWS_SECRET_KEY}")
     private String secretKey;
 
-    @Bean
+    /*@Bean
     public S3Client s3Client() {
         //AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create();
         return null;
-    }
+    }*/
 }
