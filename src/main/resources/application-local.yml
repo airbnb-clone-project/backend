@@ -12,3 +12,11 @@ spring:
     mongodb:
       uri: mongodb://mongo:27017/airbnb
       database: airbnb
+
+  cloud:
+    aws:
+      s3:
+        endpoint: http://localhost:4566
+        accelerate-mode-enabled: true
+      region:
+        static: ap-northeast-2
