@@ -24,8 +24,8 @@ public class MessageController {
 
     @MessageMapping("/send")
     public void sendMessage(@Payload SendMessageRequestDto sendMessageRequestDto) {
-        ObjectId savedId = messageService.save(sendMessageRequestDto);
-        Message message = messageService.findById(savedId.toString());
+        String savedId = messageService.save(sendMessageRequestDto);
+        Message message = messageService.findById(savedId);
 
         SendMessageResponseDto sendMessageResponseDto =
                 SendMessageResponseDto.of(message.getChatRoom().getNo().toString(), message.getSenderNo(), message.getContent(), message.getCreateAt());

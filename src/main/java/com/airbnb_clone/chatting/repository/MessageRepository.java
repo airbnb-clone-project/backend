@@ -14,10 +14,10 @@ public class MessageRepository {
 
     private final MongoTemplate mt;
 
-    public ObjectId save(Message message) {
+    public String save(Message message) {
         mt.insert(message);
 
-        return message.getNo();
+        return message.getNo().toString();
     }
 
     public Optional<Message> findById(String id) {

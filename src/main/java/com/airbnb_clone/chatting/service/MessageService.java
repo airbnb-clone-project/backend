@@ -16,7 +16,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRoomService chatRoomService;
 
-    public ObjectId save(SendMessageRequestDto sendMessageRequestDto) {
+    public String save(SendMessageRequestDto sendMessageRequestDto) {
         ChatRoom chatRoom = chatRoomService.findById(sendMessageRequestDto.getChatRoomId());
 
         return messageRepository.save(Message.of(chatRoom, sendMessageRequestDto.getSenderNo(), sendMessageRequestDto.getContent()));
