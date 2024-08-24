@@ -28,7 +28,7 @@ public class ChatRoomService {
         duplicateChatRoomVerification(chatRoomNewRequestDto.getParticipants());
 
         ChatRoom chatRoom = ChatRoom.of(chatRoomNewRequestDto.getParticipants());
-        String savedId = chatRoomRepository.save(chatRoom).toString();
+        String savedId = chatRoomRepository.save(chatRoom);
 
         return new ChatRoomNewResDto(savedId);
     }

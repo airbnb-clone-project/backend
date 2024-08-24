@@ -27,12 +27,12 @@ public class ChatRoomRepository {
      * ChatRoom을 인자로 받아 몽고에 저장하고, 채팅방의 키 값을 반환합니다.
      *
      * @param chatRoom 채팅방 정보
-     * @return chatRoom
+     * @return chatRoomId
      */
-    public ObjectId save(ChatRoom chatRoom) {
+    public String save(ChatRoom chatRoom) {
         mt.insert(chatRoom);
 
-        return chatRoom.getNo();
+        return chatRoom.getNo().toString();
     }
 
     /**
