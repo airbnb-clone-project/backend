@@ -15,6 +15,13 @@
 - USERNAME: airbnb
 - PASSWORD: airbnb!!
 
+## 프로젝트 git submodule 을 최신화 불가능한 경우
+
+```bash
+git submodule update --remote 수행하여 원격을 최신화해야함 -> 이후 프로젝트 재 실행한다.
+ java/com/airbnb_clone/config/submodule/SubmodulePreInitializer.java 참고
+```
+
 ## Docker Compose 사용시 트러블 슈팅
 
 1. DB 연결 실패
