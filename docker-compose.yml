@@ -44,7 +44,24 @@ services:
       - ./setup/database/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - app-tier
-
+  #
+  localstack:
+    container_name: airbnb-localstack
+    image: localstack/localstack:3.6
+    restart: always
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=ap-northeast-2
+      - DEBUG=1
+    volumes:
+      - './localstack:/var/lib/localstack'
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - app-tier
+    depends_on:
+      - mongo
 volumes:
   mysql-data:
   mongo-data:
