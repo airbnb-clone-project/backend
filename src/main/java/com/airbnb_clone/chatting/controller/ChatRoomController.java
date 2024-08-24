@@ -25,19 +25,15 @@ public class ChatRoomController {
 
     @PostMapping(produces = "application/json; charset=utf8")
     public HttpEntity<ApiResponse<ChatRoomNewResDto>> create(@RequestBody ChatRoomNewReqDto chatRoomNewReqDto) {
-        ChatRoomNewResDto save = chatRoomService.save(chatRoomNewReqDto);
-
         return ResponseEntity.ok(
-                ApiResponse.of("생성 성공!", 200, save)
+                ApiResponse.of("생성 성공!", 200, chatRoomService.save(chatRoomNewReqDto))
         );
     }
 
     @GetMapping("/{userId}")
     public HttpEntity<ApiResponse<List<UserRoomsResponseDto>>> findUserRooms(@PathVariable Integer userId) {
-        List<UserRoomsResponseDto> userRooms = chatRoomService.findUserRooms(userId);
-
         return ResponseEntity.ok(
-                ApiResponse.of("채팅방 조회 완료!", 200, userRooms)
+                ApiResponse.of("채팅방 조회 완료!", 200, chatRoomService.findUserRooms(userId))
         );
     }
 
