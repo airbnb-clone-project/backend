@@ -18,5 +18,6 @@ spring:
       s3:
         endpoint: http://localhost:4566
         accelerate-mode-enabled: true
+        bucket-name: airbnb-clone-be-bucket
       region:
         static: ap-northeast-2
