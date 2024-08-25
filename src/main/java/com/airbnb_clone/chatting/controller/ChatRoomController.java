@@ -1,6 +1,7 @@
 package com.airbnb_clone.chatting.controller;
 
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.UserRoomsResponseDto;
+import com.airbnb_clone.common.global.response.ResponseCode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +27,14 @@ public class ChatRoomController {
     @PostMapping(produces = "application/json; charset=utf8")
     public HttpEntity<ApiResponse<ChatRoomNewResDto>> create(@RequestBody ChatRoomNewReqDto chatRoomNewReqDto) {
         return ResponseEntity.ok(
-                ApiResponse.of("생성 성공!", 200, chatRoomService.save(chatRoomNewReqDto))
+                ApiResponse.of(ResponseCode.CREATE_CHAT_ROOM, chatRoomService.save(chatRoomNewReqDto))
         );
     }
 
     @GetMapping("/{userId}")
     public HttpEntity<ApiResponse<List<UserRoomsResponseDto>>> findUserRooms(@PathVariable Integer userId) {
         return ResponseEntity.ok(
-                ApiResponse.of("채팅방 조회 완료!", 200, chatRoomService.findUserRooms(userId))
+                ApiResponse.of(ResponseCode.SEARCH_USER_CHAT_ROOMS, chatRoomService.findUserRooms(userId))
         );
     }
 
