@@ -1,5 +1,6 @@
 package com.airbnb_clone.config.s3;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 
 import java.net.URI;
+import java.time.Duration;
 
 /**
  * packageName    : com.airbnb_clone.config.s3
@@ -24,7 +26,10 @@ import java.net.URI;
  */
 @Profile(value = {"local"})
 @Configuration
+@Getter
 public class AwsS3Config {
+    private final static long EXPIRATION_TIME = 3600; // 1시간
+
     @Value("${AWS_ACCESS_KEY}")
     private String accessKey;
 
@@ -37,9 +42,12 @@ public class AwsS3Config {
     @Value("${spring.cloud.aws.s3.endpoint}")
     private String endpoint;
 
+    @Value("${spring.cloud.aws.s3.bucket-name}")
+    private String bucketName;
+
     @Bean
     public S3Client s3Client() {
-        AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsBasicCredentials awsBasicCredentials = getAwsBasicCredentials();
 
         return S3Client.builder()
                 .region(Region.of(region))
@@ -50,5 +58,17 @@ public class AwsS3Config {
                                 .pathStyleAccessEnabled(true).
                                 build())
                 .build();
+    }
+
+    public AwsBasicCredentials getAwsBasicCredentials() {
+        return AwsBasicCredentials.create(accessKey, secretKey);
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public Duration getExpirationTime() {
+        return Duration.ofSeconds(EXPIRATION_TIME);
     }
 }
