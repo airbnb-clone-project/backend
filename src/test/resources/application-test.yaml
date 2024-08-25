@@ -10,3 +10,11 @@ spring:
   h2:
     console:
       enabled: true
+
+  cloud:
+    aws:
+      s3:
+        endpoint: http://localhost:4566
+        accelerate-mode-enabled: true
+      region:
+        static: ap-northeast-2
