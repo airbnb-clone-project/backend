@@ -67,7 +67,7 @@ class ChatRoomControllerTest {
 
         doReturn(chatRoomNewResDto).when(chatRoomService).save(any(ChatRoomNewReqDto.class));
 
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-room")
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-rooms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(chatRoomNewReqDto)));
 
@@ -91,7 +91,7 @@ class ChatRoomControllerTest {
                 ApiResponse.of(DUPLICATE_CHAT_ROOM.getMessage(), DUPLICATE_CHAT_ROOM.getStatus(), ErrorResponse.of(DUPLICATE_CHAT_ROOM));
         String expectedJson = new Gson().toJson(expectedResponse);
 
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-room")
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/api/chat-rooms")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(chatRoomNewReqDto)));
 
@@ -117,7 +117,7 @@ class ChatRoomControllerTest {
 
         when(chatRoomService.findUserRooms(0)).thenReturn(list);
 
-        ResultActions perform = mockMvc.perform(MockMvcRequestBuilders.get("/api/chat-room/0"));
+        ResultActions perform = mockMvc.perform(MockMvcRequestBuilders.get("/api/chat-rooms/0"));
         MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
         String body = mvcResult.getResponse().getContentAsString();
 
