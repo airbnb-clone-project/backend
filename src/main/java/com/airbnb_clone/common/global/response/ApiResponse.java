@@ -14,10 +14,10 @@ public class ApiResponse<T> {
     private int status;
     private T data;
     
-    public static <T> ApiResponse<T> of(ResponseCode responseCode, T data) {
+    public static <T> ApiResponse<T> of(String message, int status, T data) {
         return ApiResponse.<T>builder()
-            .message(responseCode.getMessage())
-            .status(responseCode.getStatus())
+            .message(message)
+            .status(status)
             .data(data)
             .build();
     }
