@@ -2,12 +2,12 @@ package com.airbnb_clone.auth.service;
 
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
+import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +38,7 @@ public class UserService {
      * @param request username, password, birthday
      */
     public ResponseEntity<?> register(UserRegisterRequest request) {
+
 
         String username = request.getUsername();
         String password = bCryptPasswordEncoder.encode(request.getPassword());
@@ -74,13 +75,34 @@ public class UserService {
     }
 
 
+    public ResponseEntity<?> saveMoreUserInformation(MoreUserRegisterRequest request) {
+
+        String username = request.getUsername();
+
+        // 유저정보 없을경우 예외처리
+        if (userRepository.isUsernameNotExist(username)) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "없는 사용자입니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        userRepository.saveMoreUserInformation(request);
+
+        ErrorResponse errorResponse = new ErrorResponse(200, "추가정보 등록이 완료 되었습니다.");
+        return ResponseEntity
+                .ok()
+                .body(errorResponse);
+    }
+
+
     // username(email)에서 first name 생성
     public String makeFirstName(String username) {
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < username.length(); i++) {
             char currentChar = username.charAt(i);
-            if (Character.isDigit(currentChar) || (currentChar=='@')) {
+            if (Character.isDigit(currentChar) || (currentChar=='@') ||(currentChar=='.')) {
                 break;
             }
             if (Character.isLetter(currentChar)) {
