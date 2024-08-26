@@ -1,5 +1,6 @@
 package com.airbnb_clone.auth.controller;
 
+import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,9 +32,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/register") // username, password
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
         return userService.register(request);
+    }
+
+    @PostMapping("/more") // username, birthday, gender, spokenLanguage, country
+    public ResponseEntity<?> more(@RequestBody MoreUserRegisterRequest request) {
+        return userService.saveMoreUserInformation(request);
     }
 
 }

@@ -1,8 +1,11 @@
 package com.airbnb_clone.auth.repository;
 
+import com.airbnb_clone.auth.domain.SocialUser;
 import com.airbnb_clone.auth.domain.Users;
+import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -53,8 +56,39 @@ public class UserRepository {
                     user.getProfileImgUrl()
             );
         } catch (DataAccessException e) {
-            // 로그 기록
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    public Long findNoByUsername(String username) {
+        String sql = "SELECT no FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Long.class, username);
+        } catch (EmptyResultDataAccessException e) {
+            // 결과가 없을 경우 null 반환 또는 예외 처리
+            return null;
+        }
+
+    }
+
+    public void updateUsername(String username, String newFirstName) {
+        String sql = "UPDATE users SET first_name = ? WHERE username = ?";
+        jdbcTemplate.update(sql, newFirstName, username);
+    }
+
+    public void saveMoreUserInformation(MoreUserRegisterRequest request) {
+        String sql = "UPDATE users SET birthday = ?, gender = ?, spoken_language = ?, country = ? " +
+                "WHERE username = ?";
+        try {
+            jdbcTemplate.update(sql,
+                    request.getBirthday(),
+                    request.getGender(),
+                    request.getSpokenLanguage(),
+                    request.getCountry(),
+                    request.getUsername()
+            );
+        } catch (DataAccessException e) {
+            throw new RuntimeException("사용자 정보 등록 중 오류가 발생 했습니다.", e);
         }
     }
 
@@ -76,6 +110,4 @@ public class UserRepository {
             throw new RuntimeException("데이터베이스 조회 중 오류가 발생했습니다.", e);
         }
     }
-
-
 }

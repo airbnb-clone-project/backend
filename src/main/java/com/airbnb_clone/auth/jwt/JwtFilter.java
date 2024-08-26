@@ -49,7 +49,6 @@ public class JwtFilter extends OncePerRequestFilter {
             권한이 필요 없는 경우도 있기 때문에 다음 필터로 넘긴다. ex) /login, /reissue
          */
         if (accessToken == null) {
-            System.out.println("access token 이 헤더에 없습니다");
             filterChain.doFilter(request, response);
 
             return;
@@ -60,7 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
             만료시 예외 반환
          */
         try {
-            System.out.println("isExpired()");
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
 

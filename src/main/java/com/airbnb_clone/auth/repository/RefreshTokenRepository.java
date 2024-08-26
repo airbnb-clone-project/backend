@@ -3,8 +3,11 @@ package com.airbnb_clone.auth.repository;
 import com.airbnb_clone.auth.domain.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 /**
  * packageName    : com.airbnb_clone.auth.repository;
@@ -55,6 +58,17 @@ public class RefreshTokenRepository {
         }
     }
 
+    public Optional<String> findRefreshTokenByUsername(String username) {
+        String sql = "SELECT refresh FROM refresh_token WHERE username = ?";
+
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, String.class, username));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("리프레시 토큰 조회 중 오류가 발생했습니다", e);
+        }
+    }
     // 토큰 저장
 
 }
