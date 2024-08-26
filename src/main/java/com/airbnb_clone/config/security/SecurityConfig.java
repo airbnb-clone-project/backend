@@ -8,11 +8,15 @@ import com.airbnb_clone.auth.jwt.CustomLogoutFilter;
 import com.airbnb_clone.auth.jwt.JwtFilter;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.jwt.LoginFilter;
+import com.airbnb_clone.auth.oauth2.CustomSuccessHandler;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.service.oauth2.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +25,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -46,6 +54,9 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     // RefreshTokenRepository : refresh token 을 저장할 클래스
     private final RefreshTokenRepository refreshTokenRepository;
+    // CustomOAuth2UserService: social 로그인 요청에 대해 구분 하고 필드를 다루는 클래스
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
 
     @Bean // password encoder 등록
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -61,6 +72,29 @@ public class SecurityConfig {
     @Bean // 필터체인
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        // corf 설정
+        http
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+
+                        CorsConfiguration configuration = new CorsConfiguration();
+
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000 포트 허용
+                        configuration.setAllowedMethods(Collections.singletonList("*")); // 모든 종류의 요청 가능
+                        configuration.setAllowCredentials(true); // 크리덴셜 가능
+                        configuration.setAllowedHeaders(Collections.singletonList("*"));
+                        configuration.setMaxAge(3600L);
+
+                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                        return configuration;
+                    }
+
+                }));
+
         /*
          *  csrf disable
          *  CSRF: CSRF 공격은 사용자가 인증된 세션을 통해 악의적인 요청을 보내는 공격. Spring Security 는 기본적으로 CSRF 보호를 활성화합니다. -> disable
@@ -71,7 +105,7 @@ public class SecurityConfig {
 
         /*
          *  Form 로그인 방식 disable
-         8  토큰 기반 인증이나 OAuth2 등을 사용할 때 Form 로그인을 비활성화할 수 있다.
+            토큰 기반 인증이나 OAuth2 등을 사용할 때 Form 로그인을 비활성화할 수 있다.
          */
         http
                 .formLogin((auth) -> auth.disable());
@@ -84,6 +118,16 @@ public class SecurityConfig {
                 .httpBasic((auth) -> auth.disable());
 
         /*
+            OAuth2
+            소셜 로그인시 사용될 service 주입
+         */
+        http
+                .oauth2Login((oAuth2)-> oAuth2
+                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)))
+                        .successHandler(customSuccessHandler));
+
+        /*
          *  controller 의 인가 작업을 위한 코드
          *  접근 권한 설정
          *  다른 파트 개발을 위해 모든 요청에 대해 권한 허용
@@ -94,10 +138,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 );
-                // 권한 허용에 관해 정리되면 추가
+//                .authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers("/").permitAll()
+//                        .anyRequest().authenticated()
+//                );
+        // 권한 허용에 관해 정리되면 추가
 //                .authorizeHttpRequests((auth) -> auth
 //                        // 이 경로는 권안 허용, reissue: access가 만료되어 로그인이 안되어있는 상태기 때문에 permitAll()
-//                        .requestMatchers("/api/auth/login", "/", "/api/auth/register", "/api/auth/reissue").permitAll()
+//                        .requestMatchers("/login-failed","/api/auth/login", "/", "/api/auth/register", "/api/auth/reissue").permitAll()
 //                        .anyRequest().authenticated()); // 나머지 다른 요청에 대해서는 로그인 한 사람만 가능
 
         /*
