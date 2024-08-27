@@ -42,11 +42,10 @@ public class S3ImageServiceTest {
     @DisplayName("S3 이미지 URL이 정상으로 생성되는 경우")
     public void generatePresignedUrl() {
         // given
-        String imageObjectKey = "test";
         String contentType = "image/png";
 
         // when
-        String actualPreSignedUrl = s3ImageService.generatePresignedUrl(imageObjectKey, contentType);
+        String actualPreSignedUrl = s3ImageService.generatePresignedUrl(contentType);
 
         // then
         assertThat(actualPreSignedUrl).isNotNull();
@@ -57,12 +56,11 @@ public class S3ImageServiceTest {
     @DisplayName("S3 이미지 URL이 생성되지 않는 경우 - 컨텐츠 타입 불일치")
     public void generatePresignedUrlFail() {
         // given
-        String imageObjectKey = "test";
         String contentType = "image/jpg";
 
         // when
         // then
-        assertThatThrownBy(() -> s3ImageService.generatePresignedUrl(imageObjectKey, contentType))
+        assertThatThrownBy(() -> s3ImageService.generatePresignedUrl( contentType))
                 .isInstanceOf(ContentTypeNotMatchException.class)
                 .hasMessage("지원하지 않는 컨텐츠 타입입니다.");
     }
