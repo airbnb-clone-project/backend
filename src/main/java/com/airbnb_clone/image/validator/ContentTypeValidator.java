@@ -2,10 +2,8 @@ package com.airbnb_clone.image.validator;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.image.ContentTypeNotMatchException;
+import org.springframework.http.MediaType;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,18 +18,19 @@ import java.util.Set;
  * 24. 8. 25.        ipeac       최초 생성
  */
 public class ContentTypeValidator {
-    private static final Set<String> IMAGE_MIME_TYPES = new HashSet<>(Arrays.asList(
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/bmp",
-            "image/webp",
-            "image/tiff",
-            "image/svg+xml"
-    ));
+    private static final Set<MediaType> IMAGE_MIME_TYPES = Set.of(
+            MediaType.IMAGE_JPEG,
+            MediaType.IMAGE_PNG,
+            MediaType.IMAGE_GIF,
+            MediaType.valueOf("image/bmp"),
+            MediaType.valueOf("image/webp"),
+            MediaType.valueOf("image/tiff"),
+            MediaType.valueOf("image/svg+xml")
+    );
 
     public static boolean isValidImageContentType(String contentType) {
-        if (IMAGE_MIME_TYPES.contains(contentType)) {
+        MediaType mediaType = MediaType.parseMediaType(contentType);
+        if (IMAGE_MIME_TYPES.contains(mediaType)) {
             return true;
         }
 
