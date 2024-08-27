@@ -62,10 +62,6 @@ public class AwsS3Config {
         return AwsBasicCredentials.create(accessKey, secretKey);
     }
 
-    public String getBucketName() {
-        return bucketName;
-    }
-
     public Duration getExpirationTime() {
         return Duration.ofSeconds(EXPIRATION_TIME);
     }
