@@ -1,6 +1,7 @@
 package com.airbnb_clone.image.service;
 
 import com.airbnb_clone.config.s3.AwsS3Config;
+import com.airbnb_clone.image.helper.S3UniqueKeyGenerator;
 import com.airbnb_clone.image.validator.ContentTypeValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,22 +25,28 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 public class S3ImageService {
     private final AwsS3Config awsS3Config;
 
-    public String generatePresignedUrl(String ImageObjectKey, String contentType) {
+    public String generatePresignedUrl(String contentType) {
         ContentTypeValidator.isValidImageContentType(contentType);
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(awsS3Config.getExpirationTime())
-                .putObjectRequest(req -> {
-                    req.bucket(awsS3Config.getBucketName());
-                    req.key(ImageObjectKey);
-                    req.contentType(contentType);
-                })
-                .build();
+        String uniqueKey = S3UniqueKeyGenerator.generateUniqueKey();
+
+        PutObjectPresignRequest presignRequest = getPutObjectPresignRequest(contentType, uniqueKey);
 
         try (S3Presigner presigner = S3Presigner.create()) {
             PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
 
             return presignedRequest.url().toString();
         }
+    }
+
+    private PutObjectPresignRequest getPutObjectPresignRequest(String contentType, String uniqueKey) {
+        return PutObjectPresignRequest.builder()
+                .signatureDuration(awsS3Config.getExpirationTime())
+                .putObjectRequest(req -> {
+                    req.bucket(awsS3Config.getBucketName());
+                    req.key(uniqueKey);
+                    req.contentType(contentType);
+                })
+                .build();
     }
 }
