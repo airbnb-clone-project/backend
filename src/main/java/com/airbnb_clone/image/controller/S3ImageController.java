@@ -27,9 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class S3ImageController {
     private final S3ImageService s3ImageService;
 
+    /**
+     * Generate presigned url for image upload
+     *
+     * @param contentType image content type
+     * @return presigned url
+     */
     @GetMapping("/pre-signed-url/v1")
     public ApiResponse<String> getImage(@RequestParam String contentType) {
-        s3ImageService.generatePresignedUrl(MediaType.valueOf(contentType).toString());
-        return ApiResponse.of("이미지 URL을 가져오는 API입니다", HttpStatus.OK.value(), "success");
+        return ApiResponse.of("Presined URL generated successfully", HttpStatus.OK.value(), s3ImageService.generatePresignedUrl(MediaType.valueOf(contentType).toString()));
     }
 }
