@@ -28,11 +28,9 @@ public class S3ImageService {
     public String generatePresignedUrl(String contentType) {
         ContentTypeValidator.isValidImageContentType(contentType);
 
-        String uniqueKey = S3UniqueKeyGenerator.generateUniqueKey();
-
-        PutObjectPresignRequest presignRequest = getPutObjectPresignRequest(contentType, uniqueKey);
-
         try (S3Presigner presigner = S3Presigner.create()) {
+            PutObjectPresignRequest presignRequest = getPutObjectPresignRequest(contentType, S3UniqueKeyGenerator.generateUniqueKey());
+
             PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
 
             return presignedRequest.url().toString();
