@@ -15,9 +15,7 @@ import com.airbnb_clone.exception.ErrorCode;
  * 24. 8. 25.        ipeac       최초 생성
  */
 public class ContentTypeNotMatchException extends BusinessException {
-    private final String message;
-
     public ContentTypeNotMatchException(ErrorCode errorCode) {
-        this.message = errorCode.getMessage();
+        super(errorCode.getMessage());
     }
 }
