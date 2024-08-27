@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.OK;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/chat-rooms")
@@ -26,14 +28,14 @@ public class ChatRoomController {
     @PostMapping(produces = "application/json; charset=utf8")
     public HttpEntity<ApiResponse<ChatRoomNewResDto>> create(@RequestBody ChatRoomNewReqDto chatRoomNewReqDto) {
         return ResponseEntity.ok(
-                ApiResponse.of("생성 성공!", 200, chatRoomService.save(chatRoomNewReqDto))
+                ApiResponse.of("생성 성공!", OK.value(), chatRoomService.save(chatRoomNewReqDto))
         );
     }
 
     @GetMapping("/{userId}")
     public HttpEntity<ApiResponse<List<UserRoomsResponseDto>>> findUserRooms(@PathVariable Integer userId) {
         return ResponseEntity.ok(
-                ApiResponse.of("채팅방 조회 완료!", 200, chatRoomService.findUserRooms(userId))
+                ApiResponse.of("채팅방 조회 완료!", OK.value(), chatRoomService.findUserRooms(userId))
         );
     }
 
