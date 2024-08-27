@@ -1,0 +1,3 @@
+### S3  presinged URL 가져오기
+GET {{url}}/api/s3/images?contentType=image/jpeg
+Content-Type: application/json
