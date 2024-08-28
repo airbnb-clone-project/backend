@@ -24,11 +24,11 @@ import java.io.IOException;
  * author         : DK
  * date           : 24. 8. 22.
  * description    : access jwt 유효성을 검사하는 클래스. client 한테 받은 토큰을 확인.
- * <p>
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
+ * 24. 8. 29.        DK       Bearer 가 추가된 access token 을 사용할 수 있게 수정
  */
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -42,17 +42,23 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // header 에서 access 가져옴
-        String accessToken = request.getHeader("Authorization");
+        String bearerAccessToken = request.getHeader("Authorization");
+        String accessToken = null;
+
 
         /*
             토큰이 없으면 다음 필터로 넘어 간다.
             권한이 필요 없는 경우도 있기 때문에 다음 필터로 넘긴다. ex) /login, /reissue
          */
-        if (accessToken == null) {
+        if (bearerAccessToken == null) {
             filterChain.doFilter(request, response);
 
             return;
+        } else {
+            // Bearer 을 지운다.
+            accessToken = bearerAccessToken.substring(7);
         }
+
 
         /*
             토큰 만료 여부 확인. access token 만료 시간 확인

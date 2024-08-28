@@ -1,11 +1,9 @@
 package com.airbnb_clone.auth.oauth2;
 
 import com.airbnb_clone.auth.domain.RefreshToken;
-import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.CustomOAuth2User;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
