@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.repository;
+package com.airbnb_clone.pin.domain.dto.request;
 
 import lombok.*;
 
