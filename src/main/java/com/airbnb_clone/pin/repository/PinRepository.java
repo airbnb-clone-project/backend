@@ -4,6 +4,7 @@ import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -33,15 +34,20 @@ public class PinRepository {
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
-    public void save(PinTemp pinTemp) {
+    public ObjectId saveAndGetId(PinTemp pinTemp) {
         mt.save(pinTemp);
+        return pinTemp.getId();
     }
 
-    public void addInnerTempPin(@NotNull Long userNo, @NotNull String imgUrl) {
+    public ObjectId addInnerTempPinAndGetId(@NotNull Long userNo, @NotNull String imgUrl) {
         Query query = new Query(Criteria.where("user_no").is(userNo));
 
-        Update update = new Update().push("inner_temp_pins", InnerTempPin.of(imgUrl));
+        Update update = new Update().push("temp_pins", InnerTempPin.of(imgUrl));
 
         mt.updateFirst(query, update, PinTemp.class);
+
+        PinTemp updatedPinTemp = mt.findOne(query, PinTemp.class);
+
+        return updatedPinTemp != null ? updatedPinTemp.getId() : null;
     }
 }

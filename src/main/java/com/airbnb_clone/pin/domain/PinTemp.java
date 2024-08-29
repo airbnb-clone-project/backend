@@ -19,13 +19,13 @@ import java.util.List;
 @Builder
 public class PinTemp {
     @Id
-    public ObjectId id;
+    private ObjectId id;
 
     @Field(value = "user_no")
-    public Long userNo;
+    private Long userNo;
 
     @Field(value = "temp_pins")
-    public List<InnerTempPin> innerTempPins = new ArrayList<>();
+    private List<InnerTempPin> innerTempPins = new ArrayList<>();
 
     public static PinTemp of(Long userNo, List<InnerTempPin> innerTempPins) {
         return PinTemp.builder()
