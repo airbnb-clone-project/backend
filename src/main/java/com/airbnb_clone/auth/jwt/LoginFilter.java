@@ -144,8 +144,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .build();
 
         refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
-
-
     }
 
     // refresh token을 담기위한 쿠키 생성 메소드 4v2
