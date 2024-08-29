@@ -39,8 +39,8 @@ public class UserRepository {
     // 유저 저장
     public void registerUser(Users user) {
 
-        String sql = "INSERT INTO users (username, password, first_name, last_name, birthday, gender, spoken_language, country, is_social, profile_img_url) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, first_name, last_name, birthday, is_social) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
         try {
             jdbcTemplate.update(sql,
                     user.getUsername(),
@@ -48,11 +48,8 @@ public class UserRepository {
                     user.getFirstName(),
                     user.getLastName(),
                     user.getBirthday(),
-                    user.getGender(),
-                    user.getSpokenLanguage(),
-                    user.getCountry(),
-                    user.isSocial(),
-                    user.getProfileImgUrl()
+                    user.isSocial()
+
             );
         } catch (DataAccessException e) {
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);
