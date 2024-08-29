@@ -1,9 +1,13 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.pin.domain.InnerTempPin;
+import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.repository.PinRepository;
 import com.airbnb_clone.pin.repository.TemporaryPinCreateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * packageName    : com.airbnb_clone.pin.service
@@ -22,15 +26,15 @@ public class PinService {
     private final PinRepository pinRepository;
 
     public void createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
-  /*      pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
+        pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
                 .ifPresentOrElse(
                         pinTemp -> {
-                            pinTemp.updatePinImage(temporaryPinCreateRequestDTO.getFileUrl());
-                            pinRepository.save(pinTemp);
+                            pinRepository.addInnerTempPin(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl());
                         },
                         () -> {
-                            pinRepository.save(PinTemp.of(temporaryPinCreateRequestDTO.getFileUrl(), temporaryPinCreateRequestDTO.getUserNo()));
+                            PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), List.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
+                            pinRepository.save(createdTempPin);
                         }
-                );*/
+                );
     }
 }

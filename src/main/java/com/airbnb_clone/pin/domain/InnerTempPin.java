@@ -1,9 +1,9 @@
 package com.airbnb_clone.pin.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -11,8 +11,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@AllArgsConstructor
-public class TempPin {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class InnerTempPin {
     @Id
     public ObjectId id;
 
@@ -35,8 +36,15 @@ public class TempPin {
     public String link;
 
     @Field(value = "CREATED_AT")
+    @CreatedDate
     public LocalDateTime createdAt;
 
     @Field(value = "UPDATED_AT")
     public LocalDateTime updatedAt;
+
+    public static InnerTempPin of(@NotNull String imgUrl) {
+        return InnerTempPin.builder()
+                .imgUrl(imgUrl)
+                .build();
+    }
 }

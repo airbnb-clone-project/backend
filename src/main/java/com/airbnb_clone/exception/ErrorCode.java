@@ -15,11 +15,14 @@ public enum ErrorCode {
     // Message
     MESSAGE_NOT_FOUND(BAD_REQUEST.value(), "존재하지 않는 메시지입니다."),
 
-    // Image
-    CONTENT_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 컨텐츠 타입입니다.");;
+    //Pin
+    PIN_NOT_FOUND(BAD_REQUEST.value(), "존재하지 않는 핀입니다."),
 
-    private int status;
-    private String message;
+    // Image
+    CONTENT_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 컨텐츠 타입입니다.") ;
+
+    private final int status;
+    private final String message;
 
     ErrorCode(int status, String message) {
         this.status = status;
