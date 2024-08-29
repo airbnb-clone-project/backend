@@ -33,8 +33,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register") // username, password
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
-        return userService.register(request);
+    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request, HttpServletResponse response) {
+        return userService.register(request, response);
     }
 
     @PostMapping("/more") // username, birthday, gender, spokenLanguage, country
