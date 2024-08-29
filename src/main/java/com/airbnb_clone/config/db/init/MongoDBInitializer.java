@@ -36,7 +36,7 @@ public class MongoDBInitializer {
             dropIfExists("PIN_TEMPS");
 
             mongoTemplate.createCollection("PIN_TEMPS");
-            mongoTemplate.insert(new Document("USER_NO", "유저 번호").append("TEMP_PINS", new ArrayList<>()), "PIN_TEMPS");
+            mongoTemplate.insert(new Document("user_no", "유저 번호").append("temp_pins", new ArrayList<>()), "PIN_TEMPS");
 
             // 만약 이미 콜렉션이 존재한다면 삭제
             dropIfExists("CHAT_ROOM");
