@@ -2,8 +2,8 @@ package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
-import com.airbnb_clone.pin.repository.TemporaryPinCreateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
