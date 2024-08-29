@@ -1,6 +1,5 @@
 package com.airbnb_clone.auth.repository;
 
-import com.airbnb_clone.auth.domain.SocialUser;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import lombok.RequiredArgsConstructor;
