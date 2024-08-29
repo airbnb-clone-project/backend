@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(value = "PIN_TEMPS")
@@ -17,10 +18,10 @@ import java.util.List;
 public class PinTemp {
     @Id
     public ObjectId id;
-    
+
     @Field(value = "user_no")
     public String userNo;
-    
+
     @Field(value = "temp_pins")
-    public List<TempPin> tempPins;
+    public List<TempPin> tempPins = new ArrayList<>();
 }

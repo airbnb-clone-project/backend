@@ -1,5 +1,7 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.pin.repository.PinRepository;
+import com.airbnb_clone.pin.repository.TemporaryPinCreateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,5 +19,18 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PinService {
+    private final PinRepository pinRepository;
 
+    public void createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+  /*      pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
+                .ifPresentOrElse(
+                        pinTemp -> {
+                            pinTemp.updatePinImage(temporaryPinCreateRequestDTO.getFileUrl());
+                            pinRepository.save(pinTemp);
+                        },
+                        () -> {
+                            pinRepository.save(PinTemp.of(temporaryPinCreateRequestDTO.getFileUrl(), temporaryPinCreateRequestDTO.getUserNo()));
+                        }
+                );*/
+    }
 }
