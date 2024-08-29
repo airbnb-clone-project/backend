@@ -1,31 +1,22 @@
 package com.airbnb_clone.image.service;
 
+import com.airbnb_clone.common.testcontainer.LocalStackTestContainer;
 import com.airbnb_clone.config.s3.AwsS3Config;
 import com.airbnb_clone.exception.image.ContentTypeNotMatchException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DisplayName("S3 이미지 서비스 테스트")
-public class S3ImageServiceTest {
-
-    private static final DockerImageName LOCALSTACK_IMAGE = DockerImageName.parse("localstack/localstack:3.6");
-
-    private static LocalStackContainer localStackContainer;
+public class S3ImageServiceTest extends LocalStackTestContainer {
 
     private S3ImageService s3ImageService;
     private AwsS3Config s3Config;
-
-    @BeforeAll
-    public static void setUpAll() {
-        localStackContainer = new LocalStackContainer(LOCALSTACK_IMAGE)
-                .withServices(LocalStackContainer.Service.S3);
-        localStackContainer.start();
-    }
 
     @BeforeEach
     public void setUp() {
@@ -64,12 +55,5 @@ public class S3ImageServiceTest {
         assertThatThrownBy(() -> s3ImageService.generatePresignedUrl( contentType))
                 .isInstanceOf(ContentTypeNotMatchException.class)
                 .hasMessage("지원하지 않는 컨텐츠 타입입니다.");
-    }
-
-    @AfterAll
-    public static void tearDownAll() {
-        if (localStackContainer != null) {
-            localStackContainer.stop();
-        }
     }
 }
