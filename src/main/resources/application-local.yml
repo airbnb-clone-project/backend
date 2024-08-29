@@ -3,8 +3,8 @@ spring:
     init:
       mode: always
   config:
-    import: optional:file:backend-oauth-secret/oauth2-secret-file.env[.properties]
-
+    import:
+      - optional:file:backend-config-secret/s3-secret-file.env[.properties]
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql:3306/airbnb?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
