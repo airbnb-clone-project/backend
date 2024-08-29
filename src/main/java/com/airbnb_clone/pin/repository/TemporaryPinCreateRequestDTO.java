@@ -19,12 +19,12 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class TemporaryPinCreateRequestDTO {
-    private String fileUrl;
+    private String imageUrl;
     private Long userNo;
 
-    public static TemporaryPinCreateRequestDTO of(String fileUrl, Long userNo) {
+    public static TemporaryPinCreateRequestDTO of(String imageUrl, Long userNo) {
         return TemporaryPinCreateRequestDTO.builder()
-                .fileUrl(fileUrl)
+                .imageUrl(imageUrl)
                 .userNo(userNo)
                 .build();
     }
