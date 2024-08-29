@@ -38,10 +38,10 @@ import java.time.ZoneId;
 public class UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final ReissueService reissueService;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final ReissueService reissueService;
-
 
     /**
      * 회원가입
