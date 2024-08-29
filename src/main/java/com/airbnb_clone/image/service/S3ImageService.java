@@ -47,4 +47,8 @@ public class S3ImageService {
                 })
                 .build();
     }
+
+    public void updatePinImage(String fileUrl) {
+
+    }
 }
