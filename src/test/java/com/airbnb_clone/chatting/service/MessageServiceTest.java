@@ -6,7 +6,6 @@ import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.repository.Dto.message.SendMessageRequestDto;
 import com.airbnb_clone.chatting.repository.MessageRepository;
-import com.airbnb_clone.config.CustomContextInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = {CustomContextInitializer.class})
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class MessageServiceTest {

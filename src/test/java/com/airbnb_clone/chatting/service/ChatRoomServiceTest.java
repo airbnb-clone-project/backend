@@ -5,7 +5,6 @@ import com.airbnb_clone.chatting.repository.ChatRoomRepository;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewReqDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.ChatRoomNewResDto;
 import com.airbnb_clone.chatting.repository.Dto.chatRoom.UserRoomsResponseDto;
-import com.airbnb_clone.config.CustomContextInitializer;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import org.bson.types.ObjectId;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {CustomContextInitializer.class})
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class ChatRoomServiceTest {
