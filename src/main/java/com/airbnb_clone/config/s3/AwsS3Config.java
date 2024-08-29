@@ -28,10 +28,10 @@ import java.time.Duration;
 public class AwsS3Config {
     private final static long EXPIRATION_TIME = 3600; // 1시간
 
-    @Value("${AWS_ACCESS_KEY}")
+    @Value("${spring.cloud.aws.s3.access-key}")
     private String accessKey;
 
-    @Value("${AWS_SECRET_KEY}")
+    @Value("${spring.cloud.aws.s3.secret-key}")
     private String secretKey;
 
     @Value("${spring.cloud.aws.region.static}")
