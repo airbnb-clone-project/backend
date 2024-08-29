@@ -98,6 +98,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .lastName("")
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
+                    .isSocial(true)
                     .build();
 
             // user 저장
