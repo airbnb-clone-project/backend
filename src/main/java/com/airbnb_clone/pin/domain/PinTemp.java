@@ -1,5 +1,6 @@
 package com.airbnb_clone.pin.domain;
 
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +32,14 @@ public class PinTemp {
         return PinTemp.builder()
                 .userNo(userNo)
                 .innerTempPins(innerTempPins)
+                .build();
+    }
+
+    public TemporaryPinDetailResponseDTO toTemporaryPinDetailResponseDTO() {
+        return TemporaryPinDetailResponseDTO.builder()
+                .tempPinNo(this.id.toHexString())
+                .userNo(this.userNo)
+                .innerTempPins(this.innerTempPins)
                 .build();
     }
 }

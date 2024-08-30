@@ -1,8 +1,11 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -33,5 +36,10 @@ public class PinService {
                     PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), List.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
                     return pinRepository.saveAndGetId(createdTempPin);
                 });
+    }
+
+    public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
+        PinTemp foundTemp = pinRepository.findPinTempById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        return foundTemp;
     }
 }
