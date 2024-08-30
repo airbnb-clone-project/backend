@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -108,6 +109,17 @@ public class UserService {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(errorResponse);
+        }
+
+        // 입력 정보에 생일이 없고 db에 값이 있을경우 값이 바뀌면 안됨
+        // 입력 생일 없음
+        if (request.getBirthday()==null) {
+            // db 생일 있음
+            LocalDate birthday = userRepository.findBirthdayByUsername(username);
+            if (birthday != null) {
+                // 입력정보에 db 정보 업데이트
+                request.setBirthday(birthday);
+            }
         }
 
         userRepository.saveMoreUserInformation(request);
