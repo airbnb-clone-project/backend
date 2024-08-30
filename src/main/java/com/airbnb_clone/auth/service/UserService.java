@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -48,6 +49,7 @@ public class UserService {
      * 회원가입
      * @param request username, password, birthday
      */
+    @Transactional
     public ResponseEntity<?> register(UserRegisterRequest request, HttpServletResponse response) {
 
 
@@ -98,7 +100,7 @@ public class UserService {
                 .body(errorResponse);
     }
 
-
+    @Transactional
     public ResponseEntity<?> saveMoreUserInformation(MoreUserRegisterRequest request) {
 
         String username = request.getUsername();
