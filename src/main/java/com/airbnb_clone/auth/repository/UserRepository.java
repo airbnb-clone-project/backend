@@ -66,6 +66,7 @@ public class UserRepository {
             return null;
         }
     }
+
     public LocalDate findBirthdayByUsername(String username) {
         String sql = "SELECT birthday FROM users WHERE username = ?";
         try {
@@ -74,10 +75,24 @@ public class UserRepository {
             // 결과가 없을 경우 null 반환 또는 예외 처리
             return null;
         }
-
     }
 
-    public void updateUsername(String username, String newFirstName) {
+    public String findOldPasswordByUsername(String username) {
+        String sql = "SELECT password FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, username);
+        } catch (EmptyResultDataAccessException e) {
+            // 결과가 없을 경우 null 반환
+            return null;
+        }
+    }
+
+    public void updatePassword(String username, String password) {
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        jdbcTemplate.update(sql, password, username);
+    }
+
+    public void updateFirstName(String username, String newFirstName) {
         String sql = "UPDATE users SET first_name = ? WHERE username = ?";
         jdbcTemplate.update(sql, newFirstName, username);
     }
