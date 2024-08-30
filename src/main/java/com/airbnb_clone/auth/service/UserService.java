@@ -35,13 +35,13 @@ import java.time.ZoneId;
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
  * 24. 8. 30.        DK       계정 생성시 acc/ref token 생성
+ * 24. 8. 31.        DK       계정 추가정보 업데이트 기능 추가
  */
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
     private final ReissueService reissueService;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -52,7 +52,6 @@ public class UserService {
      */
     @Transactional
     public ResponseEntity<?> register(UserRegisterRequest request, HttpServletResponse response) {
-
 
         String username = request.getUsername();
         String password = bCryptPasswordEncoder.encode(request.getPassword());
@@ -134,6 +133,7 @@ public class UserService {
     }
 
     // 유저 비밀번호 변경
+    @Transactional
     public ResponseEntity<?> changePassword(NewPasswordRequest request) {
 
         String username = request.getUsername();
