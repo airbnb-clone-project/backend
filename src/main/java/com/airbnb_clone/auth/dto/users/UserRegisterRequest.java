@@ -24,7 +24,4 @@ public class UserRegisterRequest {
     private String username;
     private String password;
     private LocalDate birthday;
-    private String gender;
-    private String spokenLanguage;
-    private String country;
 }
