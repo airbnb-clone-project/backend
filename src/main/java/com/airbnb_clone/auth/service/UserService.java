@@ -4,6 +4,7 @@ import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
@@ -127,6 +128,35 @@ public class UserService {
         userRepository.saveMoreUserInformation(request);
 
         ErrorResponse errorResponse = new ErrorResponse(200, "추가정보 등록이 완료 되었습니다.");
+        return ResponseEntity
+                .ok()
+                .body(errorResponse);
+    }
+
+    // 유저 비밀번호 변경
+    public ResponseEntity<?> changePassword(NewPasswordRequest request) {
+
+        String username = request.getUsername();
+        String oldPassword = request.getPassword();
+        String newPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
+
+        /*
+            없을경우 그냥 업데이트(소셜유저인데 일반 로그인을 하지 않은 유저)
+            request에 옛날 비밀번호가 있을경우 비교 후 비밀번호 문제 없는지 확인 후 업데이트
+         */
+        String oldPasswordInDb = userRepository.findOldPasswordByUsername(username);
+        if (oldPasswordInDb == null) {
+            userRepository.updatePassword(username, newPassword);
+        } else if (bCryptPasswordEncoder.matches(oldPassword, oldPasswordInDb)) {
+            userRepository.updatePassword(username, newPassword);
+        } else {
+            ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다.");
+            return ResponseEntity
+                    .status(401)
+                    .body(errorResponse);
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(200, "비밀번호 변경 되었습니다.");
         return ResponseEntity
                 .ok()
                 .body(errorResponse);

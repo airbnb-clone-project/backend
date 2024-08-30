@@ -1,6 +1,7 @@
 package com.airbnb_clone.auth.controller;
 
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,4 +43,8 @@ public class UserController {
         return userService.saveMoreUserInformation(request);
     }
 
+    @PostMapping("/new-password")
+    public ResponseEntity<?> changePassword(@RequestBody NewPasswordRequest request) {
+        return userService.changePassword(request);
+    }
 }

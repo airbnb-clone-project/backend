@@ -140,7 +140,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             google 계정의 이름이 바뀌었을 수 있으니 이름 다시 저장
             username 기준 firstName 업데이트
             */
-            userRepository.updateUsername(username, name);
+            userRepository.updateFirstName(username, name);
 
             SocialUserDto socialUserDto = new SocialUserDto();
             socialUserDto.setName(name);
