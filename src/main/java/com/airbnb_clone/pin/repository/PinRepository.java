@@ -34,6 +34,10 @@ public class PinRepository {
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
+    public Optional<PinTemp> findPinTempById(@NotNull ObjectId id) {
+        return Optional.ofNullable(mt.findById(id, PinTemp.class));
+    }
+
     public ObjectId saveAndGetId(PinTemp pinTemp) {
         mt.save(pinTemp);
         return pinTemp.getId();
