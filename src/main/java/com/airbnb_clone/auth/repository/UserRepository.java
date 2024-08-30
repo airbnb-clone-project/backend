@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,15 @@ public class UserRepository {
         String sql = "SELECT no FROM users WHERE username = ?";
         try {
             return jdbcTemplate.queryForObject(sql, Long.class, username);
+        } catch (EmptyResultDataAccessException e) {
+            // 결과가 없을 경우 null 반환 또는 예외 처리
+            return null;
+        }
+    }
+    public LocalDate findBirthdayByUsername(String username) {
+        String sql = "SELECT birthday FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, LocalDate.class, username);
         } catch (EmptyResultDataAccessException e) {
             // 결과가 없을 경우 null 반환 또는 예외 처리
             return null;
