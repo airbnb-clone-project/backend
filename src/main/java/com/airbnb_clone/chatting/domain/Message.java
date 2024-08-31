@@ -4,12 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import static lombok.AccessLevel.*;
 
@@ -23,7 +21,6 @@ public class Message {
     private ChatRoom chatRoom;
     private Integer senderNo;
     private String content;
-
     private LocalDateTime createAt;
 
     @Builder(access = PRIVATE)
