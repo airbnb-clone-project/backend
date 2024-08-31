@@ -10,8 +10,8 @@ public class LocalDateTimeUtils {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static LocalDateTime parse(String s) {
-        return LocalDateTime.parse(s, FORMATTER);
+    public static LocalDateTime parse() {
+        return LocalDateTime.parse(LocalDateTime.now().format(FORMATTER), FORMATTER);
     }
 
     public static String format(LocalDateTime localDateTime) {
