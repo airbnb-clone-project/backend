@@ -65,4 +65,8 @@ public class AwsS3Config {
     public Duration getExpirationTime() {
         return Duration.ofSeconds(EXPIRATION_TIME);
     }
+
+    public Region getRegion() {
+        return Region.of(region);
+    }
 }

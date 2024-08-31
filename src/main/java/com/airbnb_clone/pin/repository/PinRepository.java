@@ -34,8 +34,11 @@ public class PinRepository {
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
-    public Optional<PinTemp> findPinTempById(@NotNull ObjectId id) {
-        return Optional.ofNullable(mt.findById(id, PinTemp.class));
+    public Optional<InnerTempPin> findInnerTempPinById(@NotNull ObjectId id) {
+        Query query = new Query(Criteria.where("temp_pins._id").is(id));
+
+        return Optional.ofNullable(mt.findOne(query, PinTemp.class))
+                .map(pinTemp -> pinTemp.getInnerTempPinById(id));
     }
 
     public ObjectId saveAndGetId(PinTemp pinTemp) {
@@ -43,7 +46,7 @@ public class PinRepository {
         return pinTemp.getId();
     }
 
-    public ObjectId addInnerTempPinAndGetId(@NotNull Long userNo, @NotNull String imgUrl) {
+    public ObjectId addInnerTempPinAndGetTempPinId(@NotNull Long userNo, @NotNull String imgUrl) {
         Query query = new Query(Criteria.where("user_no").is(userNo));
 
         Update update = new Update().push("temp_pins", InnerTempPin.of(imgUrl));

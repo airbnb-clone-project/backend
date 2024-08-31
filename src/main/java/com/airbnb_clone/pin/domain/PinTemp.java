@@ -1,6 +1,7 @@
 package com.airbnb_clone.pin.domain;
 
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,8 +11,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Document(value = "PIN_TEMPS")
 @Getter
@@ -26,20 +28,19 @@ public class PinTemp {
     private Long userNo;
 
     @Field(value = "temp_pins")
-    private List<InnerTempPin> innerTempPins = new ArrayList<>();
+    private Set<InnerTempPin> innerTempPins = new LinkedHashSet<>();
 
-    public static PinTemp of(Long userNo, List<InnerTempPin> innerTempPins) {
+    public static PinTemp of(Long userNo, Set<InnerTempPin> innerTempPins) {
         return PinTemp.builder()
                 .userNo(userNo)
                 .innerTempPins(innerTempPins)
                 .build();
     }
 
-    public TemporaryPinDetailResponseDTO toTemporaryPinDetailResponseDTO() {
-        return TemporaryPinDetailResponseDTO.builder()
-                .tempPinNo(this.id.toHexString())
-                .userNo(this.userNo)
-                .innerTempPins(this.innerTempPins)
-                .build();
+    public InnerTempPin getInnerTempPinById(ObjectId id) {
+        return innerTempPins.stream()
+                .filter(innerTempPin -> Objects.equals(innerTempPin.get_id(), id))
+                .findFirst()
+                .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
     }
 }

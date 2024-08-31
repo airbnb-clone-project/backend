@@ -6,3 +6,7 @@ Content-Type: application/json
     "imageUrl": "https://www.airbnb.co.kr/rooms/1000",
     "userNo": 1
 }
+
+### 임시 핀 조회
+GET {{url}}/api/pins/pin/temp/66d2c04741556212cde12580/v1
+Content-Type: application/json
