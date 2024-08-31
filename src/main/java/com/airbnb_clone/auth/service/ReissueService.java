@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,11 +32,12 @@ import java.time.ZoneId;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ReissueService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
+    @Transactional
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
         // 쿠키에서 refresh token 을 가져온다.
@@ -130,6 +132,7 @@ public class ReissueService {
                 .body(errorResponse);
     }
 
+    @Transactional
     public void addRefreshToken(String username, String refresh, Long expiredMs) {
 
         LocalDateTime expiration = LocalDateTime.ofInstant(
@@ -146,6 +149,7 @@ public class ReissueService {
         refreshTokenRepository.saveRefreshToken(refreshToken);
     }
 
+    // 쿠키 생성
     public Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

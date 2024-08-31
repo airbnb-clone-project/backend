@@ -28,39 +28,26 @@ import java.util.Objects;
 @Profile("local")
 public class MongoDBInitializer {
     private final MongoTemplate mongoTemplate;
-    
+
     @Bean
     CommandLineRunner initMongoDB() {
         return args -> {
             // 만약 이미 콜렉션이 존재한다면 삭제
             dropIfExists("PIN_TEMPS");
-            
+
             mongoTemplate.createCollection("PIN_TEMPS");
-            mongoTemplate.insert(new Document("USER_NO", "유저 번호").append("TEMP_PINS", new ArrayList<>()), "PIN_TEMPS");
-            
-            // 만약 이미 콜렉션이 존재한다면 삭제
-            dropIfExists("TEMP_PIN");
-            
-            mongoTemplate.createCollection("TEMP_PIN");
-            mongoTemplate.insert(new Document("IMG_URL", "핀 이미지 URL")
-                                         .append("TITLE", "핀 제목")
-                                         .append("DESCRIPTION", "핀 설명")
-                                         .append("LINK", "링크 URL")
-                                         .append("BOARD_NO", 0L)
-                                         .append("IS_COMMENT_ALLOWED", true)
-                                         .append("CREATED_AT", LocalDateTime.now())
-                                         .append("UPDATED_AT", LocalDateTime.now()), "TEMP_PIN");
-            
+            mongoTemplate.insert(new Document("user_no", "유저 번호").append("temp_pins", new ArrayList<>()), "PIN_TEMPS");
+
             // 만약 이미 콜렉션이 존재한다면 삭제
             dropIfExists("CHAT_ROOM");
-            
+
             mongoTemplate.createCollection("CHAT_ROOM");
             mongoTemplate.insert(new Document("PATICIPANTS", new ArrayList<>())
                                          .append("CREATED_AT", LocalDateTime.now()), "CHAT_ROOM");
-            
+
             // 만약 이미 콜렉션이 존재한다면 삭제
             dropIfExists("MESSAGE");
-            
+
             mongoTemplate.createCollection("MESSAGE");
             mongoTemplate.insert(new Document("ID", new org.bson.types.ObjectId())
                                          .append("SENDER_NO", 0L)
@@ -68,10 +55,10 @@ public class MongoDBInitializer {
                                          .append("CREATED_AT", LocalDateTime.now()), "MESSAGE");
         };
     }
-    
+
     private void dropIfExists(String collectionName) {
         Objects.requireNonNull(collectionName);
-        
+
         if (mongoTemplate.collectionExists(collectionName)) {
             mongoTemplate.dropCollection(collectionName);
         }

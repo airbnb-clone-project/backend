@@ -1,7 +1,17 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.pin.domain.InnerTempPin;
+import com.airbnb_clone.pin.domain.PinTemp;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.repository.PinRepository;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 /**
  * packageName    : com.airbnb_clone.pin.service
@@ -17,5 +27,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PinService {
+    private final PinRepository pinRepository;
 
+    public ObjectId createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+        return pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
+                .map(pinTemp -> pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
+                .orElseGet(() -> {
+                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
+
+                    pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl());
+
+                    return pinRepository.saveAndGetId(createdTempPin);
+                });
+    }
+
+    public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
+        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        return foundInnerPin.toTemporaryPinDetailResponseDTO();
+    }
 }

@@ -30,6 +30,7 @@ import java.time.ZoneId;
  * author         : DK
  * date           : 24. 8. 22.
  * description    : 로그인 필터 /api/auth/login 에 대한 POST 요청을 감시
+ *                  요청 정보를 확인하고 acc/refresh token 발급
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
@@ -143,8 +144,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .build();
 
         refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
-
-
     }
 
     // refresh token을 담기위한 쿠키 생성 메소드 4v2

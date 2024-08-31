@@ -2,7 +2,9 @@ spring:
   sql:
     init:
       mode: always
-
+  config:
+    import:
+      - optional:file:backend-config-secret/s3-secret-file.env[.properties]
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql:3306/airbnb?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
@@ -18,5 +20,8 @@ spring:
       s3:
         endpoint: http://localhost:4566
         accelerate-mode-enabled: true
+        bucket-name: airbnb-clone-be-bucket
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
       region:
         static: ap-northeast-2

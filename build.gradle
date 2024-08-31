@@ -62,7 +62,12 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// Test
-	testImplementation 'org.testcontainers:testcontainers:1.20.0'
+	testImplementation('org.testcontainers:testcontainers:1.20.0') {
+		exclude group: 'junit'
+	}
+	implementation 'org.testcontainers:localstack:1.20.0'
+	implementation 'org.testcontainers:mongodb:1.20.1'
+
 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.16.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mockito:mockito-core'
@@ -78,7 +83,3 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-
-
-

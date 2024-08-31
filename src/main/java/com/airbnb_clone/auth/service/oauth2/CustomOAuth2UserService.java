@@ -98,6 +98,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .lastName("")
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
+                    .isSocial(true)
                     .build();
 
             // user 저장
@@ -109,7 +110,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             // social user 객체 빌드
             SocialUser socialUser = SocialUser.builder()
-                    .userNo(userNo)
+                    .userNo(userNo) // Users 의 id
                     .provider(oAuth2Response.getProvider())
                     .providerId(oAuth2Response.getProviderId())
                     .createdAt(LocalDateTime.now())

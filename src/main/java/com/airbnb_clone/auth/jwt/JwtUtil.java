@@ -9,6 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static io.jsonwebtoken.Jwts.builder;
+
 /**
  * packageName    : com.airbnb_clone.auth.jwt;
  * fileName       : JwtUtil
@@ -19,6 +21,7 @@ import java.util.Date;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
+ * 24. 8. 29.        DK       access token 은 Bearer 추가되도록 수정
  */
 @Component
 public class JwtUtil {
@@ -31,13 +34,28 @@ public class JwtUtil {
 
     // 토큰 생성 (토큰 종류, 유저 이름, 유효 기간)
     public String createJwt(String tokenType, String username, Long expiredMs) {
-        return Jwts.builder()
-                .claim("tokenType", tokenType) // 4v2
-                .claim("username", username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
-                .signWith(secretKey)
-                .compact();
+        // access token
+        if (tokenType.equals("Authorization")) {
+            String jwt =Jwts.builder()
+                    .claim("tokenType", tokenType) // 4v2
+                    .claim("username", username)
+                    .issuedAt(new Date(System.currentTimeMillis()))
+                    .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                    .signWith(secretKey)
+                    .compact();
+
+            return "Bearer " + jwt;
+        }
+
+        // refresh token
+        else{
+            return Jwts.builder()
+                    .claim("tokenType", tokenType)
+                    .claim("username",username)
+                    .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                    .signWith(secretKey)
+                    .compact();
+        }
     }
 
     // 검증 : 토큰 종류 -> access, refresh 4v2

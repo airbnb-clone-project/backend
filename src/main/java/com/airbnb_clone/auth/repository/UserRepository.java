@@ -1,6 +1,5 @@
 package com.airbnb_clone.auth.repository;
 
-import com.airbnb_clone.auth.domain.SocialUser;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,8 +40,8 @@ public class UserRepository {
     // 유저 저장
     public void registerUser(Users user) {
 
-        String sql = "INSERT INTO users (username, password, first_name, last_name, birthday, gender, spoken_language, country, is_social, profile_img_url) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, first_name, last_name, birthday, is_social) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
         try {
             jdbcTemplate.update(sql,
                     user.getUsername(),
@@ -49,11 +49,8 @@ public class UserRepository {
                     user.getFirstName(),
                     user.getLastName(),
                     user.getBirthday(),
-                    user.getGender(),
-                    user.getSpokenLanguage(),
-                    user.getCountry(),
-                    user.isSocial(),
-                    user.getProfileImgUrl()
+                    user.isSocial()
+
             );
         } catch (DataAccessException e) {
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);
@@ -64,6 +61,15 @@ public class UserRepository {
         String sql = "SELECT no FROM users WHERE username = ?";
         try {
             return jdbcTemplate.queryForObject(sql, Long.class, username);
+        } catch (EmptyResultDataAccessException e) {
+            // 결과가 없을 경우 null 반환 또는 예외 처리
+            return null;
+        }
+    }
+    public LocalDate findBirthdayByUsername(String username) {
+        String sql = "SELECT birthday FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, LocalDate.class, username);
         } catch (EmptyResultDataAccessException e) {
             // 결과가 없을 경우 null 반환 또는 예외 처리
             return null;
