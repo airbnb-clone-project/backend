@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -20,17 +21,18 @@ public class ChatRoom {
     private ObjectId no;
     private List<Integer> participants;
 
-    @CreatedDate
-    private Date createAt;
+    private LocalDateTime createAt;
 
     @Builder(access = PRIVATE)
-    private ChatRoom(List<Integer> participants) {
+    private ChatRoom(List<Integer> participants, LocalDateTime createAt) {
         this.participants = participants;
+        this.createAt = createAt;
     }
 
     public static ChatRoom of(List<Integer> participants) {
         return ChatRoom.builder()
                 .participants(participants)
+                .createAt(LocalDateTime.now())
                 .build();
     }
 }
