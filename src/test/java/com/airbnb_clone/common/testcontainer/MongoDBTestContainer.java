@@ -2,7 +2,8 @@ package com.airbnb_clone.common.testcontainer;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.testcontainers.containers.GenericContainer;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -19,7 +20,12 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class MongoDBTestContainer {
     protected static final DockerImageName MONGO_IMAGE = DockerImageName.parse("mongo:8.0-rc");
-    protected static GenericContainer<?> mongodbContainer;
+    protected static MongoDBContainer  mongodbContainer;
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> mongodbContainer.getReplicaSetUrl("embedded"));
+    }
 
     @BeforeAll
     public static void setUpAll() {
