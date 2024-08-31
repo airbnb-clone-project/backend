@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * packageName    : com.airbnb_clone.pin.service
@@ -31,15 +31,18 @@ public class PinService {
 
     public ObjectId createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
         return pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
-                .map(pinTemp -> pinRepository.addInnerTempPinAndGetId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
+                .map(pinTemp -> pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
                 .orElseGet(() -> {
-                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), List.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
+                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
+
+                    pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl());
+
                     return pinRepository.saveAndGetId(createdTempPin);
                 });
     }
 
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
-        PinTemp foundTemp = pinRepository.findPinTempById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
-        return foundTemp;
+        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        return foundInnerPin.toTemporaryPinDetailResponseDTO();
     }
 }

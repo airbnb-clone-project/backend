@@ -28,7 +28,10 @@ public class S3ImageService {
     public String generatePresignedUrl(String contentType) {
         ContentTypeValidator.isValidImageContentType(contentType);
 
-        try (S3Presigner presigner = S3Presigner.create()) {
+        try (S3Presigner presigner = S3Presigner.builder()
+                .credentialsProvider(awsS3Config::getAwsBasicCredentials)
+                .region(awsS3Config.getRegion())
+                .build()) {
             PutObjectPresignRequest presignRequest = getPutObjectPresignRequest(contentType, S3UniqueKeyGenerator.generateUniqueKey());
 
             PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
@@ -46,9 +49,5 @@ public class S3ImageService {
                     req.contentType(contentType);
                 })
                 .build();
-    }
-
-    public void updatePinImage(String fileUrl) {
-
     }
 }
