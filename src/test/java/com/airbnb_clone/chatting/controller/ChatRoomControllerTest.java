@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import com.airbnb_clone.exception.handler.CustomExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import org.testcontainers.shaded.com.google.common.reflect.TypeToken;
 
 @ExtendWith(MockitoExtension.class)
 class ChatRoomControllerTest {
@@ -121,12 +123,11 @@ class ChatRoomControllerTest {
         MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
         String body = mvcResult.getResponse().getContentAsString();
 
-        ApiResponse<List<UserRoomsResponseDto>> actual = new Gson().<ApiResponse<List<UserRoomsResponseDto>>>fromJson(body, ApiResponse.class);
-        ApiResponse<List<UserRoomsResponseDto>> expected = new Gson().<ApiResponse<List<UserRoomsResponseDto>>>fromJson(expectedJson, ApiResponse.class);
+        Type ApiResponseType = new TypeToken<ApiResponse<List<UserRoomsResponseDto>>>() {}.getType();
 
-        assertThat(actual.getMessage()).isEqualTo(expected.getMessage());
-        assertThat(actual.getStatus()).isEqualTo(expected.getStatus());
-        assertThat(actual.getData()).isEqualTo(expected.getData());
+        ApiResponse<List<UserRoomsResponseDto>> actual = new Gson().fromJson(body, ApiResponseType);
+        ApiResponse<List<UserRoomsResponseDto>> expected = new Gson().fromJson(expectedJson, ApiResponseType);
 
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 }
