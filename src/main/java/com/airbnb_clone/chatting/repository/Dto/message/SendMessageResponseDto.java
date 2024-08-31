@@ -1,30 +1,31 @@
 package com.airbnb_clone.chatting.repository.Dto.message;
 
+import com.airbnb_clone.utills.LocalDateTimeUtils;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
+import static com.airbnb_clone.utills.LocalDateTimeUtils.format;
 import static lombok.AccessLevel.*;
 
 @NoArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
 @Builder(access = PRIVATE)
 @Getter
-@ToString
 public class SendMessageResponseDto {
 
     private String chatRoomId;
     private Integer senderNo;
     private String content;
-    private LocalDateTime createAt;
+    private String createAt;
 
     public static SendMessageResponseDto of(String chatRoomId, Integer senderNo, String content, LocalDateTime createAt) {
         return SendMessageResponseDto.builder()
                 .chatRoomId(chatRoomId)
                 .senderNo(senderNo)
                 .content(content)
-                .createAt(createAt)
+                .createAt(format(createAt))
                 .build();
     }
+
 }
