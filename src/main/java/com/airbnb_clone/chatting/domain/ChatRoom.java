@@ -1,6 +1,5 @@
 package com.airbnb_clone.chatting.domain;
 
-import com.airbnb_clone.utills.LocalDateTimeUtils;
 import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
@@ -10,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.airbnb_clone.utills.LocalDateTimeUtils.parse;
+import static com.airbnb_clone.utills.LocalDateTimeUtils.now;
 import static lombok.AccessLevel.PRIVATE;
 
 @Document(collection = "CHAT_ROOM")
@@ -32,7 +31,7 @@ public class ChatRoom {
     public static ChatRoom of(List<Integer> participants) {
         return ChatRoom.builder()
                 .participants(participants)
-                .createAt(parse())
+                .createAt(now())
                 .build();
     }
 }

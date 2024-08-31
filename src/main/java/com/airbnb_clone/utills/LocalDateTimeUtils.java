@@ -10,7 +10,7 @@ public class LocalDateTimeUtils {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static LocalDateTime parse() {
+    public static LocalDateTime now() {
         return LocalDateTime.parse(LocalDateTime.now().format(FORMATTER), FORMATTER);
     }
 

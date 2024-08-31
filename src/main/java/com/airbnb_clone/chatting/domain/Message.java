@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+import static com.airbnb_clone.utills.LocalDateTimeUtils.now;
 import static lombok.AccessLevel.*;
 
 @Document(collection = "MESSAGE")
@@ -36,7 +37,7 @@ public class Message {
                 .chatRoom(chatRoom)
                 .senderNo(senderNo)
                 .content(content)
-                .createAt(LocalDateTime.now())
+                .createAt(now())
                 .build();
     }
 }
