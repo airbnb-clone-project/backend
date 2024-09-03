@@ -1,5 +1,6 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
 import com.airbnb_clone.config.s3.AwsS3Config;
 import com.airbnb_clone.pin.domain.InnerTempPin;
@@ -12,19 +13,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@DataMongoTest
+@DataMongoTestAnnotation
 @Import(AwsS3Config.class)
 @DisplayName("핀 서비스 테스트")
-@ActiveProfiles("test")
 public class PinServiceTest extends MongoDBTestContainer {
     @Autowired
     private MongoTemplate mt;
@@ -112,6 +110,8 @@ public class PinServiceTest extends MongoDBTestContainer {
 
             // then
             assertThat(foundInnerPin.getImgUrl()).isEqualTo(pinTemp.getInnerTempPins().stream().findFirst().get().getImgUrl());
+            assertThat(foundInnerPin.getCreatedAt()).isNotNull();
+            assertThat(foundInnerPin.getUpdatedAt()).isNotNull();
         }
     }
 }
