@@ -51,7 +51,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         // 두가지의 토큰 생성 -> 생성에 3개의 값(토큰, 이메일, 토큰 만료 길이)이 필요
-        String access = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
+//        String access = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
         String refresh = jwtUtil.createJwt("refresh", username, 86400000L); // 24시간
 
         // refresh 토큰 저장
@@ -67,9 +67,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //        response.setHeader("Authorization", access); // access: header의 access key에다 넣어서 넘겨준다.
         response.addCookie(createCookie("refresh", refresh)); // refresh: cookie에 담아 헤더로 넘겨준다.
         response.sendRedirect("http://localhost:3000/"); // 리디렉션 주소
-
-
-
 
     }
 

@@ -1,24 +1,28 @@
 package com.airbnb_clone.auth.service;
 
+import com.airbnb_clone.auth.controller.UserController;
 import com.airbnb_clone.auth.domain.Users;
+import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -32,145 +36,135 @@ import static org.mockito.Mockito.when;
  * -----------------------------------------------------------
  * 2024. 8. 31.        doungukkim       최초 생성
  */
-class UserServiceTest {
 
+class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
     @Mock
-    public BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Mock
-    private ReissueService reissueService;
-    @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Mock
     private JwtUtil jwtUtil;
+
     @Mock
-    private HttpServletResponse response;
+    private ReissueService reissueService;
+
+    private MockHttpServletResponse response;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        response = new MockHttpServletResponse();
     }
 
+    String username = "test@test.com";
+    String oldPassword = "1234";
+    String encodedOldOne = "encoded1234";
+    String newPassword = "4321";
+    String encodedNewOne = "encoded4321";
     @Test
-    void register() {
-//        UserRegisterRequest request = new UserRegisterRequest();
-//        request.setUsername("test5478@test.com");
-//        request.setPassword("1234");
-//
-//        // "when 내가 가입할 이메일이 없는 상태"
-//        when(userRepository.isUsernameNotExist("test5478@test.com")).thenReturn(true);
-
-        // 생일 포함 저장
-        // 생일 미포함 저장
-        // 이메일 중복 가입
-        // 암호화 되는지 확인
-        // 소셜 로그인시 일반 회원가입 불가능 여부
-    }
-
-    @Test
-    void saveMoreUserInformation() {
-        // 유저 없는데 추가정보를 넣을 경우
-        // 생일 값이 있을 경우
-        // 생일 값이 없을 경우
-    }
-
-    @Test
-    void changePassword() {
-// 비밀번호 없는 유저 추가
-//        UserRegisterRequest request = new UserRegisterRequest();
-//        request.setUsername("test5478@test.com");
-//        Users users = Users.builder()
-//                .username(request.getUsername())
-//                .password(null)
-//                .build();
-//        userRepository.registerUser(users);
-//
-//        String oldPassword = userRepository.findOldPasswordByUsername(users.getUsername());
-//        System.out.println("Old password: " + oldPassword);
-//
-//        // 비밀번호 수정 요청
-//        NewPasswordRequest passwordRequest = new NewPasswordRequest();
-//        passwordRequest.setUsername("test5478@test.com");
-//        passwordRequest.setNewPassword("new");
-//        System.out.println("New password set: " + passwordRequest.getNewPassword());
-//
-//        userService.changePassword(passwordRequest);
-//
-//        String newPassword = userRepository.findOldPasswordByUsername(users.getUsername());
-//        System.out.println("Updated password: " + newPassword);
-//
-//        Assertions.assertThat(bCryptPasswordEncoder.matches("new", newPassword)).isEqualTo(true);
-
-//        // DB에 비밀번호가 없는 경우 -> 업데이트(o)
-//
-//        // 비밀번호 있는 유저 추가
-
-        when(bCryptPasswordEncoder.encode(anyString())).thenReturn("encodedPassword");
-
+    @DisplayName("이메일 회원가입 -성공")
+    void registerSuccess() {
         UserRegisterRequest request = new UserRegisterRequest();
-        request.setUsername("test5478@test.com");
-        request.setPassword("old");
-        System.out.println("request.getPassword() = " + request.getPassword());
+        request.setUsername("test@test.com");
+        request.setPassword("1234");
+
+        // Mock
+        // test@test.com 없음 -> true
+        when(userRepository.isUsernameNotExist("test@test.com")).thenReturn(true);
+        // 1234를 인코딩 할 경우 -> endocded1234
+        when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
+        // access 생성시 Authorization=accessToken
+        when(jwtUtil.createJwt(eq("Authorization"), eq("test@test.com"), anyLong())).thenReturn("accessToken");
+        // refresh 생성시 refresh=refreshToken
+        when(jwtUtil.createJwt(eq("refresh"), eq("test@test.com"), anyLong())).thenReturn("refreshToken");
+        // Mock the createCookie method
+        // refresh는 쿠키 안에 담겨 있어야 함
+        Cookie mockCookie = new Cookie("refresh", "refreshToken");
+        when(reissueService.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
+
+        // When
+        ResponseEntity<?> result = userService.register(request, response);
+
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        verify(userRepository).registerUser(any(Users.class));
+        verify(reissueService).addRefreshToken(eq("test@test.com"), eq("refreshToken"), anyLong());
+        assertEquals("accessToken", response.getHeader("Authorization"));
+        assertNotNull(response.getCookie("refresh"));
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(body.getStatus(), 200);
+        assertEquals(body.getMessage(), "일반 회원가입이 완료 되었습니다.");
+    }
 
 
-        userService.register(request, response);
+    @Test
+    @DisplayName("이메일 회원가입 실패 - 회원 중복")
+    void registerFailure() {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setUsername("test@test2.com");
+        request.setPassword("2222");
 
-        System.out.println("userRepository = " + userRepository.findByUsername("test5478@test.com"));
+        when(userRepository.isUsernameNotExist("test@test2.com")).thenReturn(false);
+
+        ResponseEntity<?> result = userService.register(request, response);
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(401, body.getStatus());
+        assertEquals("이미 존재하는 사용자입니다.", body.getMessage());
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 - 성공")
+    void changePasswordSuccess() {
+
+        NewPasswordRequest newPasswordRequest = new NewPasswordRequest();
+        newPasswordRequest.setPassword(oldPassword);
+        newPasswordRequest.setNewPassword(newPassword);
+        newPasswordRequest.setUsername(username);
+
+        // 바꾸기 전
+        when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedOldOne);
+        // 옛날 비밀번호 정확히 입력 했는지 확인
+        when(bCryptPasswordEncoder.matches(oldPassword, encodedOldOne)).thenReturn(true);
+
+        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
+
+        ResponseEntity<?> changePasswordResult = userService.changePassword(newPasswordRequest);
+
+        // 바꾼 후
+        when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedNewOne);
+
+        // Then
+        assertEquals(changePasswordResult.getStatusCode(), HttpStatus.OK);
+        assertEquals(encodedNewOne, userRepository.findOldPasswordByUsername(username));
 
 
-
-
-
-        // 비밀번호 수정 요청
-//        NewPasswordRequest passwordRequest = new NewPasswordRequest();
-//        // 비밀번호 있는 유저
-//        passwordRequest.setUsername("test5478@test.com");
-//        passwordRequest.setUsername("old");
-//        passwordRequest.setNewPassword("new");
-//
-//        userService.changePassword(passwordRequest);
-//
-//        String newPassword = userRepository.findOldPasswordByUsername(users.getUsername());
-
-//        Assertions.assertThat(bCryptPasswordEncoder.matches("new", newPassword)).isEqualTo(true);
-
-
-
-//        Users users = Users.builder()
-//                .username(request.getUsername())
-//                .password(request.getPassword())
-//                .build();
-//
-//        // 비밀번호 없는 유저
-//        UserRegisterRequest request2 = new UserRegisterRequest();
-//        request2.setUsername("test5478@test.com");
-//        request2.setPassword("1234");
-//        Users users = Users.builder()
-//                .username(request2.getUsername())
-//                .password(request2.getPassword())
-//                .build();
-//
-//        userRepository.registerUser(users);
-        // DB에 비밀번호가 없는 경우 -> 업데이트(o)
-        // DB에 비밀번호가 있는 경우 옛날 비밀번호 일치 -> 업데이트(o)
-        // DB에 비밀번호가 있는 경우 옛날 비밀번호 불일치 -> 업데이트(x)
+        ErrorResponse body = (ErrorResponse) changePasswordResult.getBody();
+        assertNotNull(body);
+        assertEquals(body.getMessage(), "비밀번호 변경 되었습니다.");
+        assertEquals(body.getStatus(),200);
 
     }
 
     @Test
-    void makeFirstName() {
-        // 알파벳만 있는 경우
-        // 알파뱃과 숫자가 있는 경우
-        // 알파뱃과 .이 있는 경우
+    @DisplayName("비밀번호 변경 - 실패")
+    void changePasswordFailure() {
+        UserRegisterRequest request3 = new UserRegisterRequest();
+        request3.setUsername("test@test.com");
+        request3.setPassword("1234");
 
-    }
+        when(userRepository.isUsernameNotExist("test@test.com")).thenReturn(true);
+        // 1234를 인코딩 할 경우 -> endocded1234
+        when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
 
-    @Test
-    void makeLastName() {
-        // 알파벳만 있는 경우
-        // 알파뱃과 숫자가 있는 경우
-        // 알파뱃과 .이 있는 경우
+
     }
 }
