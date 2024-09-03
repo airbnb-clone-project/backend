@@ -9,11 +9,13 @@ import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Document(value = "INNER_TEMP_PINS")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class InnerTempPin {
@@ -53,6 +55,8 @@ public class InnerTempPin {
         return InnerTempPin.builder()
                 ._id(new ObjectId())
                 .imgUrl(imgUrl)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 

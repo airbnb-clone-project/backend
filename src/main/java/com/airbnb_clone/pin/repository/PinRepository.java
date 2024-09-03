@@ -1,5 +1,7 @@
 package com.airbnb_clone.pin.repository;
 
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import jakarta.validation.constraints.NotNull;
@@ -34,14 +36,18 @@ public class PinRepository {
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
-    public Optional<InnerTempPin> findInnerTempPinById(@NotNull ObjectId id) {
-        Query query = new Query(Criteria.where("temp_pins._id").is(id));
+    public InnerTempPin findInnerTempPinById(@NotNull ObjectId id) {
+        Query query = new Query(Criteria.where("temp_pins").elemMatch(Criteria.where("_id").is(id)));
+        query.fields().include("temp_pins.$");
 
-        return Optional.ofNullable(mt.findOne(query, PinTemp.class))
-                .map(pinTemp -> pinTemp.getInnerTempPinById(id));
+        PinTemp result = mt.findOne(query, PinTemp.class);
+
+        return Optional.ofNullable(result)
+                .map(pinTemp -> pinTemp.getInnerTempPinById(id))
+                .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
     }
 
-    public ObjectId saveAndGetId(PinTemp pinTemp) {
+    public ObjectId saveAndGetPinId(PinTemp pinTemp) {
         mt.save(pinTemp);
         return pinTemp.getId();
     }
@@ -49,12 +55,12 @@ public class PinRepository {
     public ObjectId addInnerTempPinAndGetTempPinId(@NotNull Long userNo, @NotNull String imgUrl) {
         Query query = new Query(Criteria.where("user_no").is(userNo));
 
-        Update update = new Update().push("temp_pins", InnerTempPin.of(imgUrl));
+        InnerTempPin insertInnerTempPin = InnerTempPin.of(imgUrl);
+
+        Update update = new Update().push("temp_pins", insertInnerTempPin);
 
         mt.updateFirst(query, update, PinTemp.class);
 
-        PinTemp updatedPinTemp = mt.findOne(query, PinTemp.class);
-
-        return updatedPinTemp != null ? updatedPinTemp.getId() : null;
+        return insertInnerTempPin.get_id();
     }
 }

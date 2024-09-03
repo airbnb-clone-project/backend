@@ -7,6 +7,7 @@ Content-Type: application/json
     "userNo": 1
 }
 
+
 ### 임시 핀 조회
-GET {{url}}/api/pins/pin/temp/66d2c04741556212cde12580/v1
+GET {{url}}/api/pins/pin/temp/66d71d0a1717132b98d36c2e/v1
 Content-Type: application/json
