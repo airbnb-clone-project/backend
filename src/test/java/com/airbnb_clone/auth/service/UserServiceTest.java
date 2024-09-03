@@ -8,6 +8,7 @@ import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * packageName    : com.airbnb_clone.auth.service
@@ -105,7 +105,7 @@ class UserServiceTest {
 
 
     @Test
-    @DisplayName("이메일 회원가입 실패 - 회원 중복")
+    @DisplayName("이메일 회원가입 - 실패(회원 중복)")
     void registerFailure() {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setUsername("test@test2.com");
@@ -122,7 +122,29 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 변경 - 성공")
+    @DisplayName("비밀번호 변경 - 성공(기존 비밀번호 없음")
+    void changePasswordSuccess2() {
+        NewPasswordRequest request = new NewPasswordRequest();
+        request.setPassword(oldPassword);
+        request.setNewPassword(newPassword);
+        request.setUsername(username);
+
+
+        when(userRepository.findOldPasswordByUsername(username)).thenReturn(null);
+        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
+
+        ResponseEntity<?> result = userService.changePassword(request);
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(200, body.getStatus());
+        assertEquals("비밀번호 변경 되었습니다.", body.getMessage());
+        verify(userRepository, times(1)).updatePassword(username, encodedNewOne);
+
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 - 성공(기존 비밀번호 있음)")
     void changePasswordSuccess() {
 
         NewPasswordRequest newPasswordRequest = new NewPasswordRequest();
@@ -150,21 +172,32 @@ class UserServiceTest {
         ErrorResponse body = (ErrorResponse) changePasswordResult.getBody();
         assertNotNull(body);
         assertEquals(body.getMessage(), "비밀번호 변경 되었습니다.");
-        assertEquals(body.getStatus(),200);
+        assertEquals(body.getStatus(), 200);
+        verify(userRepository, times(1)).updatePassword(username, encodedNewOne);
 
     }
 
     @Test
-    @DisplayName("비밀번호 변경 - 실패")
+    @DisplayName("비밀번호 변경 - 실패(틀린 기존 비밀번호 입력)")
     void changePasswordFailure() {
-        UserRegisterRequest request3 = new UserRegisterRequest();
-        request3.setUsername("test@test.com");
-        request3.setPassword("1234");
 
-        when(userRepository.isUsernameNotExist("test@test.com")).thenReturn(true);
-        // 1234를 인코딩 할 경우 -> endocded1234
-        when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
+        NewPasswordRequest request = new NewPasswordRequest();
+        request.setUsername(username);
+        request.setPassword(oldPassword);
+        request.setNewPassword(newPassword);
 
+        when(userRepository.findOldPasswordByUsername(username)).thenReturn("dbPassword");
 
+        String dbPassword = userRepository.findOldPasswordByUsername(username);
+
+        when(bCryptPasswordEncoder.matches(oldPassword, dbPassword)).thenReturn(false);
+
+        ResponseEntity<?> result = userService.changePassword(request);
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(401, body.getStatus());
+        assertEquals("비밀번호 변경 실패 했습니다.",body.getMessage());
+        verify(userRepository, never()).updatePassword(anyString(), anyString());
     }
 }
