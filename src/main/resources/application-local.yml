@@ -25,3 +25,11 @@ spring:
         secret-key: ${AWS_SECRET_KEY}
       region:
         static: ap-northeast-2
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        data:
+#          mongodb:
+#            core:
+#              MongoTemplate: DEBUG

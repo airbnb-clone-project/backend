@@ -1,7 +1,5 @@
 package com.airbnb_clone.pin.service;
 
-import com.airbnb_clone.exception.ErrorCode;
-import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
@@ -33,16 +31,18 @@ public class PinService {
         return pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
                 .map(pinTemp -> pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
                 .orElseGet(() -> {
-                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl())));
+                    InnerTempPin insertedInnserTempPin = InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl());
 
-                    pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl());
+                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(insertedInnserTempPin));
 
-                    return pinRepository.saveAndGetId(createdTempPin);
+                    pinRepository.saveAndGetPinId(createdTempPin);
+
+                    return insertedInnserTempPin.get_id();
                 });
     }
 
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
-        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo));
         return foundInnerPin.toTemporaryPinDetailResponseDTO();
     }
 }

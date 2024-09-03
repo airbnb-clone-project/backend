@@ -33,8 +33,7 @@ public class PinController {
     }
 
     @PostMapping("/pin/temp/v1")
-    public ApiResponse<Long> uploadImage(@RequestBody TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
-        pinService.createTempPin(temporaryPinCreateRequestDTO);
-        return ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), 1L);
+    public ApiResponse<String> uploadImage(@RequestBody TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+        return ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), pinService.createTempPin(temporaryPinCreateRequestDTO).toString());
     }
 }

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -28,6 +29,7 @@ public class PinTemp {
     private Long userNo;
 
     @Field(value = "temp_pins")
+    @Indexed
     private Set<InnerTempPin> innerTempPins = new LinkedHashSet<>();
 
     public static PinTemp of(Long userNo, Set<InnerTempPin> innerTempPins) {
