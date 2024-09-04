@@ -1,15 +1,12 @@
 package com.airbnb_clone.auth.service;
 
-import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
-import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 
 /**
@@ -37,6 +32,7 @@ import java.time.ZoneId;
  * 24. 8. 22.        DK       최초 생성
  * 24. 8. 30.        DK       계정 생성시 acc/ref token 생성
  * 24. 8. 31.        DK       계정 추가정보 업데이트 기능 추가
+ * 24. 9. 04.        DK       추가정보, 비밀번호 변경 username 입력 받지 않게 변경
  */
 @Service
 @RequiredArgsConstructor
@@ -56,6 +52,7 @@ public class UserService {
 
         String username = request.getUsername();
         String password = bCryptPasswordEncoder.encode(request.getPassword());
+
 
         // 유저정보 있을경우 예외처리
         if (!userRepository.isUsernameNotExist(username)) {
@@ -104,7 +101,8 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> saveMoreUserInformation(MoreUserRegisterRequest request) {
 
-        String username = request.getUsername();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        request.setUsername(username);
 
         // 유저정보 없을경우 예외처리
         if (userRepository.isUsernameNotExist(username)) {
@@ -137,12 +135,16 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> changePassword(NewPasswordRequest request) {
 
-
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         String oldPassword = request.getPassword();
         String newPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
 
-
+        if (username.equals("anonymousUser")) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다 ㅎㅎ.");
+            return ResponseEntity
+                    .status(401)
+                    .body(errorResponse);
+        }
 
         /*
             없을경우 그냥 업데이트(소셜유저인데 일반 로그인을 하지 않은 유저)
