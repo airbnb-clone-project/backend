@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2024. 8. 31.        doungukkim       최초 생성
+ *
  */
 
 class UserServiceTest {
@@ -63,9 +64,10 @@ class UserServiceTest {
 
     String username = "test@test.com";
     String oldPassword = "1234";
-    String encodedOldOne = "encoded1234";
     String newPassword = "4321";
+    String encodedOldOne = "encoded1234";
     String encodedNewOne = "encoded4321";
+
     @Test
     @DisplayName("이메일 회원가입 -성공")
     void registerSuccess() {
@@ -113,6 +115,7 @@ class UserServiceTest {
 
         when(userRepository.isUsernameNotExist("test@test2.com")).thenReturn(false);
 
+        // when
         ResponseEntity<?> result = userService.register(request, response);
 
         ErrorResponse body = (ErrorResponse) result.getBody();
@@ -122,7 +125,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 변경 - 성공(기존 비밀번호 없음")
+    @DisplayName("비밀번호 변경 - 성공(기존 비밀번호 없음)")
     void changePasswordSuccess2() {
         NewPasswordRequest request = new NewPasswordRequest();
         request.setPassword(oldPassword);
@@ -133,6 +136,7 @@ class UserServiceTest {
         when(userRepository.findOldPasswordByUsername(username)).thenReturn(null);
         when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
 
+        // when
         ResponseEntity<?> result = userService.changePassword(request);
 
         ErrorResponse body = (ErrorResponse) result.getBody();
@@ -159,8 +163,8 @@ class UserServiceTest {
 
         when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
 
+        // when
         ResponseEntity<?> changePasswordResult = userService.changePassword(newPasswordRequest);
-
         // 바꾼 후
         when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedNewOne);
 
@@ -169,6 +173,7 @@ class UserServiceTest {
         assertEquals(encodedNewOne, userRepository.findOldPasswordByUsername(username));
 
 
+        // response body 확인, 업데이트 1회 사용, 사용시 username과 encodedNewOne 사용
         ErrorResponse body = (ErrorResponse) changePasswordResult.getBody();
         assertNotNull(body);
         assertEquals(body.getMessage(), "비밀번호 변경 되었습니다.");
@@ -186,14 +191,17 @@ class UserServiceTest {
         request.setPassword(oldPassword);
         request.setNewPassword(newPassword);
 
+        // db 안의 유저 비밀번호 조회시 -> dbPassword
         when(userRepository.findOldPasswordByUsername(username)).thenReturn("dbPassword");
 
         String dbPassword = userRepository.findOldPasswordByUsername(username);
 
+        // 유저가 입력한 비밀번호와 저장되어있던 비밀번호 비교시 -> false(다르다)
         when(bCryptPasswordEncoder.matches(oldPassword, dbPassword)).thenReturn(false);
 
         ResponseEntity<?> result = userService.changePassword(request);
 
+        // body 확인, 업데이트 함수 사용했는지 확인
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
         assertEquals(401, body.getStatus());
