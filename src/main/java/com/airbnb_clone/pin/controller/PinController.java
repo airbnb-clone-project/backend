@@ -3,6 +3,7 @@ package com.airbnb_clone.pin.controller;
 import com.airbnb_clone.common.global.response.ApiResponse;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.service.PinService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class PinController {
     }
 
     @GetMapping("/pin/temps/{user-no}/v1")
-    public ApiResponse<List<TemporaryPinDetailResponseDTO>> getTempPins(@PathVariable("user-no") Long userNo) {
+    public ApiResponse<List<TemporaryPinsResponseDTO>> getTempPins(@PathVariable("user-no") Long userNo) {
         return ApiResponse.of("임시핀 목록 조회 성공", HttpStatus.OK.value(), pinService.getTempPins(userNo));
     }
 
