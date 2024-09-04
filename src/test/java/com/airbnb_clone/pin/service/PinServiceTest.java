@@ -7,6 +7,7 @@ import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -126,13 +127,20 @@ public class PinServiceTest extends MongoDBTestContainer {
             mt.save(pinTemp);
 
             // when
-            List<TemporaryPinDetailResponseDTO> foundInnerPins = pinService.getTempPins(1L);
+            List<TemporaryPinsResponseDTO> foundInnerPins = pinService.getTempPins(1L);
 
             // then
             assertThat(foundInnerPins.size()).isEqualTo(2);
+
             assertThat(foundInnerPins)
-                    .extracting(TemporaryPinDetailResponseDTO::getImgUrl)
+                    .extracting(TemporaryPinsResponseDTO::getImgUrl)
                     .containsExactlyInAnyOrder(e1.getImgUrl(), e2.getImgUrl());
+
+            assertThat(foundInnerPins).allSatisfy(pin -> {
+                assertThat(pin.getCreatedAt()).isNotNull();
+                assertThat(pin.getUpdatedAt()).isNotNull();
+                assertThat(pin.getTempPinNo()).isNotNull();
+            });
         }
     }
 }
