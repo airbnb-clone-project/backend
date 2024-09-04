@@ -1,14 +1,18 @@
 package com.airbnb_clone.pin.service;
 
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,5 +48,13 @@ public class PinService {
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
         InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo));
         return foundInnerPin.toTemporaryPinDetailResponseDTO();
+    }
+
+    public List<TemporaryPinDetailResponseDTO> getTempPins(@NotNull Long userNo) {
+        PinTemp foundTempPin = pinRepository.findPinTempByUserNo(userNo).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+
+        return foundTempPin.getInnerTempPins().stream()
+                .map(InnerTempPin::toTemporaryPinDetailResponseDTO)
+                .toList();
     }
 }

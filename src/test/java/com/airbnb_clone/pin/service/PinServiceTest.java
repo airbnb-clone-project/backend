@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -112,6 +113,26 @@ public class PinServiceTest extends MongoDBTestContainer {
             assertThat(foundInnerPin.getImgUrl()).isEqualTo(pinTemp.getInnerTempPins().stream().findFirst().get().getImgUrl());
             assertThat(foundInnerPin.getCreatedAt()).isNotNull();
             assertThat(foundInnerPin.getUpdatedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("임시 핀 리스트 조회 성공 케이스")
+        public void When_getTemporaryPins_Expect_Success() {
+            // given
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin e2 = InnerTempPin.of(SecondImageRequestOfFirstUser.getImageUrl());
+
+            PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1, e2));
+            mt.save(pinTemp);
+
+            // when
+            List<TemporaryPinDetailResponseDTO> foundInnerPins = pinService.getTempPins(1L);
+
+            // then
+            assertThat(foundInnerPins.size()).isEqualTo(2);
+            assertThat(foundInnerPins)
+                    .extracting(TemporaryPinDetailResponseDTO::getImgUrl)
+                    .containsExactlyInAnyOrder(e1.getImgUrl(), e2.getImgUrl());
         }
     }
 }
