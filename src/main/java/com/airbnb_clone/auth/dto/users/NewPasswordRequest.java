@@ -17,6 +17,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class NewPasswordRequest {
+    private String username;
     private String password;
     private String newPassword;
 }
