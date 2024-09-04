@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,9 +137,12 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> changePassword(NewPasswordRequest request) {
 
-        String username = request.getUsername();
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         String oldPassword = request.getPassword();
         String newPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
+
+
 
         /*
             없을경우 그냥 업데이트(소셜유저인데 일반 로그인을 하지 않은 유저)
