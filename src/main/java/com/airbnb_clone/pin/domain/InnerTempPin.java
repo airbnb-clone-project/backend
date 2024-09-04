@@ -1,6 +1,7 @@
 package com.airbnb_clone.pin.domain;
 
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -62,6 +63,20 @@ public class InnerTempPin {
 
     public TemporaryPinDetailResponseDTO toTemporaryPinDetailResponseDTO() {
         return TemporaryPinDetailResponseDTO.builder()
+                .title(title)
+                .description(description)
+                .imgUrl(imgUrl)
+                .link(link)
+                .isCommentAllowed(isCommentAllowed)
+                .boardNo(boardNo)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .build();
+    }
+
+    public TemporaryPinsResponseDTO toTemporaryPinsResponseDTO() {
+        return TemporaryPinsResponseDTO.builder()
+                .tempPinNo(String.valueOf(_id))
                 .title(title)
                 .description(description)
                 .imgUrl(imgUrl)
