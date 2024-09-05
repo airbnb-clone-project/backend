@@ -3,8 +3,10 @@ package com.airbnb_clone.image.controller;
 import com.airbnb_clone.common.global.response.ApiResponse;
 import com.airbnb_clone.image.service.S3ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +36,9 @@ public class S3ImageController {
      * @return presigned url
      */
     @GetMapping("/pre-signed-url/v1")
-    public ApiResponse<String> getImage(@RequestParam String contentType) {
-        return ApiResponse.of("Presined URL generated successfully", HttpStatus.OK.value(), s3ImageService.generatePresignedUrl(MediaType.valueOf(contentType).toString()));
+    public HttpEntity<ApiResponse<String>> getImage(@RequestParam String contentType) {
+        return ResponseEntity.ok(
+                ApiResponse.of("Presined URL generated successfully", HttpStatus.OK.value(), s3ImageService.generatePresignedUrl(MediaType.valueOf(contentType).toString()))
+        );
     }
 }
