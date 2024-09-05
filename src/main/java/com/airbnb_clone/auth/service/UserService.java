@@ -103,6 +103,8 @@ public class UserService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         request.setUsername(username);
+        System.out.println("username = " + username);
+        System.out.println(userRepository.isUsernameNotExist(username));
 
         // 유저정보 없을경우 예외처리
         if (userRepository.isUsernameNotExist(username)) {
