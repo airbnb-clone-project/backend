@@ -3,11 +3,13 @@ package com.airbnb_clone.auth.service;
 import com.airbnb_clone.auth.controller.UserController;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
+import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
+import org.apache.catalina.security.SecurityUtil;
 import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -23,6 +26,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -128,8 +133,74 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("유저 추가정보 입력 - 성공")
+    void addMoreUserInfoSuccess() {
+
+        MoreUserRegisterRequest request = new MoreUserRegisterRequest();
+        request.setBirthday(LocalDate.of(2000, 4, 29));
+        request.setCountry("Korea");
+        request.setGender("assert helicopter");
+        request.setSpokenLanguage("Korean");
+
+
+        // username = SercurityContext.getContext().getAuthentication().getName()
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        when(userRepository.isUsernameNotExist(username)).thenReturn(false);
+
+        ResponseEntity<?> result = userService.saveMoreUserInformation(request);
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(200, body.getStatus());
+        assertEquals("추가정보 등록이 완료 되었습니다.", body.getMessage());
+        verify(userRepository, times(1)).saveMoreUserInformation(request);
+    }
+
+    @Test
+    @DisplayName("유저 추가정보 입력 - 실패(유저정보 없음-token 조작)")
+    void addMoreUserInfoFail() {
+        String wrongUsername = "wrong@test.com";
+
+        MoreUserRegisterRequest request = new MoreUserRegisterRequest();
+        request.setBirthday(LocalDate.of(2000, 4, 29));
+        request.setCountry("Korea");
+        request.setGender("assert helicopter");
+        request.setSpokenLanguage("Korean");
+
+
+        // username = SercurityContext.getContext().getAuthentication().getName()
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(wrongUsername);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        // 유저가 있을경우 jwt를 조회해 찾은 결과는 있어야
+        when(userRepository.isUsernameNotExist(wrongUsername)).thenReturn(true);
+
+        ResponseEntity<?> result = userService.saveMoreUserInformation(request);
+
+        ErrorResponse body = (ErrorResponse) result.getBody();
+        assertNotNull(body);
+        assertEquals(401, body.getStatus());
+        assertEquals("없는 사용자입니다.", body.getMessage());
+        // 조회 없어야됨
+        verify(userRepository, times(0)).saveMoreUserInformation(any());
+    }
+
+    @Test
     @DisplayName("비밀번호 변경 - 성공(기존 비밀번호 없음)")
     void changePasswordSuccess2() {
+
         NewPasswordRequest request = new NewPasswordRequest();
         request.setPassword(oldPassword);
         request.setNewPassword(newPassword);
