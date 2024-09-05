@@ -19,6 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -132,6 +135,16 @@ class UserServiceTest {
         request.setNewPassword(newPassword);
         request.setUsername(username);
 
+        // SecurityContext와 Authentication 모킹
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        // SecurityContextHolder에 모킹된 SecurityContext 설정
+        SecurityContextHolder.setContext(securityContext);
+
 
         when(userRepository.findOldPasswordByUsername(username)).thenReturn(null);
         when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
@@ -155,6 +168,16 @@ class UserServiceTest {
         newPasswordRequest.setPassword(oldPassword);
         newPasswordRequest.setNewPassword(newPassword);
         newPasswordRequest.setUsername(username);
+
+        // SecurityContext와 Authentication 모킹
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        // SecurityContextHolder에 모킹된 SecurityContext 설정
+        SecurityContextHolder.setContext(securityContext);
 
         // 바꾸기 전
         when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedOldOne);
@@ -190,6 +213,16 @@ class UserServiceTest {
         request.setUsername(username);
         request.setPassword(oldPassword);
         request.setNewPassword(newPassword);
+
+        // SecurityContext와 Authentication 모킹
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        // SecurityContextHolder에 모킹된 SecurityContext 설정
+        SecurityContextHolder.setContext(securityContext);
 
         // db 안의 유저 비밀번호 조회시 -> dbPassword
         when(userRepository.findOldPasswordByUsername(username)).thenReturn("dbPassword");
