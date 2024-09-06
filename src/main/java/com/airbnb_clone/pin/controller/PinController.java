@@ -2,6 +2,7 @@ package com.airbnb_clone.pin.controller;
 
 import com.airbnb_clone.common.global.response.ApiResponse;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.service.PinService;
@@ -39,6 +40,15 @@ public class PinController {
         );
     }
 
+    @PutMapping("/pin/temp/{temp-pin-no}/v1")
+    public HttpEntity<ApiResponse<String>> updateTempPin(@PathVariable("temp-pin-no") String tempPinNo, @RequestBody TemporaryPinUpdateRequestDTO temporaryPinCreateRequestDTO) {
+        pinService.updateTempPin(tempPinNo, temporaryPinCreateRequestDTO);
+
+        return ResponseEntity.ok(
+                ApiResponse.of("임시핀이 정상적으로 수정되었습니다.", HttpStatus.OK.value(), null)
+        );
+    }
+
     @GetMapping("/pin/temps/{user-no}/v1")
     public HttpEntity<ApiResponse<List<TemporaryPinsResponseDTO>>> getTempPins(@PathVariable("user-no") Long userNo) {
         return ResponseEntity.ok(
@@ -52,4 +62,5 @@ public class PinController {
                 ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), pinService.createTempPin(temporaryPinCreateRequestDTO).toString())
         );
     }
+
 }
