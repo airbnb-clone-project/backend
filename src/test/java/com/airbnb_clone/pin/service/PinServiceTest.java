@@ -3,12 +3,15 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
 import com.airbnb_clone.config.s3.AwsS3Config;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,10 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DataMongoTestAnnotation
@@ -141,6 +147,53 @@ public class PinServiceTest extends MongoDBTestContainer {
                 assertThat(pin.getUpdatedAt()).isNotNull();
                 assertThat(pin.getTempPinNo()).isNotNull();
             });
+        }
+    }
+
+    @Nested
+    @DisplayName("임시 핀 수정 테스트")
+    class UpdateTempPinTest {
+        @Test
+        @DisplayName("임시 핀 수정 성공 케이스")
+        public void When_updateTemporaryPin_Expect_Success() {
+            // given
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            mt.save(e1);
+
+            PinTemp savedTempPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
+            mt.save(savedTempPin);
+
+            ObjectId savedInnerPinObjectId = savedTempPin.getInnerTempPins().stream().findFirst().get().get_id();
+
+            TemporaryPinUpdateRequestDTO updateInnerPinInfo = TemporaryPinUpdateRequestDTO.of(1, "title", "description", true, "http://example.com");
+
+            // when
+            pinService.updateTempPin(String.valueOf(savedInnerPinObjectId), updateInnerPinInfo);
+
+            // then
+            PinTemp actual = mt.findOne(new Query(Criteria.where("temp_pins").elemMatch(Criteria.where("_id").is(savedInnerPinObjectId))), PinTemp.class);
+            InnerTempPin foundInnerPin = actual.getInnerTempPins().stream().findFirst().get();
+
+            assertThat(foundInnerPin.getBoardNo()).isEqualTo(1);
+            assertThat(foundInnerPin.getDescription()).isEqualTo("description");
+            assertThat(foundInnerPin.getTitle()).isEqualTo("title");
+            assertThat(foundInnerPin.isCommentAllowed()).isTrue();
+            assertThat(foundInnerPin.getLink()).isEqualTo("http://example.com");
+            assertThat(foundInnerPin.getUpdatedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 임시 핀 수정 시도 시 예외 발생 케이스")
+        public void When_updateNonExistTemporaryPin_Expect_Exception() {
+            // given
+            ObjectId nonExistObjectId = new ObjectId();
+
+            TemporaryPinUpdateRequestDTO updateInnerPinInfo = TemporaryPinUpdateRequestDTO.of(1, "title", "description", true, "http://example.com");
+
+            // when & then
+            assertThatThrownBy(() -> pinService.updateTempPin(String.valueOf(nonExistObjectId), updateInnerPinInfo))
+                    .isInstanceOf(PinNotFoundException.class)
+                    .hasMessageContaining("존재하지 않는 핀입니다.");
         }
     }
 }
