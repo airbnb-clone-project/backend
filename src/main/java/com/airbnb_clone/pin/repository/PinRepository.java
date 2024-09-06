@@ -68,12 +68,12 @@ public class PinRepository {
         Query query = new Query(Criteria.where("temp_pins._id").is(tempPinNo));
 
         Update update = new Update()
-                .set("temp_pins.$.boardNo", temporaryPinUpdateRequestDTO.getBoardNo())
-                .set("temp_pins.$.description", temporaryPinUpdateRequestDTO.getDescription())
-                .set("temp_pins.$.title", temporaryPinUpdateRequestDTO.getTitle())
-                .set("temp_pins.$.isCommentAllowed", temporaryPinUpdateRequestDTO.isCommentAllowed())
-                .set("temp_pins.$.link", temporaryPinUpdateRequestDTO.getLink())
-                .set("temp_pins.$.updatedAt", LocalDateTime.now());
+                .set("innerTempPins.$.boardNo", temporaryPinUpdateRequestDTO.getBoardNo())
+                .set("innerTempPins.$.description", temporaryPinUpdateRequestDTO.getDescription())
+                .set("innerTempPins.$.title", temporaryPinUpdateRequestDTO.getTitle())
+                .set("innerTempPins.$.isCommentAllowed", temporaryPinUpdateRequestDTO.isCommentAllowed())
+                .set("innerTempPins.$.link", temporaryPinUpdateRequestDTO.getLink())
+                .set("innerTempPins.$.updatedAt", LocalDateTime.now());
 
         // 업데이트 실행
         mt.updateFirst(query, update, PinTemp.class);
