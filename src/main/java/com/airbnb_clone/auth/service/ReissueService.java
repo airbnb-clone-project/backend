@@ -93,11 +93,11 @@ public class ReissueService {
         }
 
         /*
-            DB를 조회해 refresh token 비교. 없으면 메시지
+            DB를 조회해 refresh token 대조. 없으면 메시지
             status : 401 , message : 인증이 불가능한 토큰 입니다.
          */
-        Boolean isExist = refreshTokenRepository.existsByRefresh(givenToken);
-        if (isExist) {
+        Boolean isNotExist = refreshTokenRepository.existsByRefresh(givenToken);
+        if (isNotExist) {
 
             // response status code
             ErrorResponse errorResponse = new ErrorResponse(401, "인증이 불가능한 토큰 입니다.");
@@ -117,8 +117,7 @@ public class ReissueService {
         refreshTokenRepository.deleteRefreshToken(givenToken);
 
         // 새로운 refresh token DB 에 저장
-        addRefreshToken(jwtUtil.getUsername(givenToken),newRefresh,86400000L);
-
+        addRefreshToken(username,newRefresh,86400000L);
         /*
             response 생성
             status : 200 , message : 토큰이 재발급 되었습니다.
