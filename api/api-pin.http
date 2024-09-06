@@ -9,7 +9,7 @@ Content-Type: application/json
 
 
 ### 임시 핀 조회
-GET {{url}}/api/pins/pin/temp/66dafa47e572f430ecf14b6d/v1
+GET {{url}}/api/pins/pin/temp/66db19ab780f854bb2e0f8a8/v1
 Content-Type: application/json
 
 ### 임시 핀 리스트 조회
@@ -17,7 +17,7 @@ GET {{url}}/api/pins/pin/temps/1/v1
 Content-Type: application/json
 
 ### 임시 핀 업데이트
-PUT {{url}}/api/pins/pin/temp/66dafa47e572f430ecf14b6d/v1
+PUT {{url}}/api/pins/pin/temp/66db19ab780f854bb2e0f8a8/v1
 Content-Type: application/json
 
 {

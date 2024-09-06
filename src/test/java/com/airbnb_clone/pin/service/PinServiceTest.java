@@ -165,7 +165,7 @@ public class PinServiceTest extends MongoDBTestContainer {
 
             ObjectId savedInnerPinObjectId = savedTempPin.getInnerTempPins().stream().findFirst().get().get_id();
 
-            TemporaryPinUpdateRequestDTO updateInnerPinInfo = TemporaryPinUpdateRequestDTO.of(1, "title", "description", true, "http://example.com");
+            TemporaryPinUpdateRequestDTO updateInnerPinInfo = TemporaryPinUpdateRequestDTO.of(1, "description", "title", true, "http://example.com");
 
             // when
             pinService.updateTempPin(String.valueOf(savedInnerPinObjectId), updateInnerPinInfo);
