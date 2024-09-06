@@ -43,6 +43,7 @@ import static org.mockito.Mockito.*;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2024. 8. 31.        doungukkim       최초 생성
+ * 2024. 9. 6.        doungukkim       유저 추가정보 입력 테스트 코드 추가
  *
  */
 
@@ -164,7 +165,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("유저 추가정보 입력 - 실패(유저정보 없음-token 조작)")
+    @DisplayName("유저 추가정보 입력 - 실패(유저정보 없음)")
     void addMoreUserInfoFail() {
         String wrongUsername = "wrong@test.com";
 

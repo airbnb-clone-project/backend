@@ -42,7 +42,7 @@ public class RefreshTokenRepository {
         }
     }
 
-    // 같은 내용의 토큰이 있으면 true 반환
+    // 같은 내용의 토큰이 없으면 true 반환
     public Boolean existsByRefresh(String token) {
         String sql = "SELECT * FROM refresh_token WHERE refresh = ?"; // 같은 내용의 토큰 있는지 확인
         return jdbcTemplate.query(sql, (rs, nowNum) -> 0, token).isEmpty();
