@@ -5,6 +5,7 @@ import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinRepository;
@@ -12,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -29,9 +31,11 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PinService {
     private final PinRepository pinRepository;
 
+    @Transactional(readOnly = false)
     public ObjectId createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
         return pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
                 .map(pinTemp -> pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
@@ -47,7 +51,8 @@ public class PinService {
     }
 
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
-        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo));
+        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+
         return foundInnerPin.toTemporaryPinDetailResponseDTO();
     }
 
@@ -57,5 +62,12 @@ public class PinService {
         return foundTempPin.getInnerTempPins().stream()
                 .map(InnerTempPin::toTemporaryPinsResponseDTO)
                 .toList();
+    }
+
+    @Transactional(readOnly = false)
+    public void updateTempPin(@NotNull String tempPinNo, TemporaryPinUpdateRequestDTO temporaryPinCreateRequestDTO) {
+        pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(()-> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+
+        pinRepository.updateInnerTempPin(new ObjectId(tempPinNo), temporaryPinCreateRequestDTO);
     }
 }

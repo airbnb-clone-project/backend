@@ -4,6 +4,7 @@ import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
+import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -36,15 +38,13 @@ public class PinRepository {
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
-    public InnerTempPin findInnerTempPinById(@NotNull ObjectId id) {
+    public Optional<InnerTempPin> findInnerTempPinById(@NotNull ObjectId id) {
         Query query = new Query(Criteria.where("temp_pins").elemMatch(Criteria.where("_id").is(id)));
         query.fields().include("temp_pins.$");
 
-        PinTemp result = mt.findOne(query, PinTemp.class);
+        PinTemp result = Optional.ofNullable(mt.findOne(query, PinTemp.class)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
-        return Optional.ofNullable(result)
-                .map(pinTemp -> pinTemp.getInnerTempPinById(id))
-                .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        return Optional.ofNullable(result.getInnerTempPinById(id));
     }
 
     public ObjectId saveAndGetPinId(PinTemp pinTemp) {
@@ -62,5 +62,20 @@ public class PinRepository {
         mt.updateFirst(query, update, PinTemp.class);
 
         return insertInnerTempPin.get_id();
+    }
+
+    public void updateInnerTempPin(ObjectId tempPinNo, TemporaryPinUpdateRequestDTO temporaryPinUpdateRequestDTO) {
+        Query query = new Query(Criteria.where("temp_pins._id").is(tempPinNo));
+
+        Update update = new Update()
+                .set("temp_pins.$.boardNo", temporaryPinUpdateRequestDTO.getBoardNo())
+                .set("temp_pins.$.description", temporaryPinUpdateRequestDTO.getDescription())
+                .set("temp_pins.$.title", temporaryPinUpdateRequestDTO.getTitle())
+                .set("temp_pins.$.isCommentAllowed", temporaryPinUpdateRequestDTO.isCommentAllowed())
+                .set("temp_pins.$.link", temporaryPinUpdateRequestDTO.getLink())
+                .set("temp_pins.$.updatedAt", LocalDateTime.now());
+
+        // 업데이트 실행
+        mt.updateFirst(query, update, PinTemp.class);
     }
 }
