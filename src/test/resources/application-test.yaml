@@ -22,3 +22,11 @@ spring:
 
       region:
         static: ap-northeast-2
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
