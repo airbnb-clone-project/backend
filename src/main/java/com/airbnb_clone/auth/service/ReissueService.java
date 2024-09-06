@@ -66,17 +66,26 @@ public class ReissueService {
             expired check
             status : 401 , message : 리프레시 토큰이 만료되었습니다.
          */
-        try {
-            jwtUtil.isExpired(givenToken);
-        } catch (ExpiredJwtException e) {
+//        System.out.println(jwtUtil.isExpired(givenToken));
+//        try {
+//            jwtUtil.isExpired(givenToken);
+//        } catch (ExpiredJwtException e) {
+//
+//            // response status code
+//            ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
+//            return ResponseEntity
+//                    .status(HttpStatus.UNAUTHORIZED)
+//                    .body(errorResponse);
+//        }
 
+        if (jwtUtil.isExpired(givenToken)) {
             // response status code
             ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(errorResponse);
         }
-
+        System.out.println("왜 되는건데");
         /*
             토큰이 refresh token 이 맞는지 확인
             status : 401 , message : refresh token이 아닙니다.
