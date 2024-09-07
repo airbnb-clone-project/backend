@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS PIN
+(
+    NO                 BIGINT PRIMARY KEY COMMENT '핀 고유번호',
+    USER_NO            BIGINT        NOT NULL COMMENT '핀 작성자 고유번호(FK)',
+    IMG_URL            VARCHAR(1024) NOT NULL COMMENT '핀 이미지 URL',
+    TITLE              VARCHAR(255) COMMENT '핀 제목',
+    DESCRIPTION        TEXT COMMENT '핀 설명',
+    LINK               VARCHAR(2000) COMMENT '링크 URL',
+    BOARD_NO           BIGINT        NOT NULL COMMENT '보드 종류(FK)',
+    IS_COMMENT_ALLOWED BOOLEAN       NOT NULL DEFAULT TRUE COMMENT '댓글 달기 허용여부',
+    LIKE_COUNT         INT                    DEFAULT 0 COMMENT '좋아요 수',
+    CREATED_AT         TIMESTAMP              DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT         TIMESTAMP              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

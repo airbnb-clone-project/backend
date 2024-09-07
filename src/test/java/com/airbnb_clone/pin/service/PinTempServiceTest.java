@@ -2,7 +2,6 @@ package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
-import com.airbnb_clone.config.s3.AwsS3Config;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
@@ -10,14 +9,15 @@ import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
-import com.airbnb_clone.pin.repository.PinRepository;
+import com.airbnb_clone.pin.repository.PinMongoRepository;
+import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,12 +29,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DataMongoTestAnnotation
-@Import(AwsS3Config.class)
-@DisplayName("핀 서비스 테스트")
-public class PinServiceTest extends MongoDBTestContainer {
+@DisplayName("임시 핀 서비스 테스트")
+public class PinTempServiceTest extends MongoDBTestContainer {
+
+    @MockBean
+    private PinMySQLRepository pinMySQLRepository;
+
     @Autowired
     private MongoTemplate mt;
-    private PinRepository pinRepository;
+    private PinMongoRepository pinMongoRepository;
     private PinService pinService;
 
     private TemporaryPinCreateRequestDTO FirstImageRequestOfFirstUser;
@@ -42,8 +45,8 @@ public class PinServiceTest extends MongoDBTestContainer {
 
     @BeforeEach
     void setUp() {
-        pinRepository = new PinRepository(mt);
-        pinService = new PinService(pinRepository);
+        pinMongoRepository = new PinMongoRepository(mt);
+        pinService = new PinService(pinMongoRepository, pinMySQLRepository);
         FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image.jpg", 1L);
         SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image2.jpg", 1L);
 
@@ -65,7 +68,7 @@ public class PinServiceTest extends MongoDBTestContainer {
             pinService.createTempPin(FirstImageRequestOfFirstUser);
 
             // then
-            PinTemp foundTempPin = pinRepository.findPinTempByUserNo(1L).get();
+            PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(1L).get();
 
             assertThat(foundTempPin.getUserNo()).isEqualTo(expectedPinTemp.getUserNo());
             assertThat(foundTempPin.getInnerTempPins().stream().findFirst().get().getImgUrl()).isEqualTo(expectedPinTemp.getInnerTempPins().stream().findFirst().get().getImgUrl());
@@ -89,7 +92,7 @@ public class PinServiceTest extends MongoDBTestContainer {
             pinService.createTempPin(SecondImageRequestOfFirstUser);
 
             // then
-            PinTemp foundTempPin = pinRepository.findPinTempByUserNo(1L).get();
+            PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(1L).get();
 
             assertThat(foundTempPin.getUserNo()).isEqualTo(alreadySavedPin.getUserNo());
             assertThat(foundTempPin.getInnerTempPins().size()).isEqualTo(2);
