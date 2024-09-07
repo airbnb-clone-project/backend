@@ -38,7 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-
+        System.out.println("CustomOAuth2UserService.loadUser");
         // name, username, providerId
         OAuth2User oAuth2User = super.loadUser(request);
 
@@ -59,6 +59,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String username = oAuth2Response.getUsername();
         String name = oAuth2Response.getName();
 
+        System.out.println("name = " + name);
+        System.out.println("username = " + username);
+        System.out.println("providerId = " + providerId);
+
+
         // social user 에서 providerId 기준으로 userNo, provider, providerid 가져온다
         Optional<SocialUser> existData = socialUserRepository.findByProviderId(providerId);
 
@@ -74,9 +79,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
         // user에 username이 있고(userNotExist) social user에 데이터가 없을 경우(existData.isEmpty()) 일반 로그인 유저
-
         // 예외처리
-
         if ((!userNotExist) && (existData.isEmpty())){
 
             SocialUserDto socialUserDto = new SocialUserDto();
