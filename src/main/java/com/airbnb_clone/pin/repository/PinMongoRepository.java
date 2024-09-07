@@ -30,7 +30,7 @@ import java.util.Optional;
  */
 @Repository
 @RequiredArgsConstructor
-public class PinRepository {
+public class PinMongoRepository {
     private final MongoTemplate mt;
 
     public Optional<PinTemp> findPinTempByUserNo(@NotNull Long userNo) {

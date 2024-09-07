@@ -4,11 +4,13 @@ import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.InnerTempPin;
 import com.airbnb_clone.pin.domain.PinTemp;
+import com.airbnb_clone.pin.domain.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
-import com.airbnb_clone.pin.repository.PinRepository;
+import com.airbnb_clone.pin.repository.PinMongoRepository;
+import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -33,31 +35,32 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PinService {
-    private final PinRepository pinRepository;
+    private final PinMongoRepository pinMongoRepository;
+    private final PinMySQLRepository pinMySQLRepository;
 
     @Transactional(readOnly = false)
     public ObjectId createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
-        return pinRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
-                .map(pinTemp -> pinRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
+        return pinMongoRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
+                .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
                 .orElseGet(() -> {
                     InnerTempPin insertedInnserTempPin = InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl());
 
                     PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(insertedInnserTempPin));
 
-                    pinRepository.saveAndGetPinId(createdTempPin);
+                    pinMongoRepository.saveAndGetPinId(createdTempPin);
 
                     return insertedInnserTempPin.get_id();
                 });
     }
 
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
-        InnerTempPin foundInnerPin = pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        InnerTempPin foundInnerPin = pinMongoRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
         return foundInnerPin.toTemporaryPinDetailResponseDTO();
     }
 
     public List<TemporaryPinsResponseDTO> getTempPins(@NotNull Long userNo) {
-        PinTemp foundTempPin = pinRepository.findPinTempByUserNo(userNo).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(userNo).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
         return foundTempPin.getInnerTempPins().stream()
                 .map(InnerTempPin::toTemporaryPinsResponseDTO)
@@ -66,8 +69,13 @@ public class PinService {
 
     @Transactional(readOnly = false)
     public void updateTempPin(@NotNull String tempPinNo, TemporaryPinUpdateRequestDTO temporaryPinCreateRequestDTO) {
-        pinRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(()-> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        pinMongoRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(()-> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
-        pinRepository.updateInnerTempPin(new ObjectId(tempPinNo), temporaryPinCreateRequestDTO);
+        pinMongoRepository.updateInnerTempPin(new ObjectId(tempPinNo), temporaryPinCreateRequestDTO);
     }
+
+    public Long savePin(PinCreateRequestDTO pinCreateRequestDTO) {
+        return pinMySQLRepository.savePinAndGetId(pinCreateRequestDTO.toVO());
+    }
+
 }
