@@ -45,6 +45,15 @@ public class ReissueService {
 
         // 리프레시 토큰이 있는지 확인 하는 코드
         Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        // 쿠키가 있으니 refresh 가 있을경우 givenToken 에 추가
         for (Cookie cookie : cookies) {
             if(cookie.getName().equals("refresh")){
                 givenToken = cookie.getValue();
@@ -56,7 +65,7 @@ public class ReissueService {
             status : 401 , message : refresh token 이 없습니다.
          */
         if (givenToken == null) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 없습니다.");
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 의 값이 없습니다.");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(errorResponse);
@@ -66,18 +75,6 @@ public class ReissueService {
             expired check
             status : 401 , message : 리프레시 토큰이 만료되었습니다.
          */
-//        System.out.println(jwtUtil.isExpired(givenToken));
-//        try {
-//            jwtUtil.isExpired(givenToken);
-//        } catch (ExpiredJwtException e) {
-//
-//            // response status code
-//            ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
-//            return ResponseEntity
-//                    .status(HttpStatus.UNAUTHORIZED)
-//                    .body(errorResponse);
-//        }
-
         if (jwtUtil.isExpired(givenToken)) {
             // response status code
             ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
@@ -85,17 +82,17 @@ public class ReissueService {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(errorResponse);
         }
-        System.out.println("왜 되는건데");
+
+
         /*
             토큰이 refresh token 이 맞는지 확인
             status : 401 , message : refresh token이 아닙니다.
          */
         String tokenType = jwtUtil.getTokenType(givenToken);
-
         if (!tokenType.equals("refresh")) {
 
             // response status code
-            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token이 아닙니다.");
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 아닙니다.");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(errorResponse);
