@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS PIN
 (
-    NO                 BIGINT PRIMARY KEY COMMENT '핀 고유번호',
+    NO                 BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '핀 고유번호',
     USER_NO            BIGINT        NOT NULL COMMENT '핀 작성자 고유번호(FK)',
     IMG_URL            VARCHAR(1024) NOT NULL COMMENT '핀 이미지 URL',
     TITLE              VARCHAR(255) COMMENT '핀 제목',

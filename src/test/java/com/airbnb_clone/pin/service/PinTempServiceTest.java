@@ -3,14 +3,15 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
-import com.airbnb_clone.pin.domain.InnerTempPin;
-import com.airbnb_clone.pin.domain.PinTemp;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
+import com.airbnb_clone.pin.domain.pin.InnerTempPin;
+import com.airbnb_clone.pin.domain.pin.PinTemp;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,9 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @MockBean
     private PinMySQLRepository pinMySQLRepository;
 
+    @MockBean
+    private TagMySQLRepository tagMySQLRepository;
+
     @Autowired
     private MongoTemplate mt;
     private PinMongoRepository pinMongoRepository;
@@ -46,7 +50,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @BeforeEach
     void setUp() {
         pinMongoRepository = new PinMongoRepository(mt);
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository);
+        pinService = new PinService(pinMongoRepository, pinMySQLRepository, tagMySQLRepository);
         FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image.jpg", 1L);
         SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image2.jpg", 1L);
 

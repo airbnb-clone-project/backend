@@ -1,30 +1,43 @@
 package com.airbnb_clone.pin.service;
 
-import com.airbnb_clone.pin.domain.Pin;
-import com.airbnb_clone.pin.domain.dto.request.PinCreateRequestDTO;
+import com.airbnb_clone.common.annotation.DataJdbcTestAnnotation;
+import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 
-import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@DataJdbcTest
+@DataJdbcTestAnnotation
+@TestPropertySource(properties = {
+        "spring.sql.init.mode=never"
+})
+@Sql(scripts = "classpath:schema/pin.sql")
 @DisplayName("핀 서비스 테스트")
 public class PinRealServiceTest {
 
     private PinMySQLRepository pinMySQLRepository;
 
+    private TagMySQLRepository tagMySQLRepository;
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @MockBean
     private PinMongoRepository pinMongoRepository;
@@ -35,10 +48,11 @@ public class PinRealServiceTest {
 
     @BeforeEach
     void setUp() {
+        tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
         pinMySQLRepository = new PinMySQLRepository(jdbcTemplate);
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository);
+        pinService = new PinService(pinMongoRepository, pinMySQLRepository, tagMySQLRepository);
 
-        firstPinCreateRequestDTO = PinCreateRequestDTO.of("http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, LocalDateTime.now());
+        firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L));
     }
 
     @Nested
@@ -55,21 +69,21 @@ public class PinRealServiceTest {
             // then
             assertThat(actualPinNo).isNotNull();
 
-            String findPinQuery = "SELECT * FROM PIN WHERE NO = ?";
+            String findPinQuery = "SELECT NO , USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT, CREATED_AT, UPDATED_AT FROM PIN WHERE NO = ?";
+            Map<String, Object> foundPinMap = jdbcTemplate.queryForMap(findPinQuery, actualPinNo);
 
-            Pin foundPin = jdbcTemplate.queryForObject(findPinQuery, Pin.class, actualPinNo);
-
-            assertThat(foundPin).isNotNull();
-            assertThat(foundPin.getUserNo()).isNotNull().isEqualTo(firstPinCreateRequestDTO.getUserNo());
-            assertThat(foundPin.getImgUrl()).isEqualTo(firstPinCreateRequestDTO.getImgUrl());
-            assertThat(foundPin.getTitle()).isEqualTo(firstPinCreateRequestDTO.getTitle());
-            assertThat(foundPin.getDescription()).isEqualTo(firstPinCreateRequestDTO.getDescription());
-            assertThat(foundPin.getLink()).isEqualTo(firstPinCreateRequestDTO.getLink());
-            assertThat(foundPin.getBoardNo()).isEqualTo(firstPinCreateRequestDTO.getBoardNo());
-            assertThat(foundPin.isCommentAllowed()).isEqualTo(firstPinCreateRequestDTO.isCommentAllowed());
-            assertThat(foundPin.getLikeCount()).isEqualTo(0);
-            assertThat(foundPin.getCreatedAt()).isEqualTo(firstPinCreateRequestDTO.getCreatedAt());
-            assertThat(foundPin.getUpdatedAt()).isEqualTo(firstPinCreateRequestDTO.getCreatedAt());
+            assertThat(foundPinMap).isNotNull();
+            assertThat(foundPinMap.get("NO")).isNotNull().isEqualTo(actualPinNo);
+            assertThat(foundPinMap.get("USER_NO")).isNotNull().isEqualTo(firstPinCreateRequestDTO.getUserNo());
+            assertThat(foundPinMap.get("IMG_URL")).isEqualTo(firstPinCreateRequestDTO.getImgUrl());
+            assertThat(foundPinMap.get("TITLE")).isEqualTo(firstPinCreateRequestDTO.getTitle());
+            assertThat(foundPinMap.get("DESCRIPTION")).isEqualTo(firstPinCreateRequestDTO.getDescription());
+            assertThat(foundPinMap.get("LINK")).isEqualTo(firstPinCreateRequestDTO.getLink());
+            assertThat(foundPinMap.get("BOARD_NO")).isEqualTo(firstPinCreateRequestDTO.getBoardNo());
+            assertThat(foundPinMap.get("IS_COMMENT_ALLOWED")).isEqualTo(firstPinCreateRequestDTO.isCommentAllowed());
+            assertThat(foundPinMap.get("LIKE_COUNT")).isEqualTo(0);
+            assertThat(foundPinMap.get("CREATED_AT")).isNotNull();
+            assertThat(foundPinMap.get("UPDATED_AT")).isNotNull();
         }
     }
 }
