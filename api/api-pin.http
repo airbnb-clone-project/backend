@@ -39,5 +39,6 @@ Content-Type: application/json
     "isCommentAllowed": true,
     "link": "https://www.airbnb.co.kr/rooms/2",
     "imgUrl": "https://www.airbnb.co.kr/rooms/1000",
+    "tagNos": [1, 2],
     "userNo": 1
 }
