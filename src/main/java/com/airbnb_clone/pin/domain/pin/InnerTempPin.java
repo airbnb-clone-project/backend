@@ -1,7 +1,7 @@
-package com.airbnb_clone.pin.domain;
+package com.airbnb_clone.pin.domain.pin;
 
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

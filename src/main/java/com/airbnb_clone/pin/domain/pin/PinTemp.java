@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.domain;
+package com.airbnb_clone.pin.domain.pin;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;

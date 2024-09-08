@@ -1,12 +1,13 @@
 package com.airbnb_clone.pin.controller;
 
 import com.airbnb_clone.common.global.response.ApiResponse;
-import com.airbnb_clone.pin.domain.dto.request.PinCreateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.service.PinService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -58,7 +59,7 @@ public class PinController {
     }
 
     @PostMapping("/pin/temp/v1")
-    public HttpEntity<ApiResponse<String>> uploadImage(@RequestBody TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+    public HttpEntity<ApiResponse<String>> uploadImage(@RequestBody @Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
         return ResponseEntity.ok(
                 ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), pinService.createTempPin(temporaryPinCreateRequestDTO).toString())
         );
@@ -66,7 +67,7 @@ public class PinController {
 
     //TODO : 향후 헤더의 토큰을 가져와서 유저번호를 추출하여 저장하는 로직으로 변경해야한다.
     @PostMapping("/pin/v1")
-    public HttpEntity<ApiResponse<Long>> savePin(@RequestBody PinCreateRequestDTO pinCreateRequestDTO) {
+    public HttpEntity<ApiResponse<Long>> savePin(@RequestBody @Valid PinCreateRequestDTO pinCreateRequestDTO) {
         return ResponseEntity.ok(
                 ApiResponse.of("핀이 정상적으로 저장되었습니다.", HttpStatus.OK.value(), pinService.savePin(pinCreateRequestDTO))
         );

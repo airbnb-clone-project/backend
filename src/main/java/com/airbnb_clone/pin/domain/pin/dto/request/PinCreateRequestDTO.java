@@ -1,15 +1,17 @@
-package com.airbnb_clone.pin.domain.dto.request;
+package com.airbnb_clone.pin.domain.pin.dto.request;
 
-import com.airbnb_clone.pin.domain.Pin;
+import com.airbnb_clone.pin.domain.pin.Pin;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
-import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * DTO for {@link com.airbnb_clone.pin.domain.Pin}
+ * DTO for {@link Pin}
  */
 @Getter
 @Setter
@@ -20,34 +22,34 @@ public class PinCreateRequestDTO {
 
     @NotNull(message = "사용자 번호는 필수입니다")
     @Positive(message = "사용자 번호는 0보다 커야합니다")
-    Long userNo;
+    private Long userNo;
 
     @NotNull(message = "이미지는 필수입니다")
-    @URL(message = "URL 형식이여야 합니다.")
-    String imgUrl;
+    @Pattern(regexp = "^(http|https)://.*$", message = "이미지 URL 형식이 올바르지 않습니다")
+    private String imgUrl;
 
+    private String title;
 
-    String title;
+    private String description;
 
-    String description;
+    private String link;
 
-    String link;
+    private Long boardNo;
 
-    Long boardNo;
+    private Set<Long> tagNos = new HashSet<>();
 
-    boolean isCommentAllowed;
+    private boolean isCommentAllowed;
 
-    LocalDateTime createdAt;
-
-    public static PinCreateRequestDTO of(@NotNull String imgUrl, String title, String description, String link, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt) {
+    public static PinCreateRequestDTO of(@NotNull Long userNo, @NotNull String imgUrl, String title, String description, String link, Long boardNo, boolean isCommentAllowed, Set<Long> tagNos) {
         return PinCreateRequestDTO.builder()
+                .userNo(userNo)
                 .imgUrl(imgUrl)
                 .title(title)
                 .description(description)
                 .link(link)
                 .boardNo(boardNo)
                 .isCommentAllowed(isCommentAllowed)
-                .createdAt(LocalDateTime.now())
+                .tagNos(tagNos)
                 .build();
     }
 

@@ -2,20 +2,24 @@ package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
-import com.airbnb_clone.pin.domain.InnerTempPin;
-import com.airbnb_clone.pin.domain.PinTemp;
-import com.airbnb_clone.pin.domain.dto.request.PinCreateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinCreateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinDetailResponseDTO;
-import com.airbnb_clone.pin.domain.dto.response.TemporaryPinsResponseDTO;
+import com.airbnb_clone.exception.tag.TagNotFoundException;
+import com.airbnb_clone.pin.domain.pin.InnerTempPin;
+import com.airbnb_clone.pin.domain.pin.PinTemp;
+import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.TagMySQLRepository;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Set;
@@ -34,12 +38,15 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Validated
 public class PinService {
     private final PinMongoRepository pinMongoRepository;
     private final PinMySQLRepository pinMySQLRepository;
 
+    private final TagMySQLRepository tagMySQLRepository;
+
     @Transactional(readOnly = false)
-    public ObjectId createTempPin(TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+    public ObjectId createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
         return pinMongoRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
                 .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
                 .orElseGet(() -> {
@@ -69,13 +76,25 @@ public class PinService {
 
     @Transactional(readOnly = false)
     public void updateTempPin(@NotNull String tempPinNo, TemporaryPinUpdateRequestDTO temporaryPinCreateRequestDTO) {
-        pinMongoRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(()-> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        pinMongoRepository.findInnerTempPinById(new ObjectId(tempPinNo)).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
         pinMongoRepository.updateInnerTempPin(new ObjectId(tempPinNo), temporaryPinCreateRequestDTO);
     }
 
-    public Long savePin(PinCreateRequestDTO pinCreateRequestDTO) {
-        return pinMySQLRepository.savePinAndGetId(pinCreateRequestDTO.toVO());
+    public Long savePin(@Valid PinCreateRequestDTO pinCreateRequestDTO) {
+        vaildateTagIsExist(pinCreateRequestDTO);
+
+        Long insertedPinNo = pinMySQLRepository.savePinAndGetId(pinCreateRequestDTO.toVO());
+
+        tagMySQLRepository.savePinTags(insertedPinNo, pinCreateRequestDTO.getTagNos());
+
+        return insertedPinNo;
     }
 
+    private void vaildateTagIsExist(PinCreateRequestDTO pinCreateRequestDTO) {
+        boolean isNotExistTag = !tagMySQLRepository.existsTagByNoIn(pinCreateRequestDTO.getTagNos());
+        if(isNotExistTag) {
+            throw new TagNotFoundException(ErrorCode.TAG_NOT_FOUND);
+        }
+    }
 }

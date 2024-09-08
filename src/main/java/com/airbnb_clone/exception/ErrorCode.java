@@ -19,7 +19,10 @@ public enum ErrorCode {
     PIN_NOT_FOUND(BAD_REQUEST.value(), "존재하지 않는 핀입니다."),
 
     // Image
-    CONTENT_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 컨텐츠 타입입니다.") ;
+    CONTENT_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 컨텐츠 타입입니다."),
+
+    // Tag
+    TAG_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 태그입니다.");
 
     private final int status;
     private final String message;
