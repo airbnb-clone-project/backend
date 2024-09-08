@@ -1,6 +1,6 @@
-package com.airbnb_clone.pin.domain.dto.request;
+package com.airbnb_clone.pin.domain.pin.dto.request;
 
-import com.airbnb_clone.pin.domain.InnerTempPin;
+import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 

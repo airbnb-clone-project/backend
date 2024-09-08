@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.domain.dto.response;
+package com.airbnb_clone.pin.domain.pin.dto.response;
 
 import lombok.*;
 
@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class TemporaryPinsResponseDTO {
-    private String tempPinNo;
+public class TemporaryPinDetailResponseDTO {
     private String title;
     private String description;
     private String imgUrl;

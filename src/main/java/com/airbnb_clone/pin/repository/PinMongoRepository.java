@@ -2,9 +2,9 @@ package com.airbnb_clone.pin.repository;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
-import com.airbnb_clone.pin.domain.InnerTempPin;
-import com.airbnb_clone.pin.domain.PinTemp;
-import com.airbnb_clone.pin.domain.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.InnerTempPin;
+import com.airbnb_clone.pin.domain.pin.PinTemp;
+import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;

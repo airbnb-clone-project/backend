@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.domain.dto.request;
+package com.airbnb_clone.pin.domain.pin.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

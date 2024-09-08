@@ -5,6 +5,7 @@ import com.airbnb_clone.exception.ErrorResponse;
 import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import com.airbnb_clone.exception.image.ContentTypeNotMatchException;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.exception.tag.TagNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -38,5 +39,13 @@ public class CustomExceptionHandler {
         ErrorResponse response = ErrorResponse.of(ErrorCode.PIN_NOT_FOUND);
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TagNotFoundException.class)
+    protected HttpEntity<ErrorResponse> handleTagNotFoundException(TagNotFoundException e) {
+        log.error("handleTagNotFoundException", e);
+        ErrorResponse response = ErrorResponse.of(ErrorCode.TAG_NOT_FOUND);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
