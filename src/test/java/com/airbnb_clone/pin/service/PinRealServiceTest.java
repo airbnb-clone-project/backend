@@ -62,6 +62,9 @@ public class PinRealServiceTest {
         @DisplayName("핀 생성 성공 케이스")
         void When_CreatePin_Expect_Success() {
             // given
+            //태그 선 생성
+            String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
+            jdbcTemplate.update(insertTagQuery);
 
             // when
             Long actualPinNo = pinService.savePin(firstPinCreateRequestDTO);
