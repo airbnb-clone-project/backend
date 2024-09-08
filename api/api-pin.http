@@ -27,3 +27,17 @@ Content-Type: application/json
     "isCommentAllowed": true,
     "link": "https://www.airbnb.co.kr/rooms/2"
 }
+
+### 핀 생성 테스트
+POST {{url}}/api/pins/pin/v1
+Content-Type: application/json
+
+{
+    "boardNo": 1,
+    "description": "핀 생성 테스트",
+    "title": "핀 생성 테스트",
+    "isCommentAllowed": true,
+    "link": "https://www.airbnb.co.kr/rooms/2",
+    "imgUrl": "https://www.airbnb.co.kr/rooms/1000",
+    "userNo": 1
+}
