@@ -38,6 +38,16 @@ public class UserRepository {
         return jdbcTemplate.query(readSql, (rs, rowNum) -> 0, username).isEmpty(); // 실제 데이터를 값을 저장
     }
 
+    // 계정 삭제
+    public void deleteAccount(String username) {
+        String sql = "DELETE FROM users WHERE username = ?";
+        try {
+            jdbcTemplate.update(sql, username);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("회원 탈퇴 중 오류가 발생했습니다." + e.getMessage());
+        }
+    }
+
     // 유저 저장
     public void registerUser(Users user) {
 
@@ -51,7 +61,6 @@ public class UserRepository {
                     user.getLastName(),
                     user.getBirthday(),
                     user.isSocial()
-
             );
         } catch (DataAccessException e) {
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);

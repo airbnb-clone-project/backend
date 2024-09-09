@@ -9,10 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -47,5 +44,10 @@ public class UserController {
     @PostMapping("/new-password")
     public ResponseEntity<?> changePassword(@RequestBody NewPasswordRequest request) {
         return userService.changePassword(request);
+    }
+
+    @DeleteMapping("/erase-accounts")
+    public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
+        return userService.eraseAccounts(request);
     }
 }

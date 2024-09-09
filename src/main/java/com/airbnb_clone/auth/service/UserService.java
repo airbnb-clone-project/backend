@@ -6,7 +6,11 @@ import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.repository.SocialUserRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 /**
@@ -41,10 +46,14 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ReissueService reissueService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+    private final SocialUserRepository socialUserRepository;
+
 
     /**
      * 회원가입
+     *
      * @param request username, password, birthday
      */
     @Transactional
@@ -115,7 +124,7 @@ public class UserService {
 
         // 입력 정보에 생일이 없고 db에 값이 있을경우 값이 바뀌면 안됨
         // 입력 생일 없음
-        if (request.getBirthday()==null) {
+        if (request.getBirthday() == null) {
             // db 생일 있음
             LocalDate birthday = userRepository.findBirthdayByUsername(username);
             if (birthday != null) {
@@ -169,6 +178,102 @@ public class UserService {
                 .body(errorResponse);
     }
 
+    public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
+        System.out.println("UserService.eraseAccounts");
+        // 쿠키에서 refresh token 을 가져온다.
+        String givenToken = null;
+
+        // 리프레시 토큰이 있는지 확인
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        // 쿠키가 있으니 refresh 가 있을경우 givenToken 에 추가
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh")) {
+                givenToken = cookie.getValue();
+            }
+        }
+
+        /*
+            리프레시 토큰 없음
+            status : 401 , message : refresh token 이 없습니다.
+         */
+        if (givenToken == null) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 의 값이 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        /*
+            expired check
+            status : 401 , message : 리프레시 토큰이 만료되었습니다.
+         */
+        if (jwtUtil.isExpired(givenToken)) {
+            // response status code
+            ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+
+        /*
+            토큰이 refresh token 이 맞는지 확인
+            status : 401 , message : refresh token이 아닙니다.
+         */
+        String tokenType = jwtUtil.getTokenType(givenToken);
+        if (!tokenType.equals("refresh")) {
+
+            // response status code
+            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 아닙니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        /*
+            DB를 조회해 refresh token 대조. 없으면 메시지
+            status : 401 , message : 인증이 불가능한 토큰 입니다.
+         */
+        Boolean isNotExist = refreshTokenRepository.existsByRefresh(givenToken);
+        if (isNotExist) {
+
+            // response status code
+            ErrorResponse errorResponse = new ErrorResponse(401, "인증이 불가능한 토큰 입니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        // 토큰에 문제가 없을 때 실행
+        String username = jwtUtil.getUsername(givenToken);
+        Long userNo = userRepository.findNoByUsername(username);
+        System.out.println("userNo = " + userNo);
+
+        // refresh_token 삭제
+        refreshTokenRepository.deleteRefreshToken(givenToken);
+        // users 삭제
+        userRepository.deleteAccount(username);
+        // social_user 삭제
+        if (userNo != null) {
+            System.out.println("userNo = " + userNo);
+            socialUserRepository.deleteSocialAccount(userNo);
+        }
+
+
+
+        ErrorResponse errorResponse = new ErrorResponse(200, "토큰이 재발급 되었습니다.");
+        return ResponseEntity
+                .ok()
+                .body(errorResponse);
+    }
 
     //---- api를 만들지 않는 methods
 
@@ -178,7 +283,7 @@ public class UserService {
 
         for (int i = 0; i < username.length(); i++) {
             char currentChar = username.charAt(i);
-            if (Character.isDigit(currentChar) || (currentChar=='@') ||(currentChar=='.')) {
+            if (Character.isDigit(currentChar) || (currentChar == '@') || (currentChar == '.')) {
                 break;
             }
             if (Character.isLetter(currentChar)) {
@@ -195,7 +300,7 @@ public class UserService {
 
         for (int i = 0; i < username.length(); i++) {
             char currentChar = username.charAt(i);
-            if (Character.isDigit(currentChar) || currentChar=='@') {
+            if (Character.isDigit(currentChar) || currentChar == '@') {
                 break;
             }
 
