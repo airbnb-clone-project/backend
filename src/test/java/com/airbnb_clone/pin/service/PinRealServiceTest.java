@@ -1,7 +1,11 @@
 package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.common.annotation.DataJdbcTestAnnotation;
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import com.airbnb_clone.pin.repository.TagMySQLRepository;
@@ -11,14 +15,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DataJdbcTestAnnotation
@@ -34,9 +40,6 @@ public class PinRealServiceTest {
     private TagMySQLRepository tagMySQLRepository;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @MockBean
@@ -49,7 +52,7 @@ public class PinRealServiceTest {
     @BeforeEach
     void setUp() {
         tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
-        pinMySQLRepository = new PinMySQLRepository(jdbcTemplate);
+        pinMySQLRepository = new PinMySQLRepository(namedParameterJdbcTemplate);
         pinService = new PinService(pinMongoRepository, pinMySQLRepository, tagMySQLRepository);
 
         firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L));
@@ -64,7 +67,7 @@ public class PinRealServiceTest {
             // given
             //태그 선 생성
             String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
-            jdbcTemplate.update(insertTagQuery);
+            namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
             // when
             Long actualPinNo = pinService.savePin(firstPinCreateRequestDTO);
@@ -72,8 +75,10 @@ public class PinRealServiceTest {
             // then
             assertThat(actualPinNo).isNotNull();
 
-            String findPinQuery = "SELECT NO , USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT, CREATED_AT, UPDATED_AT FROM PIN WHERE NO = ?";
-            Map<String, Object> foundPinMap = jdbcTemplate.queryForMap(findPinQuery, actualPinNo);
+            String findPinQuery = """
+                    SELECT NO , USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT, CREATED_AT, UPDATED_AT \
+                    FROM PIN WHERE NO = ?""";
+            Map<String, Object> foundPinMap = namedParameterJdbcTemplate.queryForMap(findPinQuery, new MapSqlParameterSource("no", actualPinNo));
 
             assertThat(foundPinMap).isNotNull();
             assertThat(foundPinMap.get("NO")).isNotNull().isEqualTo(actualPinNo);
@@ -87,6 +92,62 @@ public class PinRealServiceTest {
             assertThat(foundPinMap.get("LIKE_COUNT")).isEqualTo(0);
             assertThat(foundPinMap.get("CREATED_AT")).isNotNull();
             assertThat(foundPinMap.get("UPDATED_AT")).isNotNull();
+        }
+    }
+
+
+    @Nested
+    @DisplayName("핀 수정 테스트")
+    class UpdatePinTest {
+        @Test
+        @DisplayName("핀 수정 성공 케이스")
+        void When_UpdatePin_Expect_Success() {
+            // given
+            //태그 선 생성
+            String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
+            namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
+
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now());
+
+            Long actualPinNo = pinMySQLRepository.savePinAndGetId(savePin);
+
+            PinUpdateRequestDTO updatePinCreateRequestDTO = PinUpdateRequestDTO.of("수정된 핀 제목", "수정된 핀 설명", "수정된 핀 링크", 2L, false);
+
+            // when
+            Long updatedPinNo = pinService.updatePin(actualPinNo, updatePinCreateRequestDTO);
+
+            // then
+            assertThat(updatedPinNo).isNotNull().isEqualTo(actualPinNo);
+
+            String findPinQuery = """
+                    SELECT NO , USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT, CREATED_AT, UPDATED_AT \
+                    FROM PIN WHERE NO = :no""";
+
+            Map<String, Object> foundPinMap = namedParameterJdbcTemplate.queryForMap(findPinQuery, new MapSqlParameterSource("no", updatedPinNo));
+
+            assertThat(foundPinMap).isNotNull();
+            assertThat(foundPinMap.get("NO")).isNotNull().isEqualTo(actualPinNo);
+            assertThat(foundPinMap.get("USER_NO")).isNotNull().isEqualTo(savePin.getUserNo());
+            assertThat(foundPinMap.get("IMG_URL")).isEqualTo(savePin.getImgUrl());
+            assertThat(foundPinMap.get("TITLE")).isEqualTo(updatePinCreateRequestDTO.getTitle());
+            assertThat(foundPinMap.get("DESCRIPTION")).isEqualTo(updatePinCreateRequestDTO.getDescription());
+            assertThat(foundPinMap.get("LINK")).isEqualTo(updatePinCreateRequestDTO.getLink());
+            assertThat(foundPinMap.get("BOARD_NO")).isEqualTo(updatePinCreateRequestDTO.getBoardNo());
+            assertThat(foundPinMap.get("IS_COMMENT_ALLOWED")).isEqualTo(updatePinCreateRequestDTO.isCommentAllowed());
+            assertThat(foundPinMap.get("LIKE_COUNT")).isEqualTo(0);
+            assertThat(foundPinMap.get("CREATED_AT")).isNotEqualTo(foundPinMap.get("UPDATED_AT"));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 핀 수정 시도 시 예외 발생")
+        void When_UpdateNotExistsPin_Expect_Exception() {
+            // given
+            PinUpdateRequestDTO updatePinCreateRequestDTO = PinUpdateRequestDTO.of("수정된 핀 제목", "수정된 핀 설명", "수정된 핀 링크", 2L, false);
+
+            // when & then
+            assertThatThrownBy(() -> pinService.updatePin(1L, updatePinCreateRequestDTO))
+                    .isInstanceOf(PinNotFoundException.class)
+                    .hasMessage(ErrorCode.UPDATE_PIN_NOT_FOUND.getMessage());
         }
     }
 }
