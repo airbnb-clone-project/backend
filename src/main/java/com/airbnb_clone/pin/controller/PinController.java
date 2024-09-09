@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * packageName    : com.airbnb_clone.pin.controller
@@ -79,6 +80,15 @@ public class PinController {
     public HttpEntity<ApiResponse<Long>> updatePin(@PathVariable("pin-no") Long pinNo, @RequestBody @Valid PinUpdateRequestDTO pinUpdateRequestDTO) {
         return ResponseEntity.ok(
                 ApiResponse.of("핀이 정상적으로 수정되었습니다.", HttpStatus.OK.value(), pinService.updatePin(pinNo, pinUpdateRequestDTO))
+        );
+    }
+
+    @DeleteMapping("/pin/{pin-no}/v1")
+    public HttpEntity<ApiResponse<?>> deletePin(@PathVariable("pin-no") Long pinNo) {
+        pinService.deletePinSoftly(pinNo);
+
+        return ResponseEntity.ok(
+                ApiResponse.of("핀이 정상적으로 삭제되었습니다.", HttpStatus.OK.value(), Optional.empty())
         );
     }
 }

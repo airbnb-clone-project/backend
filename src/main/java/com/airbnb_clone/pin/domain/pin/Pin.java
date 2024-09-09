@@ -26,7 +26,9 @@ public class Pin extends BaseTime {
     private boolean isCommentAllowed;
     private int likeCount;
 
-    public static Pin of(Long userNo, String imgUrl, String title, String description, String link, Set<Tag> tags, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private boolean isPinDeleted;
+
+    public static Pin of(Long userNo, String imgUrl, String title, String description, String link, Set<Tag> tags, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isPinDeleted) {
         return Pin.builder()
                 .userNo(userNo)
                 .imgUrl(imgUrl)
@@ -39,6 +41,7 @@ public class Pin extends BaseTime {
                 .likeCount(0)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
+                .isPinDeleted(isPinDeleted)
                 .build();
     }
 }

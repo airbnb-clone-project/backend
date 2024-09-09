@@ -82,6 +82,12 @@ public class PinService {
         pinMongoRepository.updateInnerTempPin(new ObjectId(tempPinNo), temporaryPinCreateRequestDTO);
     }
 
+    /**
+     * 핀 생성
+     *
+     * @param pinCreateRequestDTO Pin 생성 요청 DTO
+     * @return 생성된 Pin 번호
+     */
     public Long savePin(@Valid PinCreateRequestDTO pinCreateRequestDTO) {
         vaildateTagIsExist(pinCreateRequestDTO);
 
@@ -99,6 +105,13 @@ public class PinService {
         }
     }
 
+    /**
+     * 핀 수정
+     *
+     * @param pinNo 핀 번호
+     * @param pinUpdateRequestDTO 핀 수정 요청 DTO
+     * @return 수정된 핀 번호
+     */
     @Transactional(readOnly = false)
     public Long updatePin(Long pinNo, @Valid PinUpdateRequestDTO pinUpdateRequestDTO) {
         if (!pinMySQLRepository.existsPinByNo(pinNo)) {
@@ -106,5 +119,19 @@ public class PinService {
         }
 
         return pinMySQLRepository.updatePinAndGetId(pinNo, pinUpdateRequestDTO);
+    }
+
+    /**
+     * 핀 소프트 딜리트
+     *
+     * @param pinNo 삭제할 핀 번호
+     */
+    @Transactional(readOnly = false)
+    public void deletePinSoftly(Long pinNo) {
+        if (!pinMySQLRepository.existsPinByNo(pinNo)) {
+            throw new PinNotFoundException(ErrorCode.DELETE_PIN_NOT_FOUND);
+        }
+
+        pinMySQLRepository.deletePinSoftly(pinNo);
     }
 }
