@@ -43,7 +43,15 @@ public class SocialUserRepository {
         }
     }
 
-
+    // 소셜 계정 삭제
+    public void deleteSocialAccount(Long userNo) {
+        String sql = "DELETE FROM social_user WHERE user_no = ?";
+        try {
+            jdbcTemplate.update(sql, userNo);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("토큰 삭제 중 오류가 발생했습니다." + e.getMessage());
+        }
+    }
 
     public Optional<SocialUser> findByProviderId(String providerId){
         String sql = "SELECT user_no, provider, provider_id FROM social_user WHERE provider_id = ?";
