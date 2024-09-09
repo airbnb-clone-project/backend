@@ -36,9 +36,9 @@ public class CustomExceptionHandler {
     @ExceptionHandler(PinNotFoundException.class)
     protected HttpEntity<ErrorResponse> handlePinNotFoundException(PinNotFoundException e) {
         log.error("handlePinNotFoundException", e);
-        ErrorResponse response = ErrorResponse.of(ErrorCode.PIN_NOT_FOUND);
+        ErrorResponse response = ErrorResponse.of(e.getErrorCode());
 
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(e.getHttpStatus()));
     }
 
     @ExceptionHandler(TagNotFoundException.class)
