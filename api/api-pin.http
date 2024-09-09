@@ -54,3 +54,7 @@ Content-Type: application/json
     "isCommentAllowed": true,
     "link": "https://www.airbnb.co.kr/rooms/2"
 }
+
+### 핀 삭제 테스트
+DELETE {{url}}/api/pins/pin/1/v1
+Content-Type: application/json

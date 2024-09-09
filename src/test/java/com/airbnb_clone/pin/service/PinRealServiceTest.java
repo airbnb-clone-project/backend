@@ -95,6 +95,46 @@ public class PinRealServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("핀 삭제 테스트")
+    class DeletePinTest {
+        @Test
+        @DisplayName("핀 삭제 성공 케이스")
+        void When_DeletePin_Expect_Success() {
+            // given
+            //태그 선 생성
+            String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
+            namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
+
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+
+            Long actualPinNo = pinMySQLRepository.savePinAndGetId(savePin);
+
+            // when
+            pinService.deletePinSoftly(actualPinNo);
+
+            // then
+            String findPinQuery = """
+                    SELECT IS_PIN_DELETED \
+                    FROM PIN WHERE NO = :no""";
+
+
+            Map<String, Object> foundPinMap = namedParameterJdbcTemplate.queryForMap(findPinQuery, new MapSqlParameterSource("no", actualPinNo));
+
+            assertThat(foundPinMap).isNotNull();
+            assertThat(foundPinMap.get("IS_PIN_DELETED")).isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 핀 삭제 시도 시 예외 발생")
+        void When_DeleteNotExistsPin_Expect_Exception() {
+            // when & then
+            assertThatThrownBy(() -> pinService.deletePinSoftly(1L))
+                    .isInstanceOf(PinNotFoundException.class)
+                    .hasMessage(ErrorCode.DELETE_PIN_NOT_FOUND.getMessage());
+        }
+    }
+
 
     @Nested
     @DisplayName("핀 수정 테스트")
@@ -107,7 +147,7 @@ public class PinRealServiceTest {
             String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
             namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
-            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now());
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
 
             Long actualPinNo = pinMySQLRepository.savePinAndGetId(savePin);
 
