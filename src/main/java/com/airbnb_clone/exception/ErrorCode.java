@@ -18,6 +18,7 @@ public enum ErrorCode {
     //Pin
     PIN_NOT_FOUND(BAD_REQUEST.value(), "존재하지 않는 핀입니다."),
     UPDATE_PIN_NOT_FOUND(BAD_REQUEST.value(), "수정할 핀을 찾을 수 없습니다."),
+    DELETE_PIN_NOT_FOUND(BAD_REQUEST.value(), "삭제할 핀을 찾을 수 없습니다."),
 
     // Image
     CONTENT_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 컨텐츠 타입입니다."),

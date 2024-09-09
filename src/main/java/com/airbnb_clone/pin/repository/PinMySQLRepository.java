@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class PinMySQLRepository {
 
         jt.update(sql, parameters, keyHolder, new String[]{"NO"});
 
-        return (Long) Objects.requireNonNull(keyHolder.getKeys()).get("NO");
+        return ((BigInteger) Objects.requireNonNull(keyHolder.getKeys()).get("GENERATED_KEY")).longValue();
     }
 
     public Long updatePinAndGetId(Long pinNo, PinUpdateRequestDTO updatePin) {
@@ -81,5 +82,14 @@ public class PinMySQLRepository {
         jt.update(sql, parameters);
 
         return pinNo;
+    }
+
+    public void deletePinSoftly(Long pinNo) {
+        String sql = "UPDATE PIN SET IS_PIN_DELETED = TRUE WHERE NO = :no";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("no", pinNo);
+
+        jt.update(sql, parameters);
     }
 }
