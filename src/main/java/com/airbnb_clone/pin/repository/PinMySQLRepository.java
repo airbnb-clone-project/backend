@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -61,7 +60,7 @@ public class PinMySQLRepository {
 
         jt.update(sql, parameters, keyHolder, new String[]{"NO"});
 
-        return ((BigInteger) Objects.requireNonNull(keyHolder.getKeys()).get("GENERATED_KEY")).longValue();
+        return  Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
     public Long updatePinAndGetId(Long pinNo, PinUpdateRequestDTO updatePin) {

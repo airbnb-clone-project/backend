@@ -77,7 +77,7 @@ public class PinRealServiceTest {
 
             String findPinQuery = """
                     SELECT NO , USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT, CREATED_AT, UPDATED_AT \
-                    FROM PIN WHERE NO = ?""";
+                    FROM PIN WHERE NO = :no""";
             Map<String, Object> foundPinMap = namedParameterJdbcTemplate.queryForMap(findPinQuery, new MapSqlParameterSource("no", actualPinNo));
 
             assertThat(foundPinMap).isNotNull();
