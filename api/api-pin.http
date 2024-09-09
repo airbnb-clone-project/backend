@@ -42,3 +42,15 @@ Content-Type: application/json
     "tagNos": [1, 2],
     "userNo": 1
 }
+
+### 핀 수정 테스트
+PUT {{url}}/api/pins/pin/1/v1
+Content-Type: application/json
+
+{
+    "boardNo": 1,
+    "description": "핀 수정 테스트",
+    "title": "핀 수정 테스트",
+    "isCommentAllowed": true,
+    "link": "https://www.airbnb.co.kr/rooms/2"
+}
