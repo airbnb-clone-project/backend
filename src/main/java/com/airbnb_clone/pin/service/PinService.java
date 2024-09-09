@@ -6,6 +6,7 @@ import com.airbnb_clone.exception.tag.TagNotFoundException;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
@@ -96,5 +97,14 @@ public class PinService {
         if(isNotExistTag) {
             throw new TagNotFoundException(ErrorCode.TAG_NOT_FOUND);
         }
+    }
+
+    @Transactional(readOnly = false)
+    public Long updatePin(Long pinNo, @Valid PinUpdateRequestDTO pinUpdateRequestDTO) {
+        if (!pinMySQLRepository.existsPinByNo(pinNo)) {
+            throw new PinNotFoundException(ErrorCode.UPDATE_PIN_NOT_FOUND);
+        }
+
+        return pinMySQLRepository.updatePinAndGetId(pinNo, pinUpdateRequestDTO);
     }
 }
