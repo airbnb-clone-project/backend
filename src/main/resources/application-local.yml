@@ -14,6 +14,9 @@ spring:
     mongodb:
       uri: mongodb://mongo:27017/airbnb
       database: airbnb
+    redis:
+      host: redis
+      port: 6379
 
   cloud:
     aws:

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -90,5 +91,25 @@ public class PinMySQLRepository {
                 .addValue("no", pinNo);
 
         jt.update(sql, parameters);
+    }
+
+    public List<PinMainResponseDTO> findPinsToCached(int offset, int cacheSize) {
+        String sql = """
+                SELECT NO, IMG_URL, LINK, CREATED_AT, UPDATED_AT \
+                FROM PIN \
+                WHERE IS_PIN_DELETED = FALSE \
+                LIMIT :cacheSize OFFSET :offset""";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("offset", offset)
+                .addValue("cacheSize", cacheSize);
+
+        return jt.query(sql, parameters, (rs, rowNum) -> PinMainResponseDTO.of(
+                rs.getLong("NO"),
+                rs.getString("IMG_URL"),
+                rs.getString("LINK"),
+                rs.getTimestamp("CREATED_AT").toLocalDateTime(),
+                rs.getTimestamp("UPDATED_AT").toLocalDateTime()
+        ));
     }
 }
