@@ -135,7 +135,6 @@ public class PinRealServiceTest {
         }
     }
 
-
     @Nested
     @DisplayName("핀 수정 테스트")
     class UpdatePinTest {

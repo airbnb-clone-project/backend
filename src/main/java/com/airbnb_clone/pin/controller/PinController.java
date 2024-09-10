@@ -91,4 +91,13 @@ public class PinController {
                 ApiResponse.of("핀이 정상적으로 삭제되었습니다.", HttpStatus.OK.value(), Optional.empty())
         );
     }
+
+    @PostMapping("/pin/force-update-to-redis-batch/v1")
+    public HttpEntity<ApiResponse<?>> forceUpdateToRedisBatch() {
+        pinService.cacheAllPinsToRedis();
+
+        return ResponseEntity.ok(
+                ApiResponse.of("모든 핀이 정상적으로 강제로 레디스에 업데이트되었습니다.. (부하 주의)", HttpStatus.OK.value(), Optional.empty())
+        );
+    }
 }
