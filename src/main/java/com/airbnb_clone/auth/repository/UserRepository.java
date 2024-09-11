@@ -123,7 +123,7 @@ public class UserRepository {
         }
     }
 
-    public Optional<Users> findByUsername(String username) {
+    public Optional<Users> findUsernamePasswordByUsername(String username) {
         String sql = "SELECT username, password FROM users WHERE username = ?";
 
         try {
@@ -133,6 +133,26 @@ public class UserRepository {
                     return Users.builder()
                             .username(rs.getString("username"))
                             .password(rs.getString("password"))
+                            .build();
+                }
+            });
+            return users.stream().findFirst();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("데이터베이스 조회 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    public Optional<Users> findByUsername(String username) {
+        String sql = "SELECT description, first_name,last_name FROM users WHERE username = ?";
+
+        try {
+            List<Users> users = jdbcTemplate.query(sql, new Object[]{username}, new RowMapper<Users>() {
+                @Override
+                public Users mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return Users.builder()
+                            .description(rs.getString("description"))
+                            .lastName(rs.getString("lastname"))
+                            .firstName(rs.getString("firstname"))
                             .build();
                 }
             });

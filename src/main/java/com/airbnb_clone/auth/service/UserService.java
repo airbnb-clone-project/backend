@@ -13,15 +13,20 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.JSONObject;
+import netscape.javascript.JSObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -273,6 +278,30 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(errorResponse);
+    }
+
+    public ResponseEntity<?> getUserInformation(HttpServletRequest request) {
+        // header 에서 토큰 획득
+        // 토큰 검증
+        // 토큰에서 username 획득
+        String username = "sdf";
+
+        Users users = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
+
+        Map<String, Object> jsonBody = new HashMap<>();
+        jsonBody.put("status", 200);
+        jsonBody.put("message", "개인정보 불러오기 성공 했습니다.");
+
+        Map<String, String> data = new HashMap<>();
+        data.put("description", users.getDescription());
+        data.put("firstName", users.getFirstName());
+        data.put("lastName", users.getLastName());
+        jsonBody.put("data", data);
+
+        return ResponseEntity
+                .ok()
+                .body(jsonBody);
+
     }
 
     //---- api를 만들지 않는 methods

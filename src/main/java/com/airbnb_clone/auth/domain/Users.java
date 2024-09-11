@@ -20,18 +20,20 @@ public class Users extends BaseTime {
     private String lastName; // 닉네임
     private String spokenLanguage;
     private String country;
+    private String description;
     private String gender;
     private LocalDate birthday;
     private String profileImgUrl; // 프로필 사진
     private boolean isSocial;
 
     private Users(LocalDateTime createdAt, LocalDateTime updatedAt, Long no, String username,
-                  boolean isSocial, String firstName, String lastName, LocalDate birthday, String profileImgUrl, String country, String spokenLanguage) {
+                  boolean isSocial, String description, String firstName, String lastName, LocalDate birthday, String profileImgUrl, String country, String spokenLanguage) {
         super(createdAt, updatedAt);
         this.no = no;
         this.username = username;
         this.isSocial = isSocial;
         this.firstName = firstName;
+        this.description = description;
         this.lastName = lastName;
         this.birthday = birthday;
         this.profileImgUrl = profileImgUrl;
