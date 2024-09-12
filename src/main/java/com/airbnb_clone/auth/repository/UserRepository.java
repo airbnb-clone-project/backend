@@ -151,8 +151,8 @@ public class UserRepository {
                 public Users mapRow(ResultSet rs, int rowNum) throws SQLException {
                     return Users.builder()
                             .description(rs.getString("description"))
-                            .lastName(rs.getString("lastname"))
-                            .firstName(rs.getString("firstname"))
+                            .lastName(rs.getString("last_name"))
+                            .firstName(rs.getString("first_name"))
                             .build();
                 }
             });
