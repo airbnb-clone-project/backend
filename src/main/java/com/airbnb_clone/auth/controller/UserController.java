@@ -46,7 +46,7 @@ public class UserController {
         return userService.changePassword(request);
     }
 
-    @GetMapping("/me") // description, lastName, firstName
+    @GetMapping("/profiles") // description, lastName, firstName
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         return userService.getProfile(request);
     }
