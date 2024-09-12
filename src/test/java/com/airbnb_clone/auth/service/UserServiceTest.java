@@ -335,6 +335,15 @@ class UserServiceTest {
 
         ResponseEntity<?> result = userService.getProfile(request);
 
+        String body = result.getBody().toString();
+        System.out.println(body);
+
+        assertTrue(body.contains("firstName"));
+        assertTrue(body.contains("lastName"));
+        assertTrue(body.contains("description"));
+        assertTrue(body.contains("message=개인정보 불러오기 성공 했습니다."));
+        assertTrue(body.contains("status=200"));
+
         verify(jwtUtil, times(1)).getUsername(anyString());
         verify(userRepository, times(1)).findByUsername(username);
         assertEquals(HttpStatus.OK, result.getStatusCode());
