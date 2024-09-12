@@ -11,6 +11,7 @@ import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDT
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.PinRedisRepository;
 import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,9 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @MockBean
     private TagMySQLRepository tagMySQLRepository;
 
+    @MockBean
+    private PinRedisRepository pinRedisRepository;
+
     @Autowired
     private MongoTemplate mt;
     private PinMongoRepository pinMongoRepository;
@@ -50,7 +54,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @BeforeEach
     void setUp() {
         pinMongoRepository = new PinMongoRepository(mt);
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository, tagMySQLRepository);
+        pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
         FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image.jpg", 1L);
         SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image2.jpg", 1L);
 
@@ -109,7 +113,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
 
     @Nested
     @DisplayName("임시 핀 조회 테스트")
-    class GetTempPinTest {
+    class ReadTempPinTest {
         @Test
         @DisplayName("임시 핀 조회 성공 케이스")
         public void When_getTemporaryPin_Expect_Success() {
