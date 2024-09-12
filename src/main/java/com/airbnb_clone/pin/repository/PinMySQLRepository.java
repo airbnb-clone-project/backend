@@ -2,6 +2,7 @@ package com.airbnb_clone.pin.repository;
 
 import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -98,6 +99,7 @@ public class PinMySQLRepository {
                 SELECT NO, IMG_URL, LINK, CREATED_AT, UPDATED_AT \
                 FROM PIN \
                 WHERE IS_PIN_DELETED = FALSE \
+                ORDER BY CREATED_AT DESC \
                 LIMIT :cacheSize OFFSET :offset""";
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
@@ -111,5 +113,27 @@ public class PinMySQLRepository {
                 rs.getTimestamp("CREATED_AT").toLocalDateTime(),
                 rs.getTimestamp("UPDATED_AT").toLocalDateTime()
         ));
+    }
+
+    public void saveAll(List<Pin> savePins) {
+        String sql = """
+                INSERT INTO PIN (USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, CREATED_AT, UPDATED_AT) \
+                VALUES (:userNo, :imgUrl, :title, :description, :link, :boardNo, :isCommentAllowed, :createdAt, :updatedAt)""";
+
+        List<MapSqlParameterSource> parameters = savePins.stream()
+                .map(pin -> new MapSqlParameterSource()
+                        .addValue("userNo", pin.getUserNo())
+                        .addValue("imgUrl", pin.getImgUrl())
+                        .addValue("title", pin.getTitle())
+                        .addValue("description", pin.getDescription())
+                        .addValue("link", pin.getLink())
+                        .addValue("boardNo", pin.getBoardNo())
+                        .addValue("isCommentAllowed", pin.isCommentAllowed())
+                        .addValue("createdAt", Timestamp.valueOf(pin.getCreatedAt()))
+                        .addValue("updatedAt", Timestamp.valueOf(pin.getUpdatedAt()))
+                )
+                .toList();
+
+        jt.batchUpdate(sql, parameters.toArray(new MapSqlParameterSource[0]));
     }
 }
