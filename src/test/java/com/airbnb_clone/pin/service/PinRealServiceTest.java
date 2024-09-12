@@ -6,8 +6,10 @@ import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.PinRedisRepository;
 import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,11 +23,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @DataJdbcTestAnnotation
 @TestPropertySource(properties = {
@@ -45,6 +49,9 @@ public class PinRealServiceTest {
     @MockBean
     private PinMongoRepository pinMongoRepository;
 
+    @MockBean
+    private PinRedisRepository pinRedisRepository;
+
     private PinService pinService;
 
     private PinCreateRequestDTO firstPinCreateRequestDTO;
@@ -53,9 +60,46 @@ public class PinRealServiceTest {
     void setUp() {
         tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
         pinMySQLRepository = new PinMySQLRepository(namedParameterJdbcTemplate);
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository, tagMySQLRepository);
+        pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
 
         firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L));
+    }
+
+    @Nested
+    @DisplayName("핀 조회 테스트")
+    class ReadPinTest {
+
+        @Test
+        @DisplayName("메인 레디스 캐시할 핀 조회 성공 케이스")
+        void test1() {
+            // given
+            //태그 선 생성
+            String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
+            namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
+
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+            Pin savePin2 = Pin.of(2L, "http://example.com/image2.jpg", "핀 제목2", "핀 설명2", "핀 링크2", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+
+            pinMySQLRepository.saveAll(List.of(savePin, savePin2));
+
+            final int CACHE_SIZE = 1;
+            final int offset = 0;
+
+            // when
+            List<PinMainResponseDTO> actualMainPinResponses = pinService.findPinsToCached(offset, CACHE_SIZE);
+
+            // then
+            assertThat(actualMainPinResponses).isNotNull();
+            assertSoftly(
+                    softly -> {
+                        softly.assertThat(actualMainPinResponses.size()).isEqualTo(CACHE_SIZE);
+                        softly.assertThat(actualMainPinResponses.get(0).getLink()).isEqualTo(savePin.getLink());
+                        softly.assertThat(actualMainPinResponses.get(0).getImageUrl()).isEqualTo(savePin.getImgUrl());
+                        softly.assertThat(actualMainPinResponses.get(0).getCreatedAt()).isNotNull();
+                        softly.assertThat(actualMainPinResponses.get(0).getUpdatedAt()).isNotNull();
+                    }
+            );
+        }
     }
 
     @Nested
