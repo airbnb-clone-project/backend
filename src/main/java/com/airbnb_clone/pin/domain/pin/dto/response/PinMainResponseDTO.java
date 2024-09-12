@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.repository;
+package com.airbnb_clone.pin.domain.pin.dto.response;
 
 import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
 import lombok.*;

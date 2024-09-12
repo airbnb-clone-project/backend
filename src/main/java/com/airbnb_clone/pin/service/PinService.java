@@ -9,9 +9,13 @@ import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
-import com.airbnb_clone.pin.repository.*;
+import com.airbnb_clone.pin.repository.PinMongoRepository;
+import com.airbnb_clone.pin.repository.PinMySQLRepository;
+import com.airbnb_clone.pin.repository.PinRedisRepository;
+import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -136,6 +140,10 @@ public class PinService {
         pinMySQLRepository.deletePinSoftly(pinNo);
     }
 
+    public List<PinMainResponseDTO> findPinsToCached(int offset, int limit) {
+        return pinMySQLRepository.findPinsToCached(offset, limit);
+    }
+
     /**
      * 적절한 개수의 핀을 Redis에 캐싱
      */
@@ -143,7 +151,7 @@ public class PinService {
     public void cacheAllPinsToRedis() {
         int offset = 0;
         while (true) {
-            List<PinMainResponseDTO> pinsToCached = pinMySQLRepository.findPinsToCached(offset, CACHE_SIZE);
+            List<PinMainResponseDTO> pinsToCached = findPinsToCached(offset, CACHE_SIZE);
             if (pinsToCached.isEmpty()) {
                 break;
             }

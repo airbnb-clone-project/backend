@@ -24,7 +24,7 @@ public class PinScheduler {
 
     @Async
     @Scheduled(cron = "0 0 0 * * *")
-    public void deleteTempPins() {
+    public void cacheAllPinsToRedis() {
         pinService.cacheAllPinsToRedis();
     }
 }
