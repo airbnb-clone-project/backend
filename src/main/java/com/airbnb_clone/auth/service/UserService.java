@@ -280,7 +280,9 @@ public class UserService {
                 .body(errorResponse);
     }
 
+    // access token 입령
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
+
         // header 에서 토큰 획득
         String bearerAccessToken = request.getHeader("Authorization");
         String accessToken = bearerAccessToken.substring(7);

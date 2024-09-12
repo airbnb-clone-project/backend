@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -28,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -64,6 +66,8 @@ class UserServiceTest {
     private ReissueService reissueService;
 
     private MockHttpServletResponse response;
+    @Mock
+    private MockHttpServletRequest request;
 
     @BeforeEach
     void setUp() {
@@ -312,5 +316,27 @@ class UserServiceTest {
         assertEquals(401, body.getStatus());
         assertEquals("비밀번호 변경 실패 했습니다.",body.getMessage());
         verify(userRepository, never()).updatePassword(anyString(), anyString());
+    }
+
+
+    @Test
+    @DisplayName("프로필 가져오기")
+    void loadProfileSuccess(){
+        Users user = Users.builder()
+                .username(username)
+                .firstName("test")
+                .lastName("")
+                .description("description here")
+                .build();
+
+        when(request.getHeader("Authorization")).thenReturn("Bearer accessToken");
+        when(jwtUtil.getUsername("accessToken")).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.ofNullable(user));
+
+        ResponseEntity<?> result = userService.getProfile(request);
+
+        verify(jwtUtil, times(1)).getUsername(anyString());
+        verify(userRepository, times(1)).findByUsername(username);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 }
