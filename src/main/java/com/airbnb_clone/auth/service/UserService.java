@@ -280,17 +280,19 @@ public class UserService {
                 .body(errorResponse);
     }
 
-    public ResponseEntity<?> getUserInformation(HttpServletRequest request) {
+    public ResponseEntity<?> getProfile(HttpServletRequest request) {
         // header 에서 토큰 획득
-        // 토큰 검증
+        String bearerAccessToken = request.getHeader("Authorization");
+        String accessToken = bearerAccessToken.substring(7);
+
         // 토큰에서 username 획득
-        String username = "sdf";
+        String username = jwtUtil.getUsername(accessToken);
 
         Users users = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
 
         Map<String, Object> jsonBody = new HashMap<>();
-        jsonBody.put("status", 200);
         jsonBody.put("message", "개인정보 불러오기 성공 했습니다.");
+        jsonBody.put("status", 200);
 
         Map<String, String> data = new HashMap<>();
         data.put("description", users.getDescription());
@@ -301,7 +303,6 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(jsonBody);
-
     }
 
     //---- api를 만들지 않는 methods
