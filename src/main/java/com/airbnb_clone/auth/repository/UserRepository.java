@@ -26,6 +26,7 @@ import java.util.Optional;
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
  * 24. 8. 31.        DK       계정 추가정보 업데이트 기능 추가
+ * 24. 9. 13.        DK       username 기준 profile 정보 가져오는 기능 추가
  */
 @Repository
 @RequiredArgsConstructor

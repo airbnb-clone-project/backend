@@ -43,6 +43,7 @@ import java.util.Optional;
  * 24. 8. 30.        DK       계정 생성시 acc/ref token 생성
  * 24. 8. 31.        DK       계정 추가정보 업데이트 기능 추가
  * 24. 9. 04.        DK       추가정보, 비밀번호 변경 username 입력 받지 않게 변경
+ * 24. 9. 13.        DK       profile 가져오는 기능 추가
  */
 @Service
 @RequiredArgsConstructor

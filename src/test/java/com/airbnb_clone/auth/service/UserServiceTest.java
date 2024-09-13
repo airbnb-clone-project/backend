@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
  * -----------------------------------------------------------
  * 2024. 8. 31.        doungukkim       최초 생성
  * 2024. 9. 6.        doungukkim       유저 추가정보 입력 테스트 코드 추가
- *
+ * 2024. 9. 13.        doungukkim       profile 불러오는 성공 test code 추가
  */
 
 class UserServiceTest {
