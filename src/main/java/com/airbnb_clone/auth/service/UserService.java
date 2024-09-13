@@ -5,6 +5,7 @@ import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.SocialUserRepository;
@@ -314,6 +315,36 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(jsonBody);
+    }
+
+    public ResponseEntity<?> setProfile(HttpServletRequest request, UsersProfileRequest usersProfileRequest) {
+
+        // 토큰 검사
+        // header 에서 토큰 획득
+        String bearerAccessToken = request.getHeader("Authorization");
+        String accessToken = bearerAccessToken.substring(7);
+
+        // 토큰에서 username 획득
+        String username = jwtUtil.getUsername(accessToken);
+
+        // username과 일치하는 username 있는지 확인
+        if (userRepository.isUsernameNotExist(username)) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        // dto에 유저이름 추가
+        usersProfileRequest.setUsername(username);
+
+        // repository를 통해 저장
+        userRepository.updateUserProfile(usersProfileRequest);
+
+        ErrorResponse errorResponse = new ErrorResponse(200, "유저 프로필 정보 업데이트 했습니다.");
+        return ResponseEntity
+                .ok()
+                .body(errorResponse);
     }
 
     //---- api를 만들지 않는 methods
