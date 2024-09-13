@@ -159,7 +159,7 @@ public class UserRepository {
         }
     }
 
-    public Optional<Users> findByUsername(String username) {
+    public Optional<Users> findProfileByUsername(String username) {
         String sql = "SELECT description, first_name,last_name FROM users WHERE username = ?";
 
         try {
@@ -170,6 +170,28 @@ public class UserRepository {
                             .description(rs.getString("description"))
                             .lastName(rs.getString("last_name"))
                             .firstName(rs.getString("first_name"))
+                            .build();
+                }
+            });
+            return users.stream().findFirst();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("데이터베이스 조회 중 오류가 발생했습니다.", e);
+        }
+    }
+    // 이메일 비밀번호 생일 성별 국가 언어
+    public Optional<Users> findAccountByUsername(String username) {
+        String sql = "SELECT username, birthday,gender, country,spoken_language FROM users WHERE username = ?";
+
+        try {
+            List<Users> users = jdbcTemplate.query(sql, new Object[]{username}, new RowMapper<Users>() {
+                @Override
+                public Users mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return Users.builder()
+                            .username(rs.getString("username"))
+                            .birthday(rs.getObject("birthday", LocalDate.class))
+                            .gender(rs.getString("gender"))
+                            .country(rs.getString("country"))
+                            .spokenLanguage(rs.getString("spoken_language"))
                             .build();
                 }
             });

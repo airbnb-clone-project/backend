@@ -282,7 +282,7 @@ public class UserService {
                 .body(errorResponse);
     }
 
-    // access token 입령
+    // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
 
         // header 에서 토큰 획득
@@ -300,10 +300,10 @@ public class UserService {
                     .body(errorResponse);
         }
 
-        Users users = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
+        Users users = userRepository.findProfileByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
 
         Map<String, Object> jsonBody = new HashMap<>();
-        jsonBody.put("message", "개인정보 불러오기 성공 했습니다.");
+        jsonBody.put("message", "프로필 정보 불러오기 성공 했습니다.");
         jsonBody.put("status", 200);
 
         Map<String, String> data = new HashMap<>();
@@ -317,6 +317,7 @@ public class UserService {
                 .body(jsonBody);
     }
 
+    // access/json
     public ResponseEntity<?> setProfile(HttpServletRequest request, UsersProfileRequest usersProfileRequest) {
 
         // 토큰 검사
@@ -345,6 +346,42 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(errorResponse);
+    }
+
+    // 이메일 생일 성별 국가 언어
+    public ResponseEntity<?> getAccount(HttpServletRequest request) {
+        // header 에서 토큰 획득
+        String bearerAccessToken = request.getHeader("Authorization");
+        String accessToken = bearerAccessToken.substring(7);
+
+        // 토큰에서 username 획득
+        String username = jwtUtil.getUsername(accessToken);
+
+        // username과 일치하는 username 있는지 확인
+        if (userRepository.isUsernameNotExist(username)) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+
+        Users users = userRepository.findAccountByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
+
+        Map<String, Object> jsonBody = new HashMap<>();
+        jsonBody.put("message", "계정 정보 불러오기 성공 했습니다.");
+        jsonBody.put("status", 200);
+
+        // 이메일 생일 성별 국가 언어
+        Map<String, String> data = new HashMap<>();
+        data.put("username", users.getUsername());
+        data.put("birthday", users.getBirthday().toString());
+        data.put("gender", users.getGender());
+        data.put("spokenLanguage", users.getSpokenLanguage());
+        jsonBody.put("data", data);
+
+        return ResponseEntity
+                .ok()
+                .body(jsonBody);
     }
 
     //---- api를 만들지 않는 methods

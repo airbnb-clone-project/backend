@@ -65,4 +65,9 @@ public class UserController {
     public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
         return userService.eraseAccounts(request);
     }
+
+    @GetMapping("/accounts")
+    public ResponseEntity<?> getAccount(HttpServletRequest request) {
+        return userService.getAccount(request);
+    }
 }
