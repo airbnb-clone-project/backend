@@ -6,6 +6,7 @@ import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
@@ -327,7 +328,7 @@ class UserServiceTest {
 
 
     @Test
-    @DisplayName("프로필 가져오기")
+    @DisplayName("프로필 가져오기 - 성공")
     void loadProfileSuccess(){
 
         // given
@@ -347,7 +348,6 @@ class UserServiceTest {
 
         // then
         String body = result.getBody().toString();
-        System.out.println(body);
 
         // body 확인
         assertTrue(body.contains("firstName"));
@@ -360,4 +360,27 @@ class UserServiceTest {
         verify(userRepository, times(1)).findByUsername(username);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
+
+    @Test
+    @DisplayName("프로필 저장하기 - 성공")
+    void saveProfiles() {
+        UsersProfileRequest usersProfileRequest = new UsersProfileRequest();
+        usersProfileRequest.setFirstName("first");
+        usersProfileRequest.setLastName("last");
+        usersProfileRequest.setDescription("test description");
+
+        String access = "Bearer access";
+        when(request.getHeader("Authorization")).thenReturn(access);
+        when(jwtUtil.getUsername("access")).thenReturn(username);
+        when(userRepository.isUsernameNotExist(username)).thenReturn(false);
+
+        ResponseEntity<?> result = userService.setProfile(request, usersProfileRequest);
+
+        verify(userRepository, times(1)).isUsernameNotExist(username);
+        ErrorResponse errorResponse = (ErrorResponse) result.getBody();
+        assertEquals(200, errorResponse.getStatus());
+        assertEquals("유저 프로필 정보 업데이트 했습니다.", errorResponse.getMessage());
+
+    }
 }
+
