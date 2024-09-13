@@ -61,11 +61,13 @@ public class JwtFilter extends OncePerRequestFilter {
         accessToken = bearerAccessToken.substring(7);
 
         /*
-            토큰 만료 여부 확인. access token 만료 시간 확인
-            만료시 예외 반환
+            try - access token 만료 여부 확인
+            catch - 만료시 예외 반환
+            catch - 토큰에 문제가 있어 인증이 불가능할 경우 예외 반환
          */
         try {
             jwtUtil.isExpired(accessToken);
+
         } catch (ExpiredJwtException e) {
 
             // status : 401, message : 토큰 만료
@@ -79,6 +81,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
 
         } catch (Exception e) {
+
             // status : 401, message : 인증 불가능한 토큰 입니다.
             response.setContentType("application/json");
             response.setStatus(401);
