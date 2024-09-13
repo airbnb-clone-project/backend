@@ -38,7 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-        System.out.println("CustomOAuth2UserService.loadUser");
+
         // name, username, providerId
         OAuth2User oAuth2User = super.loadUser(request);
 
@@ -133,11 +133,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return new CustomOAuth2User(socialUserDto);
         }
+
         /*
             이미 소셜 로그인을 해봤던 경우
             업데이트만 진행
          */
-
         else {
             /*
             google 계정의 이름이 바뀌었을 수 있으니 이름 다시 저장
