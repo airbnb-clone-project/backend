@@ -283,14 +283,20 @@ public class UserService {
     // access token 입령
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
 
-        // 토큰 증명
-
         // header 에서 토큰 획득
         String bearerAccessToken = request.getHeader("Authorization");
         String accessToken = bearerAccessToken.substring(7);
 
         // 토큰에서 username 획득
         String username = jwtUtil.getUsername(accessToken);
+
+        // username과 일치하는 username 있는지 확인
+        if (userRepository.isUsernameNotExist(username)) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
 
         Users users = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
 

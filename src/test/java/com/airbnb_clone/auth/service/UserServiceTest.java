@@ -122,6 +122,8 @@ class UserServiceTest {
     @Test
     @DisplayName("이메일 회원가입 - 실패(회원 중복)")
     void registerFailure() {
+
+        // given
         UserRegisterRequest request = new UserRegisterRequest();
         request.setUsername("test@test2.com");
         request.setPassword("2222");
@@ -131,6 +133,7 @@ class UserServiceTest {
         // when
         ResponseEntity<?> result = userService.register(request, response);
 
+        // then
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
         assertEquals(401, body.getStatus());
@@ -147,7 +150,6 @@ class UserServiceTest {
         request.setGender("assert helicopter");
         request.setSpokenLanguage("Korean");
 
-
         // username = SercurityContext.getContext().getAuthentication().getName()
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
@@ -159,8 +161,10 @@ class UserServiceTest {
 
         when(userRepository.isUsernameNotExist(username)).thenReturn(false);
 
+        // when
         ResponseEntity<?> result = userService.saveMoreUserInformation(request);
 
+        // then
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
         assertEquals(200, body.getStatus());
@@ -171,6 +175,7 @@ class UserServiceTest {
     @Test
     @DisplayName("유저 추가정보 입력 - 실패(유저정보 없음)")
     void addMoreUserInfoFail() {
+        // given
         String wrongUsername = "wrong@test.com";
 
         MoreUserRegisterRequest request = new MoreUserRegisterRequest();
@@ -192,8 +197,10 @@ class UserServiceTest {
         // 유저가 있을경우 jwt를 조회해 찾은 결과는 있어야
         when(userRepository.isUsernameNotExist(wrongUsername)).thenReturn(true);
 
+        // when
         ResponseEntity<?> result = userService.saveMoreUserInformation(request);
 
+        // then
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
         assertEquals(401, body.getStatus());
@@ -322,6 +329,8 @@ class UserServiceTest {
     @Test
     @DisplayName("프로필 가져오기")
     void loadProfileSuccess(){
+
+        // given
         Users user = Users.builder()
                 .username(username)
                 .firstName("test")
@@ -333,11 +342,14 @@ class UserServiceTest {
         when(jwtUtil.getUsername("accessToken")).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.ofNullable(user));
 
+        // when
         ResponseEntity<?> result = userService.getProfile(request);
 
+        // then
         String body = result.getBody().toString();
         System.out.println(body);
 
+        // body 확인
         assertTrue(body.contains("firstName"));
         assertTrue(body.contains("lastName"));
         assertTrue(body.contains("description"));
