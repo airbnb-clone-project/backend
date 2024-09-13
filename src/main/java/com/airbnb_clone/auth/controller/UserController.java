@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -63,6 +62,7 @@ public class UserController {
     // cascade 관련 문제가 있기 때문에 수정이 필요, 호출하지 않는 한 에러 메세지가 나오진 않음
     @DeleteMapping("/erase-accounts")
     public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
+
         return userService.eraseAccounts(request);
     }
 
