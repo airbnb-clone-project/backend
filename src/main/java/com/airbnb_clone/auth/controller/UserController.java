@@ -60,7 +60,6 @@ public class UserController {
         return userService.setProfile(request, usersProfileRequest);
     }
 
-
     // cascade 관련 문제가 있기 때문에 수정이 필요, 호출하지 않는 한 에러 메세지가 나오진 않음
     @DeleteMapping("/erase-accounts")
     public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
