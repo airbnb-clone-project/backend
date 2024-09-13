@@ -80,9 +80,10 @@ public class UserRepository {
                     request.getUsername()
             );
         } catch (DataAccessException e) {
-            throw new RuntimeException("사용자 정보 등록 중 오류가 발생 했습니다.", e);
+            throw new RuntimeException("프로필 정보 등록 중 오류가 발생 했습니다.", e);
         }
     }
+
 
     public Long findNoByUsername(String username) {
         String sql = "SELECT no FROM users WHERE username = ?";

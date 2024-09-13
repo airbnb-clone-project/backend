@@ -14,8 +14,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import net.minidev.json.JSONObject;
-import netscape.javascript.JSObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 
 /**
@@ -58,11 +55,6 @@ public class UserService {
     private final SocialUserRepository socialUserRepository;
 
 
-    /**
-     * 회원가입
-     *
-     * @param request username, password, birthday
-     */
     @Transactional
     public ResponseEntity<?> register(UserRegisterRequest request, HttpServletResponse response) {
 
@@ -284,13 +276,8 @@ public class UserService {
 
     // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // header 에서 토큰 획득
-        String bearerAccessToken = request.getHeader("Authorization");
-        String accessToken = bearerAccessToken.substring(7);
-
-        // 토큰에서 username 획득
-        String username = jwtUtil.getUsername(accessToken);
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
@@ -320,13 +307,8 @@ public class UserService {
     // access/json
     public ResponseEntity<?> setProfile(HttpServletRequest request, UsersProfileRequest usersProfileRequest) {
 
-        // 토큰 검사
-        // header 에서 토큰 획득
-        String bearerAccessToken = request.getHeader("Authorization");
-        String accessToken = bearerAccessToken.substring(7);
 
-        // 토큰에서 username 획득
-        String username = jwtUtil.getUsername(accessToken);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
@@ -350,12 +332,8 @@ public class UserService {
 
     // 이메일 생일 성별 국가 언어
     public ResponseEntity<?> getAccount(HttpServletRequest request) {
-        // header 에서 토큰 획득
-        String bearerAccessToken = request.getHeader("Authorization");
-        String accessToken = bearerAccessToken.substring(7);
 
-        // 토큰에서 username 획득
-        String username = jwtUtil.getUsername(accessToken);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
@@ -384,7 +362,11 @@ public class UserService {
                 .body(jsonBody);
     }
 
-    //---- api를 만들지 않는 methods
+
+    /*
+        api를 만들지 않는 methods
+     */
+
 
     // username(email)에서 first name 생성
     public String makeFirstName(String username) {
