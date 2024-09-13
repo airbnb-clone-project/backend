@@ -341,7 +341,7 @@ class UserServiceTest {
 
         when(request.getHeader("Authorization")).thenReturn("Bearer accessToken");
         when(jwtUtil.getUsername("accessToken")).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.ofNullable(user));
+        when(userRepository.findProfileByUsername(username)).thenReturn(Optional.ofNullable(user));
 
         // when
         ResponseEntity<?> result = userService.getProfile(request);
@@ -353,17 +353,18 @@ class UserServiceTest {
         assertTrue(body.contains("firstName"));
         assertTrue(body.contains("lastName"));
         assertTrue(body.contains("description"));
-        assertTrue(body.contains("message=개인정보 불러오기 성공 했습니다."));
+        assertTrue(body.contains("message=프로필 정보 불러오기 성공 했습니다."));
         assertTrue(body.contains("status=200"));
 
         verify(jwtUtil, times(1)).getUsername(anyString());
-        verify(userRepository, times(1)).findByUsername(username);
+        verify(userRepository, times(1)).findProfileByUsername(username);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 
     @Test
     @DisplayName("프로필 저장하기 - 성공")
     void saveProfiles() {
+        // given
         UsersProfileRequest usersProfileRequest = new UsersProfileRequest();
         usersProfileRequest.setFirstName("first");
         usersProfileRequest.setLastName("last");
@@ -374,13 +375,50 @@ class UserServiceTest {
         when(jwtUtil.getUsername("access")).thenReturn(username);
         when(userRepository.isUsernameNotExist(username)).thenReturn(false);
 
+        // when
         ResponseEntity<?> result = userService.setProfile(request, usersProfileRequest);
 
+        // then
         verify(userRepository, times(1)).isUsernameNotExist(username);
         ErrorResponse errorResponse = (ErrorResponse) result.getBody();
         assertEquals(200, errorResponse.getStatus());
         assertEquals("유저 프로필 정보 업데이트 했습니다.", errorResponse.getMessage());
 
     }
+
+    @Test
+    @DisplayName("계정 정보 가져오기 - 성공")
+    void getAccountSuccess() {
+        // given
+        Users user = Users.builder()
+                .username(username)
+                .birthday(LocalDate.of(1995,4,28))
+                .gender("male")
+                .spokenLanguage("Korean")
+                .build();
+
+        when(request.getHeader("Authorization")).thenReturn("Bearer accessToken");
+        when(jwtUtil.getUsername("accessToken")).thenReturn(username);
+        when(userRepository.findAccountByUsername(username)).thenReturn(Optional.ofNullable(user));
+
+        // when
+        ResponseEntity<?> result = userService.getAccount(request);
+
+        // then
+        String body = result.getBody().toString();
+
+        // body 확인
+        assertTrue(body.contains("username=test@test.com"));
+        assertTrue(body.contains("birthday=1995-04-28"));
+        assertTrue(body.contains("gender=male"));
+        assertTrue(body.contains("message=계정 정보 불러오기 성공 했습니다."));
+        assertTrue(body.contains("status=200"));
+
+        verify(jwtUtil, times(1)).getUsername(anyString());
+        verify(userRepository, times(1)).findAccountByUsername(username);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+
+    }
+
 }
 
