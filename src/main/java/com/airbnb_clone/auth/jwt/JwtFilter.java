@@ -6,11 +6,13 @@ import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.users.CustomUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,13 +54,11 @@ public class JwtFilter extends OncePerRequestFilter {
          */
         if (bearerAccessToken == null) {
             filterChain.doFilter(request, response);
-
             return;
-        } else {
-            // Bearer 을 지운다.
-            accessToken = bearerAccessToken.substring(7);
         }
 
+        // Bearer 을 지운다.
+        accessToken = bearerAccessToken.substring(7);
 
         /*
             토큰 만료 여부 확인. access token 만료 시간 확인
@@ -68,7 +68,6 @@ public class JwtFilter extends OncePerRequestFilter {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
 
-
             // status : 401, message : 토큰 만료
             response.setContentType("application/json");
             response.setStatus(401);
@@ -77,12 +76,23 @@ public class JwtFilter extends OncePerRequestFilter {
             ErrorResponse errorResponse = new ErrorResponse(401, "엑세스 토큰 만료되었습니다.");
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(response.getOutputStream(), errorResponse);
+            return;
 
+        } catch (Exception e) {
+            // status : 401, message : 인증 불가능한 토큰 입니다.
+            response.setContentType("application/json");
+            response.setStatus(401);
+
+            // response body
+            ErrorResponse errorResponse = new ErrorResponse(401, "인증 불가능한 토큰 입니다.");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(response.getOutputStream(), errorResponse);
             return;
         }
 
         // 토큰 타입
         String tokenType = jwtUtil.getTokenType(accessToken);
+
         /*
             토큰을 까서 Authorization 확인
             header 에 access 로 보낼 수 있지만 토큰이 access 토큰이 맞는지 확인

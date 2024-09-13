@@ -2,6 +2,7 @@ package com.airbnb_clone.auth.repository;
 
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -65,6 +66,21 @@ public class UserRepository {
             );
         } catch (DataAccessException e) {
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    public void updateUserProfile(UsersProfileRequest request) {
+        String sql = "UPDATE users SET first_name = ?, last_name = ?, description = ?" +
+                "WHERE username = ?";
+        try {
+            jdbcTemplate.update(sql,
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getDescription(),
+                    request.getUsername()
+            );
+        } catch (DataAccessException e) {
+            throw new RuntimeException("사용자 정보 등록 중 오류가 발생 했습니다.", e);
         }
     }
 
