@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
+ * 24. 9. 13.        DK       profile 가져오는 controller 추가
  */
 
 @RestController
