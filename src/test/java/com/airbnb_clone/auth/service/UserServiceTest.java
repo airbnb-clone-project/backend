@@ -339,8 +339,16 @@ class UserServiceTest {
                 .description("description here")
                 .build();
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer accessToken");
-        when(jwtUtil.getUsername("accessToken")).thenReturn(username);
+
+        // SecurityContextHolder.getContext().getAuthentication().getName())
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        SecurityContextHolder.setContext(securityContext);
+
         when(userRepository.findProfileByUsername(username)).thenReturn(Optional.ofNullable(user));
 
         // when
@@ -356,7 +364,6 @@ class UserServiceTest {
         assertTrue(body.contains("message=프로필 정보 불러오기 성공 했습니다."));
         assertTrue(body.contains("status=200"));
 
-        verify(jwtUtil, times(1)).getUsername(anyString());
         verify(userRepository, times(1)).findProfileByUsername(username);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
@@ -397,8 +404,15 @@ class UserServiceTest {
                 .spokenLanguage("Korean")
                 .build();
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer accessToken");
-        when(jwtUtil.getUsername("accessToken")).thenReturn(username);
+        // SecurityContextHolder.getContext().getAuthentication().getName())
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(username);
+
+        SecurityContextHolder.setContext(securityContext);
+
         when(userRepository.findAccountByUsername(username)).thenReturn(Optional.ofNullable(user));
 
         // when
@@ -414,7 +428,7 @@ class UserServiceTest {
         assertTrue(body.contains("message=계정 정보 불러오기 성공 했습니다."));
         assertTrue(body.contains("status=200"));
 
-        verify(jwtUtil, times(1)).getUsername(anyString());
+
         verify(userRepository, times(1)).findAccountByUsername(username);
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
