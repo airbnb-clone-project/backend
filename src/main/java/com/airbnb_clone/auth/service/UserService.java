@@ -10,6 +10,9 @@ import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.SocialUserRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
+import com.airbnb_clone.config.s3.AwsS3Config;
+import com.airbnb_clone.image.helper.S3UniqueKeyGenerator;
+import com.airbnb_clone.image.validator.ContentTypeValidator;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +24,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,6 +58,9 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final SocialUserRepository socialUserRepository;
+
+
+
 
 
     @Transactional
@@ -367,9 +375,8 @@ public class UserService {
         api를 만들지 않는 methods
      */
 
-
     // username(email)에서 first name 생성
-    public String makeFirstName(String username) {
+    private String makeFirstName(String username) {
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < username.length(); i++) {
@@ -385,7 +392,7 @@ public class UserService {
     }
 
     // username(email)에서 last name 생성
-    public String makeLastName(String username) {
+    private String makeLastName(String username) {
         StringBuilder result = new StringBuilder();
         boolean lastNameExist = false;
 
