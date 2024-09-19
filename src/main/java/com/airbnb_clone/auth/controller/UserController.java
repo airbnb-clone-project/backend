@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartRequest;
+
+import java.util.Map;
 
 
 /**
@@ -42,7 +45,7 @@ public class UserController {
         return userService.saveMoreUserInformation(request);
     }
 
-    @PostMapping("/new-password")
+    @PostMapping("/new-password") // password, newPassword
     public ResponseEntity<?> changePassword(@RequestBody NewPasswordRequest request) {
         return userService.changePassword(request);
     }
@@ -54,7 +57,7 @@ public class UserController {
     }
 
     // profile 저장
-    @PostMapping("/register-profiles") // description, lastName, firstName
+    @PostMapping("/profiles") // description, lastName, firstName
     public ResponseEntity<?> setProfile(@RequestBody UsersProfileRequest usersProfileRequest, HttpServletRequest request) {
         return userService.setProfile(request, usersProfileRequest);
     }
@@ -70,4 +73,13 @@ public class UserController {
     public ResponseEntity<?> getAccount(HttpServletRequest request) {
         return userService.getAccount(request);
     }
+
+    // 
+    @ResponseBody
+    @GetMapping("/profile-images")
+    public Map<String, Object> profileImageUpload(MultipartRequest request) {
+
+        return;
+    }
+
 }
