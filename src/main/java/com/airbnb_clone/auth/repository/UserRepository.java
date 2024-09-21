@@ -52,7 +52,6 @@ public class UserRepository {
 
     // 유저 저장
     public void registerUser(Users user) {
-
         String sql = "INSERT INTO users (username, password, first_name, last_name, birthday, is_social) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
         try {
@@ -67,6 +66,11 @@ public class UserRepository {
         } catch (DataAccessException e) {
             throw new RuntimeException("사용자 등록 중 오류가 발생했습니다.", e);
         }
+    }
+
+    public void updateUserProfileImage(String username, String imageUrl) {
+        String sql = "UPDATE users SET profileImgUrl = ? WHERE username = ?";
+        jdbcTemplate.update(sql, imageUrl, username);
     }
 
     public void updateUserProfile(UsersProfileRequest request) {
