@@ -217,7 +217,7 @@ class UserServiceTest {
         NewPasswordRequest request = new NewPasswordRequest();
         request.setPassword(oldPassword);
         request.setNewPassword(newPassword);
-        request.setUsername(username);
+
 
         // SecurityContext와 Authentication 모킹
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -251,7 +251,6 @@ class UserServiceTest {
         NewPasswordRequest newPasswordRequest = new NewPasswordRequest();
         newPasswordRequest.setPassword(oldPassword);
         newPasswordRequest.setNewPassword(newPassword);
-        newPasswordRequest.setUsername(username);
 
         // SecurityContext와 Authentication 모킹
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -294,7 +293,6 @@ class UserServiceTest {
     void changePasswordFailure() {
 
         NewPasswordRequest request = new NewPasswordRequest();
-        request.setUsername(username);
         request.setPassword(oldPassword);
         request.setNewPassword(newPassword);
 
