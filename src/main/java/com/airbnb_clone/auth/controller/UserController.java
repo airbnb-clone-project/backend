@@ -4,6 +4,7 @@ import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
+import com.airbnb_clone.auth.service.ProfileImageService;
 import com.airbnb_clone.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final ProfileImageService profileImageService;
 
     @PostMapping("/register") // username, password
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request, HttpServletResponse response) {
@@ -74,12 +76,11 @@ public class UserController {
         return userService.getAccount(request);
     }
 
-    // 
+    // 이미지 저장
     @ResponseBody
     @GetMapping("/profile-images")
-    public Map<String, Object> profileImageUpload(MultipartRequest request) {
-
-        return;
+    public ResponseEntity<?> profileImageUpload(@RequestParam String profileImageUrl) {
+        return profileImageService.saveProfileImageMetadata(profileImageUrl);
     }
 
 }
