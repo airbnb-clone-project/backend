@@ -69,7 +69,7 @@ public class UserRepository {
     }
 
     public void updateUserProfileImage(String username, String imageUrl) {
-        String sql = "UPDATE users SET profileImgUrl = ? WHERE username = ?";
+        String sql = "UPDATE users SET profile_img_url = ? WHERE username = ?";
         jdbcTemplate.update(sql, imageUrl, username);
     }
 
