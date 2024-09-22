@@ -1,6 +1,18 @@
 ### 임시 핀 생성
 POST {{url}}/api/pins/pin/temp/v1
+Content-Type: multipart/form-data; boundary=--WebAppBoundary
 
+--WebAppBoundary
+Content-Disposition: form-data; name="userNo"
+Content-Type: text/plain
+
+1
+--WebAppBoundary
+Content-Disposition: form-data; name="imageFile"; filename="img.jpg"
+Content-Type: image/jpeg
+
+< C:\Users\ipeac\IdeaProjects\backend\api\sample-image\img.png
+--WebAppBoundary--
 
 
 ### 임시 핀 조회
@@ -34,6 +46,7 @@ Content-Type: application/json
     "isCommentAllowed": true,
     "link": "https://www.airbnb.co.kr/rooms/2",
     "imgUrl": "https://www.airbnb.co.kr/rooms/1000",
+    "imageClassification": "음식",
     "tagNos": [1, 2],
     "userNo": 1
 }

@@ -2,6 +2,7 @@ package com.airbnb_clone.pin.domain.pin;
 
 import com.airbnb_clone.Tag;
 import com.airbnb_clone.common.BaseTime;
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,11 +25,12 @@ public class Pin extends BaseTime {
     private Set<Tag> tags = new LinkedHashSet<>();
     private Long boardNo;
     private boolean isCommentAllowed;
+    private String imageClassification;
     private int likeCount;
 
     private boolean isPinDeleted;
 
-    public static Pin of(Long userNo, String imgUrl, String title, String description, String link, Set<Tag> tags, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isPinDeleted) {
+    public static Pin of(Long userNo, String imgUrl, String title, String description, String link, Set<Tag> tags, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isPinDeleted, ImageClassificationEnum imageClassification) {
         return Pin.builder()
                 .userNo(userNo)
                 .imgUrl(imgUrl)
@@ -39,6 +41,7 @@ public class Pin extends BaseTime {
                 .boardNo(boardNo)
                 .isCommentAllowed(isCommentAllowed)
                 .likeCount(0)
+                .imageClassification(imageClassification.getKoreanName())
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .isPinDeleted(isPinDeleted)

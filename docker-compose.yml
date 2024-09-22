@@ -58,6 +58,7 @@ services:
     volumes:
       - './localstack:/var/lib/localstack'
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./setup/s3/init.sh:/etc/localstack/init/ready.d/init-localstack.sh"
     networks:
       - app-tier
     depends_on:
