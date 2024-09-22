@@ -8,6 +8,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -18,16 +23,26 @@ public class S3ImageServiceTest extends LocalStackTestContainer {
     private S3ImageService s3ImageService;
     private AwsS3Config s3Config;
 
+    private S3Client s3Client;
+
     @BeforeEach
     public void setUp() {
         s3Config = new AwsS3Config();
+
         ReflectionTestUtils.setField(s3Config, "accessKey", "test");
         ReflectionTestUtils.setField(s3Config, "secretKey", "test");
         ReflectionTestUtils.setField(s3Config, "region", "ap-northeast-2");
         ReflectionTestUtils.setField(s3Config, "endpoint", localStackContainer.getEndpointOverride(LocalStackContainer.Service.S3).toString());
         ReflectionTestUtils.setField(s3Config, "bucketName", "test-bucket");
 
-        s3ImageService = new S3ImageService(s3Config);
+        s3Client = S3Client.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
+                .region(Region.of("ap-northeast-2"))
+                .endpointOverride(localStackContainer.getEndpointOverride(LocalStackContainer.Service.S3))
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+                .build();
+
+        s3ImageService = new S3ImageService(s3Config, s3Client);
     }
 
     @Test

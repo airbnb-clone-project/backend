@@ -1,6 +1,7 @@
 package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.common.testcontainer.RedisTestContainer;
+import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -56,11 +58,14 @@ public class PinRedisServiceTest extends RedisTestContainer {
     @Autowired
     private PinRedisRepository pinRedisRepository;
 
+    @MockBean
+    private S3ImageFacade s3ImageFacade;
+
     @BeforeEach
     void setUp() {
         pinRedisRepository.deleteAll();
 
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
     }
 
     @Nested

@@ -36,3 +36,8 @@ spring:
 #          mongodb:
 #            core:
 #              MongoTemplate: DEBUG
+# application.yml
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

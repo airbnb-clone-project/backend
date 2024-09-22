@@ -1,5 +1,6 @@
-package com.airbnb_clone.pin.facade;
+package com.airbnb_clone.image.facade;
 
+import com.airbnb_clone.image.dto.response.ImageClassificationResponseDTO;
 import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.image.service.ExternalApiService;
 import com.airbnb_clone.image.service.S3ImageService;
