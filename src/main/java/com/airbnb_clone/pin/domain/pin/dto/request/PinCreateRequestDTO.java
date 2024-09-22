@@ -1,5 +1,6 @@
 package com.airbnb_clone.pin.domain.pin.dto.request;
 
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.pin.domain.pin.Pin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -28,6 +29,9 @@ public class PinCreateRequestDTO {
     @Pattern(regexp = "^(http|https)://.*$", message = "이미지 URL 형식이 올바르지 않습니다")
     private String imgUrl;
 
+    @NotNull(message = "이미지 분류값은 필수입니다")
+    private String imageClassification;
+
     private String title;
 
     private String description;
@@ -40,7 +44,7 @@ public class PinCreateRequestDTO {
 
     private boolean isCommentAllowed;
 
-    public static PinCreateRequestDTO of(@NotNull Long userNo, @NotNull String imgUrl, String title, String description, String link, Long boardNo, boolean isCommentAllowed, Set<Long> tagNos) {
+    public static PinCreateRequestDTO of(@NotNull Long userNo, @NotNull String imgUrl, String title, String description, String link, Long boardNo, boolean isCommentAllowed, Set<Long> tagNos, ImageClassificationEnum imageClassification) {
         return PinCreateRequestDTO.builder()
                 .userNo(userNo)
                 .imgUrl(imgUrl)
@@ -48,6 +52,7 @@ public class PinCreateRequestDTO {
                 .description(description)
                 .link(link)
                 .boardNo(boardNo)
+                .imageClassification(imageClassification.getKoreanName())
                 .isCommentAllowed(isCommentAllowed)
                 .tagNos(tagNos)
                 .build();
@@ -62,6 +67,7 @@ public class PinCreateRequestDTO {
                 .link(link)
                 .boardNo(boardNo)
                 .isCommentAllowed(isCommentAllowed)
+                .imageClassification(imageClassification)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

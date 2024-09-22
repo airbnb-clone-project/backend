@@ -89,6 +89,7 @@ public class S3ImageService {
             }
         }catch (RuntimeException e){
             log.error("Failed to upload image to S3 : {}", e.getMessage());
+            throw e;
         }finally {
             if (tempFile != null) {
                 try {

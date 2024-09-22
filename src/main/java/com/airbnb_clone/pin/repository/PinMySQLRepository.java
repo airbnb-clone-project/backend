@@ -44,8 +44,8 @@ public class PinMySQLRepository {
 
     public Long savePinAndGetId(Pin savePin) {
         String sql = """
-                INSERT INTO PIN (USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, CREATED_AT, UPDATED_AT) \
-                VALUES (:userNo, :imgUrl, :title, :description, :link, :boardNo, :isCommentAllowed, :createdAt, :updatedAt)""";
+                INSERT INTO PIN (USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, IMAGE_CLASSIFICATION, CREATED_AT, UPDATED_AT) \
+                VALUES (:userNo, :imgUrl, :title, :description, :link, :boardNo, :isCommentAllowed, :imageClassification, :createdAt, :updatedAt)""";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -57,6 +57,7 @@ public class PinMySQLRepository {
                 .addValue("link", savePin.getLink())
                 .addValue("boardNo", savePin.getBoardNo())
                 .addValue("isCommentAllowed", savePin.isCommentAllowed())
+                .addValue("imageClassification", savePin.getImageClassification())
                 .addValue("createdAt", Timestamp.valueOf(savePin.getCreatedAt()))
                 .addValue("updatedAt", Timestamp.valueOf(savePin.getUpdatedAt()));
 
