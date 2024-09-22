@@ -1,4 +1,4 @@
-package com.airbnb_clone.pin.facade;
+package com.airbnb_clone.image.dto.response;
 
 import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import lombok.*;

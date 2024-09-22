@@ -3,11 +3,12 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataJdbcTestAnnotation;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
+import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
-import com.airbnb_clone.pin.facade.S3ImageFacade;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import com.airbnb_clone.pin.repository.PinRedisRepository;
@@ -55,6 +56,7 @@ public class PinRealServiceTest {
 
     private PinService pinService;
 
+    @MockBean
     private S3ImageFacade s3ImageFacade;
 
     private PinCreateRequestDTO firstPinCreateRequestDTO;
@@ -64,10 +66,9 @@ public class PinRealServiceTest {
         tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
         pinMySQLRepository = new PinMySQLRepository(namedParameterJdbcTemplate);
 
-        s3ImageFacade = new S3ImageFacade();
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
 
-        firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L));
+        firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L), ImageClassificationEnum.ART);
     }
 
     @Nested
@@ -82,8 +83,8 @@ public class PinRealServiceTest {
             String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
             namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
-            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
-            Pin savePin2 = Pin.of(2L, "http://example.com/image2.jpg", "핀 제목2", "핀 설명2", "핀 링크2", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
+            Pin savePin2 = Pin.of(2L, "http://example.com/image2.jpg", "핀 제목2", "핀 설명2", "핀 링크2", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
 
             pinMySQLRepository.saveAll(List.of(savePin, savePin2));
 
@@ -155,7 +156,7 @@ public class PinRealServiceTest {
             String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
             namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
-            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
 
             Long actualPinNo = pinMySQLRepository.savePinAndGetId(savePin);
 
@@ -195,7 +196,7 @@ public class PinRealServiceTest {
             String insertTagQuery = "INSERT INTO TAG (NO, CATEGORY_NO) VALUES (1, 1)";
             namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
-            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false);
+            Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
 
             Long actualPinNo = pinMySQLRepository.savePinAndGetId(savePin);
 

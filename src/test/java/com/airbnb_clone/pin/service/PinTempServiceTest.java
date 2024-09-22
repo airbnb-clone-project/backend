@@ -3,6 +3,9 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.image.dto.response.ImageClassificationResponseDTO;
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
+import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
@@ -18,19 +21,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @DataMongoTestAnnotation
+@ExtendWith(MockitoExtension.class)
 @DisplayName("임시 핀 서비스 테스트")
 public class PinTempServiceTest extends MongoDBTestContainer {
 
@@ -39,6 +53,9 @@ public class PinTempServiceTest extends MongoDBTestContainer {
 
     @MockBean
     private TagMySQLRepository tagMySQLRepository;
+
+    @MockBean
+    private S3ImageFacade s3ImageFacade;
 
     @MockBean
     private PinRedisRepository pinRedisRepository;
@@ -54,9 +71,17 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @BeforeEach
     void setUp() {
         pinMongoRepository = new PinMongoRepository(mt);
-        pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
-        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L);
-        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L);
+        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "imageFile",
+                "test-image.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "test image content".getBytes()
+        );
+
+        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L, mockFile);
+        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L, mockFile);
 
         mt.dropCollection(PinTemp.class);
     }
@@ -67,13 +92,25 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @Test
         @DisplayName("임시 핀 생성 성공 케이스")
         public void When_createTemporaryPin_Expect_Success() {
-            // given
-            InnerTempPin expectedInnerTempPin = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
+            //given
+            MultipartFile mockFile = mock(MultipartFile.class);
+            ImageClassificationResponseDTO mockResponse = ImageClassificationResponseDTO.of("http://example.com", ImageClassificationEnum.ART);
+
+            // S3ImageFacade.uploadAndClassifyImage 메서드 모킹
+            given(s3ImageFacade.uploadAndClassifyImage(any(MultipartFile.class)))
+                    .willReturn(Mono.just(mockResponse));
+
+            InnerTempPin expectedInnerTempPin = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
 
             PinTemp expectedPinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(expectedInnerTempPin));
 
             // when
-            pinService.createTempPin(FirstImageRequestOfFirstUser);
+            Mono<ObjectId> result = pinService.createTempPin(FirstImageRequestOfFirstUser);
+
+            // then
+            StepVerifier.create(result)
+                    .expectNextCount(1)
+                    .verifyComplete();
 
             // then
             PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(1L).get();
@@ -88,8 +125,15 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @Test
         @DisplayName("이미 존재하는 핀에 임시 핀 추가 시 케이스")
         public void When_addTemporaryPinToAlreadySavedPin_Expect_Success() {
-            // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
+            //given
+            MultipartFile mockFile = mock(MultipartFile.class);
+            ImageClassificationResponseDTO mockResponse = ImageClassificationResponseDTO.of("http://example.com", ImageClassificationEnum.ART);
+
+            // S3ImageFacade.uploadAndClassifyImage 메서드 모킹
+            given(s3ImageFacade.uploadAndClassifyImage(any(MultipartFile.class)))
+                    .willReturn(Mono.just(mockResponse));
+
+            InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
             PinTemp alreadySavedPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
@@ -97,14 +141,19 @@ public class PinTempServiceTest extends MongoDBTestContainer {
             mt.save(alreadySavedPin);
 
             // when
-            pinService.createTempPin(SecondImageRequestOfFirstUser);
+            Mono<ObjectId> result = pinService.createTempPin(SecondImageRequestOfFirstUser);
+
+            // when - 비동기 처리를 위한 StepVerifier 사용
+            StepVerifier.create(result)
+                    .expectNextCount(1)
+                    .verifyComplete();
 
             // then
             PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(1L).get();
 
             assertThat(foundTempPin.getUserNo()).isEqualTo(alreadySavedPin.getUserNo());
             assertThat(foundTempPin.getInnerTempPins().size()).isEqualTo(2);
-            assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().getImgUrl()).isEqualTo(SecondImageRequestOfFirstUser.getImageFile());
+            assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().getImgUrl()).isEqualTo("http://example.com");
 
             //내부에 임시 핀 id 가 생성되었는지 확인
             assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().get_id()).isNotNull();
@@ -118,7 +167,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 조회 성공 케이스")
         public void When_getTemporaryPin_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
+            InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
             PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
@@ -137,8 +186,8 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 리스트 조회 성공 케이스")
         public void When_getTemporaryPins_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
-            InnerTempPin e2 = InnerTempPin.of(SecondImageRequestOfFirstUser.getImageFile());
+            InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
+            InnerTempPin e2 = InnerTempPin.of("http://example2.com", ImageClassificationEnum.ART);
 
             PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1, e2));
             mt.save(pinTemp);
@@ -168,7 +217,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 수정 성공 케이스")
         public void When_updateTemporaryPin_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
+            InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
             PinTemp savedTempPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));

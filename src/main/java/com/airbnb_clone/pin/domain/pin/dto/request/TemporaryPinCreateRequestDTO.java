@@ -21,15 +21,16 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class TemporaryPinCreateRequestDTO {
-    @NotNull(message = "이미지 URL은 필수입니다.")
+    @NotNull(message = "이미지 파일은 필수입니다.")
     private MultipartFile imageFile;
 
     @NotNull(message = "사용자 번호는 필수입니다.")
     private Long userNo;
 
-    public static TemporaryPinCreateRequestDTO of(Long userNo) {
+    public static TemporaryPinCreateRequestDTO of(Long userNo, MultipartFile imageFile) {
         return TemporaryPinCreateRequestDTO.builder()
                 .userNo(userNo)
+                .imageFile(imageFile)
                 .build();
     }
 }

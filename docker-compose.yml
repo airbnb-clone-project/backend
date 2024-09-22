@@ -8,7 +8,7 @@ services:
   mysql:
     image: "mysql:8.0.36"
     container_name: airbnb-mysql
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: airbnb!@#
       MYSQL_DATABASE: airbnb
@@ -33,7 +33,7 @@ services:
   mongo:
     image: "mongo:8.0-rc"
     container_name: airbnb-mongo
-    restart: always
+    restart: unless-stopped
     ports:
       - "27017:27017"
     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--noauth"]
@@ -48,7 +48,7 @@ services:
   localstack:
     container_name: airbnb-localstack
     image: localstack/localstack:3.6
-    restart: always
+    restart: unless-stopped
     ports:
       - "4566:4566"
     environment:
@@ -67,7 +67,7 @@ services:
   redis:
       container_name: airbnb-redis
       image: redis:7.4.0
-      restart: always
+      restart: unless-stopped
       ports:
       - "6379:6379"
       networks:

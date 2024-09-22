@@ -1,6 +1,6 @@
 ### 임시 핀 생성
 POST {{url}}/api/pins/pin/temp/v1
-Content-Type: multipart/form-data; boundary=--WebAppBoundary
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="userNo"
