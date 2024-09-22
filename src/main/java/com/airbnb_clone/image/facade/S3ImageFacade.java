@@ -26,6 +26,12 @@ public class S3ImageFacade {
     private final S3ImageService s3ImageService;
     private final ExternalApiService externalApiService;
 
+    /**
+     *  S3 에 이미지 업로드 후 이미지 분류 요청 처리
+     *
+     * @param imageFile image file
+     * @return
+     */
     public Mono<ImageClassificationResponseDTO> uploadAndClassifyImage(MultipartFile imageFile) {
         String imageUrl = s3ImageService.uploadImage(imageFile);
         Mono<ImageClassificationEnum> imageCategory = externalApiService.classifyImage(imageFile);

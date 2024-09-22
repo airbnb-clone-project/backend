@@ -61,6 +61,12 @@ public class PinController {
         );
     }
 
+    /**
+     * 임시핀 생성 요청
+     *
+     * @param temporaryPinCreateRequestDTO 임시핀 생성 요청 DTO
+     * @return 생성된 임시핀의 ObjectId
+     */
     @PostMapping("/pin/temp/v1")
     public Mono<HttpEntity<ApiResponse<String>>> uploadImage(@ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
         return pinService.createTempPin(temporaryPinCreateRequestDTO)
