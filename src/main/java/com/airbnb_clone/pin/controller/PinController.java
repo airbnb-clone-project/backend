@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,10 +62,11 @@ public class PinController {
     }
 
     @PostMapping("/pin/temp/v1")
-    public HttpEntity<ApiResponse<String>> uploadImage(@RequestBody @Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
-        return ResponseEntity.ok(
-                ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), pinService.createTempPin(temporaryPinCreateRequestDTO).toString())
-        );
+    public Mono<HttpEntity<ApiResponse<String>>> uploadImage(@ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+        return pinService.createTempPin(temporaryPinCreateRequestDTO)
+                .map(objectId -> ResponseEntity.ok(
+                        ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), objectId.toString())
+                ));
     }
 
     //TODO : 향후 헤더의 토큰을 가져와서 유저번호를 추출하여 저장하는 로직으로 변경해야한다.

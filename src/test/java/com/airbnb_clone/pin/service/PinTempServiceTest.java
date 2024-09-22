@@ -55,8 +55,8 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     void setUp() {
         pinMongoRepository = new PinMongoRepository(mt);
         pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
-        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image.jpg", 1L);
-        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of("http://example.com/image2.jpg", 1L);
+        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L);
+        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L);
 
         mt.dropCollection(PinTemp.class);
     }
@@ -68,7 +68,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 생성 성공 케이스")
         public void When_createTemporaryPin_Expect_Success() {
             // given
-            InnerTempPin expectedInnerTempPin = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin expectedInnerTempPin = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
 
             PinTemp expectedPinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(expectedInnerTempPin));
 
@@ -89,7 +89,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("이미 존재하는 핀에 임시 핀 추가 시 케이스")
         public void When_addTemporaryPinToAlreadySavedPin_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
             mt.save(e1);
 
             PinTemp alreadySavedPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
@@ -104,7 +104,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
 
             assertThat(foundTempPin.getUserNo()).isEqualTo(alreadySavedPin.getUserNo());
             assertThat(foundTempPin.getInnerTempPins().size()).isEqualTo(2);
-            assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().getImgUrl()).isEqualTo(SecondImageRequestOfFirstUser.getImageUrl());
+            assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().getImgUrl()).isEqualTo(SecondImageRequestOfFirstUser.getImageFile());
 
             //내부에 임시 핀 id 가 생성되었는지 확인
             assertThat(foundTempPin.getInnerTempPins().stream().skip(1).findFirst().get().get_id()).isNotNull();
@@ -118,7 +118,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 조회 성공 케이스")
         public void When_getTemporaryPin_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
             mt.save(e1);
 
             PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
@@ -137,8 +137,8 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 리스트 조회 성공 케이스")
         public void When_getTemporaryPins_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
-            InnerTempPin e2 = InnerTempPin.of(SecondImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
+            InnerTempPin e2 = InnerTempPin.of(SecondImageRequestOfFirstUser.getImageFile());
 
             PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1, e2));
             mt.save(pinTemp);
@@ -168,7 +168,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
         @DisplayName("임시 핀 수정 성공 케이스")
         public void When_updateTemporaryPin_Expect_Success() {
             // given
-            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageUrl());
+            InnerTempPin e1 = InnerTempPin.of(FirstImageRequestOfFirstUser.getImageFile());
             mt.save(e1);
 
             PinTemp savedTempPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
