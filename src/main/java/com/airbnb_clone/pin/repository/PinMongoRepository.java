@@ -2,6 +2,7 @@ package com.airbnb_clone.pin.repository;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
@@ -52,10 +53,10 @@ public class PinMongoRepository {
         return pinTemp.getId();
     }
 
-    public ObjectId addInnerTempPinAndGetTempPinId(@NotNull Long userNo, @NotNull String imgUrl) {
+    public ObjectId addInnerTempPinAndGetTempPinId(@NotNull Long userNo, @NotNull String imgUrl, ImageClassificationEnum imageCategory) {
         Query query = new Query(Criteria.where("user_no").is(userNo));
 
-        InnerTempPin insertInnerTempPin = InnerTempPin.of(imgUrl);
+        InnerTempPin insertInnerTempPin = InnerTempPin.of(imgUrl, imageCategory);
 
         Update update = new Update().push("temp_pins", insertInnerTempPin);
 

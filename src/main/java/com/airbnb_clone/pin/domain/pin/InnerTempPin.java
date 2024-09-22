@@ -1,5 +1,6 @@
 package com.airbnb_clone.pin.domain.pin;
 
+import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import jakarta.validation.constraints.NotNull;
@@ -41,6 +42,9 @@ public class InnerTempPin {
     @Field(value = "LINK")
     public String link;
 
+    @Field(value =  "IMAGE_CLASSIFICATION")
+    public String imageClassification;
+
     @Field(value = "CREATED_AT")
     @CreatedDate
     public LocalDateTime createdAt;
@@ -52,10 +56,11 @@ public class InnerTempPin {
         _id = new ObjectId();
     }
 
-    public static InnerTempPin of(@NotNull String imgUrl) {
+    public static InnerTempPin of(@NotNull String imgUrl, @NotNull ImageClassificationEnum imageClassification) {
         return InnerTempPin.builder()
                 ._id(new ObjectId())
                 .imgUrl(imgUrl)
+                .imageClassification(imageClassification.getKoreanName())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -69,6 +74,7 @@ public class InnerTempPin {
                 .link(link)
                 .isCommentAllowed(isCommentAllowed)
                 .boardNo(boardNo)
+                .imageClassification(imageClassification)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
@@ -83,6 +89,7 @@ public class InnerTempPin {
                 .link(link)
                 .isCommentAllowed(isCommentAllowed)
                 .boardNo(boardNo)
+                .imageClassification(imageClassification)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();

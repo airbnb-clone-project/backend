@@ -25,7 +25,7 @@ public enum ErrorCode {
 
     // Tag
     TAG_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 태그입니다."),
-    ;
+    IMAGE_CLASSIFICATION_ENUM_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 이미지 분류입니다.");
 
     private final int status;
     private final String message;

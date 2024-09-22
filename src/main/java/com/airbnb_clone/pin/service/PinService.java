@@ -12,6 +12,7 @@ import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
+import com.airbnb_clone.pin.facade.S3ImageFacade;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import com.airbnb_clone.pin.repository.PinRedisRepository;
@@ -23,6 +24,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
@@ -45,6 +47,8 @@ import java.util.Set;
 public class PinService {
     private static final int CACHE_SIZE = 1000;
 
+    private final S3ImageFacade s3ImageFacade;
+
     private final PinMongoRepository pinMongoRepository;
     private final PinMySQLRepository pinMySQLRepository;
     private final PinRedisRepository pinRedisRepository;
@@ -52,18 +56,19 @@ public class PinService {
     private final TagMySQLRepository tagMySQLRepository;
 
     @Transactional(readOnly = false)
-    public ObjectId createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
-        return pinMongoRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
-                .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), temporaryPinCreateRequestDTO.getImageUrl()))
-                .orElseGet(() -> {
-                    InnerTempPin insertedInnserTempPin = InnerTempPin.of(temporaryPinCreateRequestDTO.getImageUrl());
+    public Mono<ObjectId> createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+        return s3ImageFacade.uploadAndClassifyImage(temporaryPinCreateRequestDTO.getImageFile())
+                .map(imageClassificationResponseDTO -> pinMongoRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
+                        .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), imageClassificationResponseDTO.getImageUrl(),imageClassificationResponseDTO.getImageCategory()))
+                        .orElseGet(() -> {
+                            InnerTempPin insertedInnserTempPin = InnerTempPin.of(imageClassificationResponseDTO.getImageUrl(), imageClassificationResponseDTO.getImageCategory());
 
-                    PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(insertedInnserTempPin));
+                            PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(insertedInnserTempPin));
 
-                    pinMongoRepository.saveAndGetPinId(createdTempPin);
+                            pinMongoRepository.saveAndGetPinId(createdTempPin);
 
-                    return insertedInnserTempPin.get_id();
-                });
+                            return insertedInnserTempPin.get_id();
+                        }));
     }
 
     public TemporaryPinDetailResponseDTO getTempPin(String tempPinNo) {
