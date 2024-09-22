@@ -7,6 +7,7 @@ import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
+import com.airbnb_clone.pin.facade.S3ImageFacade;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import com.airbnb_clone.pin.repository.PinRedisRepository;
@@ -54,12 +55,16 @@ public class PinRealServiceTest {
 
     private PinService pinService;
 
+    private S3ImageFacade s3ImageFacade;
+
     private PinCreateRequestDTO firstPinCreateRequestDTO;
 
     @BeforeEach
     void setUp() {
         tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
         pinMySQLRepository = new PinMySQLRepository(namedParameterJdbcTemplate);
+
+        s3ImageFacade = new S3ImageFacade();
         pinService = new PinService(pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
 
         firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L));
