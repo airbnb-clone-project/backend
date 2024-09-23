@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/test
+      uri: mongodb://172.19.0.1:27017/test
       database: test
     redis:
       host: redis
