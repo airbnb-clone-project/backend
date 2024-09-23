@@ -73,6 +73,15 @@ public class UserRepository {
         jdbcTemplate.update(sql, imageUrl, username);
     }
 
+    public String findProfileImageByUsername(String username) {
+        String sql = "SELECT profile_img_url FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, username);
+        } catch (EmptyResultDataAccessException e) {
+            // 결과가 없을 경우 null 반환 또는 예외 처리
+            return null;
+        }
+    }
     public void updateUserProfile(UsersProfileRequest request) {
         String sql = "UPDATE users SET first_name = ?, last_name = ?, description = ?" +
                 "WHERE username = ?";

@@ -78,9 +78,13 @@ public class UserController {
 
     // 이미지 저장
     @ResponseBody
-    @GetMapping("/profile-images")
-    public ResponseEntity<?> profileImageUpload(@RequestParam String profileImageUrl) {
+    @PostMapping("/profile-images")
+    public ResponseEntity<?> profileImageUpload(@RequestBody String profileImageUrl) {
         return profileImageService.saveProfileImageMetadata(profileImageUrl);
     }
 
+    @GetMapping("profile-images")
+    public ResponseEntity<?> getProfileImage() {
+        return profileImageService.getProfileImage();
+    }
 }

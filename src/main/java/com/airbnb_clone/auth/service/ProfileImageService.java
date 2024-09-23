@@ -17,6 +17,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * packageName    : com.airbnb_clone.auth.service
@@ -74,6 +76,33 @@ public class ProfileImageService {
                 .body(errorResponse);
     }
 
+    public ResponseEntity<?> getProfileImage() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 유저 확인
+        if (userRepository.isUsernameNotExist(username)) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+        // profile img url 확인
+        String imageUrl = userRepository.findProfileImageByUsername(username);
+        if (imageUrl == null) {
+            ErrorResponse errorResponse = new ErrorResponse(401, "유저 프로필이 없습니다..");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(errorResponse);
+        }
+        // 응답
+        Map<String, Object> json = new HashMap<>();
+        json.put("profileImgUrl", imageUrl);
+        json.put("status", 200);
+        json.put("message", "이미지를 불러왔습니다.");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(json);
+    }
+
     // url에서 key 추출
     private String extractKeyFromUrl(String url) {
         return url.substring(url.lastIndexOf("/") + 1);
@@ -90,7 +119,5 @@ public class ProfileImageService {
                 })
                 .build();
     }
-
-
 
 }
