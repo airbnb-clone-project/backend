@@ -79,7 +79,7 @@ public class UserController {
     // 이미지 저장
     @ResponseBody
     @PostMapping("/profile-images")
-    public ResponseEntity<?> profileImageUpload(@RequestBody String profileImageUrl) {
+    public ResponseEntity<?> profileImageUpload(@RequestParam String profileImageUrl) {
         return profileImageService.saveProfileImageMetadata(profileImageUrl);
     }
 
