@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
@@ -23,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * packageName    : com.airbnb_clone.auth.jwt;
@@ -93,18 +96,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = authResult.getName();
 
         // 유저 이름으로 토큰을 만들지만 payload 에 다른 값을 추가해 jwt 만들 때 값을 불러오는 코드
-        /*
-            Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-            Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-            GrantedAuthority auth = iterator.next();
-            String [userInfo] = auth.getAuthority();
-         */
+        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+        Long userNo = Long.parseLong(auth.getAuthority());
+
         String token = refreshTokenRepository.findRefreshTokenByUsername(username).orElseThrow(null);
         refreshTokenRepository.deleteRefreshToken(token);
 
-        // 두가지의 토큰 생성 -> 생성에 3개의 값(토큰, 이메일, 토큰 만료 길이)이 필요
-        String access = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
-        String refresh = jwtUtil.createJwt("refresh", username, 86400000L); // 24시간
+        // 두가지의 토큰 생성 -> 생성에 4개의 값(토큰, 이메일, 유저NO, 토큰 만료 길이)이 필요
+        String access = jwtUtil.createJwt("Authorization", username, userNo, 600000L); // 10분
+        String refresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L); // 24시간
 
         // refresh 토큰 저장
         saveRefresh(username, refresh, 84600000L);
