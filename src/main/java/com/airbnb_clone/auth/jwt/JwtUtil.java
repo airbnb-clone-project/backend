@@ -33,12 +33,13 @@ public class JwtUtil {
     }
 
     // 토큰 생성 (토큰 종류, 유저 이름, 유효 기간)
-    public String createJwt(String tokenType, String username, Long expiredMs) {
+    public String createJwt(String tokenType, String username, Long userNo, Long expiredMs) {
         // access token
         if (tokenType.equals("Authorization")) {
-            String jwt =Jwts.builder()
+            String jwt = Jwts.builder()
                     .claim("tokenType", tokenType) // 4v2
                     .claim("username", username)
+                    .claim("userNo", userNo)
                     .issuedAt(new Date(System.currentTimeMillis()))
                     .expiration(new Date(System.currentTimeMillis() + expiredMs))
                     .signWith(secretKey)
@@ -66,6 +67,11 @@ public class JwtUtil {
     // 검증 : 유저 이름
     public String getUsername(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
+    }
+
+    // 검증 : userNo
+    public Long getUserNo(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userNo", Long.class);
     }
 
     // 검증 : 유효 기간
