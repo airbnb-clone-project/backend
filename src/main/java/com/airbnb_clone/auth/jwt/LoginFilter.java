@@ -99,7 +99,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-        Long userNo = Long.parseLong(auth.getAuthority());
+        String userNo = auth.getAuthority();
 
         String token = refreshTokenRepository.findRefreshTokenByUsername(username).orElseThrow(null);
         refreshTokenRepository.deleteRefreshToken(token);

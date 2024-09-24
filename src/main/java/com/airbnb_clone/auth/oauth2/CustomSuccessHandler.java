@@ -48,11 +48,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         String username = customUserDetails.getUsername();
+        String userNo = customUserDetails.getUserNo();
 
 
         // 두가지의 토큰 생성 -> 생성에 3개의 값(토큰, 이메일, 토큰 만료 길이)이 필요
 //        String access = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
-        String refresh = jwtUtil.createJwt("refresh", username, 86400000L); // 24시간
+        String refresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L); // 24시간
 
         // refresh 토큰 저장
         Optional<String> token = refreshTokenRepository.findRefreshTokenByUsername(username);

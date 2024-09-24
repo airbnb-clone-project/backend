@@ -49,4 +49,7 @@ public class CustomOAuth2User implements OAuth2User {
     public String getProviderId() {
         return socialUserDto.getProviderId();
     }
+
+    public String getUserNo(){
+        return socialUserDto.getUserNo();}
 }
