@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DetailPageDto {
 
-
     private Long pinNo;
     private String imgUrl;
     private String title;
@@ -18,7 +17,6 @@ public class DetailPageDto {
     private String firstName;
     private String lastName;
     private String profileImgUrl;
-
 
     public DetailPageDto(long pinNo, String imgUrl, String title, String description, String link, long userNo, String firstName, String lastName, String profileImgUrl) {
         this.pinNo = pinNo;

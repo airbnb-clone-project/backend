@@ -11,14 +11,8 @@ import org.springframework.stereotype.Service;
 public class DetailPageService {
     private final DetailPageRepository detailPageRepository;
 
-
     public DetailPageDto getDetailPage(Long pinId) {
         //리포지토리에서 데이터 가져옴
-        DetailPageDto detailPageDto = detailPageRepository.findPageById(pinId);
-
-
-        return detailPageDto;
-
-
+        return detailPageRepository.findPageById(pinId);
     }
 }
