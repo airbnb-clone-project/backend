@@ -114,10 +114,11 @@ public class ReissueService {
 
         // 토큰에 문제가 없을 때 실행
         String username = jwtUtil.getUsername(givenToken);
+        String userNo = jwtUtil.getUserNo(givenToken);
 
         // 새로운 토큰 발급
-        String newAccess = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
-        String newRefresh = jwtUtil.createJwt("refresh", username, 86400000L);
+        String newAccess = jwtUtil.createJwt("Authorization", username, userNo, 600000L); // 10분
+        String newRefresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L);
 
         // 기존 refresh token 삭제
         refreshTokenRepository.deleteRefreshToken(givenToken);

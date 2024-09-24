@@ -22,4 +22,5 @@ public class SocialUserDto {
     String providerId;
     String username;
     String name;
+    String userNo;
 }

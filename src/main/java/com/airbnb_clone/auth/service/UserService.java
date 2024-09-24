@@ -93,11 +93,12 @@ public class UserService {
         userRepository.registerUser(user);
 
         // 토큰 생성, 헤더 추가
+        String userNo = userRepository.findNoByUsername(username).toString();
 
         // access token 생성
-        String access = jwtUtil.createJwt("Authorization", username, 600000L);
+        String access = jwtUtil.createJwt("Authorization", username, userNo, 600000L);
         // refresh token 생성
-        String refresh = jwtUtil.createJwt("refresh", username, 86400000L);
+        String refresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L);
         // refresh token 저장
         reissueService.addRefreshToken(username, refresh, 86400000L);
 
