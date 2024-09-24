@@ -83,8 +83,13 @@ public class UserController {
         return profileImageService.saveProfileImageMetadata(profileImageUrl);
     }
 
-    @GetMapping("profile-images")
+    @GetMapping("/profile-images")
     public ResponseEntity<?> getProfileImage() {
         return profileImageService.getProfileImage();
+    }
+
+    @GetMapping("/pre-signed-url")
+    public ResponseEntity<?> getPresignedUrl(@RequestParam String contextType) {
+        return profileImageService.generatePresignedUrl(contextType);
     }
 }
