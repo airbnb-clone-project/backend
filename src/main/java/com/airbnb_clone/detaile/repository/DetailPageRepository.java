@@ -2,6 +2,7 @@ package com.airbnb_clone.detaile.repository;
 
 
 import com.airbnb_clone.detaile.dto.DetailPageDto;
+import com.airbnb_clone.detaile.dto.PinLikeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -51,6 +54,50 @@ public class DetailPageRepository {
         });
     }
 
+
+
+    //특정 핀의 핀 반응 목록 호출
+    public List<PinLikeDto> findPinlikesById(Long pinId){
+        String sql = "SELECT " +
+                "pl.no AS pinLikeNo, " +
+                "pl.target_pin_no AS pinNo, " +
+                "pl.emoji_no AS emojiNo, " +
+                "pl.created_at AS createdAt, " +
+                "u.no AS liker, " +
+                "u.firstname, " +
+                "u.lastname, " +
+                "u.profileimgurl " +
+                "FROM pin_like pl " +
+                "JOIN pin p ON pl.target_pin_no = p.no " +
+                "JOIN users u ON p.user_no = u.no " +
+                "WHERE p.no = ? " +
+                "ORDER BY pl.created_at DESC ";
+
+        return jdbcTemplate.query(sql, new Object[]{pinId}, new RowMapper<PinLikeDto>() {
+                    @Override
+                    public PinLikeDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        Instant createdAt = rs.getTimestamp("createdAt").toInstant();
+
+                        return new PinLikeDto(
+                                rs.getLong("pinLikeNo"),
+                                rs.getLong("pinNo"),
+                                rs.getInt("emojiNo"),
+                                rs.getLong("liker"),
+                                rs.getString("firstname"),
+                                rs.getString("lastname"),
+                                rs.getString("profileimgurl"),
+                                createdAt
+                                );
+                    }
+        });
+    }
+}
+
+
+
+
+
+
 //    //임시메서드
 //    public Pin save(Pin pin) {
 //        String sql = "INSERT INTO pin(NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT)" +
@@ -59,4 +106,4 @@ public class DetailPageRepository {
 //        return pin;
 //
 //    }
-}
+//}
