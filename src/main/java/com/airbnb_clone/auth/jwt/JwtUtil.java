@@ -53,6 +53,7 @@ public class JwtUtil {
             return Jwts.builder()
                     .claim("tokenType", tokenType)
                     .claim("username",username)
+                    .claim("userNo", userNo)
                     .expiration(new Date(System.currentTimeMillis() + expiredMs))
                     .signWith(secretKey)
                     .compact();
