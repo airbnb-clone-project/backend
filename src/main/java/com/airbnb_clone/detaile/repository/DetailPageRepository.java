@@ -23,14 +23,14 @@ public class DetailPageRepository {
     public DetailPageDto findPageById(Long pinId) {
         String sql = "SELECT " +
                 "p.no AS pinNo, " +
-                "p.imgurl, " +
+                "p.img_url, " +
                 "p.title, " +
                 "p.description, " +
                 "p.link, " +
                 "u.no AS userNo, " +
-                "u.firstname, " +
-                "u.lastname, " +
-                "u.profileimgurl " +
+                "u.first_name, " +
+                "u.last_name, " +
+                "u.profile_img_url " +
                 "FROM pin p " +
                 "JOIN board b ON p.board_no = b.no " +
                 "JOIN users u ON b.user_no = u.no " +
@@ -46,9 +46,9 @@ public class DetailPageRepository {
                         rs.getString("description"),
                         rs.getString("link"),
                         rs.getLong("userNo"),
-                        rs.getString("firstName"),
-                        rs.getString("lastName"),
-                        rs.getString("profileImgUrl")
+                        rs.getString("first_Name"),
+                        rs.getString("last_Name"),
+                        rs.getString("profile_img_url")
                 );
             }
         });
@@ -60,9 +60,9 @@ public class DetailPageRepository {
     public List<PinLikeDto> findPinlikesById(Long pinId){
         String sql = "SELECT " +
                 "pl.no AS pinLikeNo, " +
-                "pl.target_pin_no AS pinNo, " +
-                "pl.emoji_no AS emojiNo, " +
-                "pl.created_at AS createdAt, " +
+                "pl.target_pin_no, " +
+                "pl.emoji_no " +
+                "pl.created_at " +
                 "pl.liker " +
                 "u.first_name, " +
                 "u.last_name, " +
@@ -80,8 +80,8 @@ public class DetailPageRepository {
 
                         return new PinLikeDto(
                                 rs.getLong("pinLikeNo"),
-                                rs.getLong("pinNo"),
-                                rs.getInt("emojiNo"),
+                                rs.getLong("target_pin_no"),
+                                rs.getInt("emoji_no"),
                                 rs.getLong("liker"),
                                 rs.getString("first_name"),
                                 rs.getString("last_name"),
