@@ -3,6 +3,7 @@ package com.airbnb_clone.auth.service;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.users.CustomUserDetails;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
@@ -19,6 +20,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,7 +33,9 @@ import org.springframework.web.multipart.MultipartRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -58,9 +64,8 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final SocialUserRepository socialUserRepository;
-
-
-
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailService customUserDetailService;
 
 
     @Transactional
@@ -94,6 +99,7 @@ public class UserService {
 
         // 토큰 생성, 헤더 추가
         String userNo = userRepository.findNoByUsername(username).toString();
+
 
         // access token 생성
         String access = jwtUtil.createJwt("Authorization", username, userNo, 600000L);
@@ -286,6 +292,15 @@ public class UserService {
     // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cookie[] cookies = request.getCookies();
+        String token="";
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh")) {
+                token = cookie.getValue();
+            }
+        }
+        String userNo= jwtUtil.getUserNo(token);
+        System.out.println("userNo = " + userNo);
 
 
         // username과 일치하는 username 있는지 확인
