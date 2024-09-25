@@ -64,9 +64,9 @@ public class DetailPageRepository {
                 "pl.emoji_no AS emojiNo, " +
                 "pl.created_at AS createdAt, " +
                 "u.no AS liker, " +
-                "u.firstname, " +
-                "u.lastname, " +
-                "u.profileimgurl " +
+                "u.first_name, " +
+                "u.last_name, " +
+                "u.profile_img_url " +
                 "FROM pin_like pl " +
                 "JOIN pin p ON pl.target_pin_no = p.no " +
                 "JOIN users u ON p.user_no = u.no " +
@@ -83,9 +83,9 @@ public class DetailPageRepository {
                                 rs.getLong("pinNo"),
                                 rs.getInt("emojiNo"),
                                 rs.getLong("liker"),
-                                rs.getString("firstname"),
-                                rs.getString("lastname"),
-                                rs.getString("profileimgurl"),
+                                rs.getString("first_name"),
+                                rs.getString("last_name"),
+                                rs.getString("profile_img_url"),
                                 createdAt
                                 );
                     }
