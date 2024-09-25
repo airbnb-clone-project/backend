@@ -63,13 +63,13 @@ public class DetailPageRepository {
                 "pl.target_pin_no AS pinNo, " +
                 "pl.emoji_no AS emojiNo, " +
                 "pl.created_at AS createdAt, " +
-                "u.no AS liker, " +
+                "pl.liker " +
                 "u.first_name, " +
                 "u.last_name, " +
                 "u.profile_img_url " +
                 "FROM pin_like pl " +
                 "JOIN pin p ON pl.target_pin_no = p.no " +
-                "JOIN users u ON p.user_no = u.no " +
+                "JOIN users u ON pl.liker = u.no " +
                 "WHERE p.no = ? " +
                 "ORDER BY pl.created_at DESC ";
 
