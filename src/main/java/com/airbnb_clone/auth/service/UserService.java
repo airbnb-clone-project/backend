@@ -98,7 +98,7 @@ public class UserService {
         userRepository.registerUser(user);
 
         // 토큰 생성, 헤더 추가
-        String userNo = userRepository.findNoByUsername(username).toString();
+        Long userNo = userRepository.findNoByUsername(username);
 
 
         // access token 생성
@@ -291,14 +291,13 @@ public class UserService {
 
     // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
-        // 필터에서 유효성 검사를 하기 때문에 따로 토큰 검사 필요 없음
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String authorization = request.getHeader("Authorization");
 
-        String token = authorization.substring(7);
-        String userNo= jwtUtil.getUserNo(token);
-        System.out.println("userNo = " + userNo);
-        
+        // access token에서 userNo 가져오는 예
+//        String token = request.getHeader("Authorization");
+//        String modifiedToken = token.substring(7);
+//        Long userNo= jwtUtil.getUserNo(modifiedToken);
+
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {

@@ -4,6 +4,7 @@ import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.users.UserLoginRequest;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -44,11 +45,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
         setFilterProcessesUrl("/api/auth/login"); // 엔드포인트 변경
     }
 
@@ -95,11 +98,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 유저 정보
         String username = authResult.getName();
 
-        // 유저 이름으로 토큰을 만들지만 payload 에 다른 값을 추가해 jwt 만들 때 값을 불러오는 코드
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String userNo = auth.getAuthority();
+        // db 조회를 통해 userNo 불러오기
+        Long userNo = userRepository.findNoByUsername(username);
 
         String token = refreshTokenRepository.findRefreshTokenByUsername(username).orElseThrow(null);
         refreshTokenRepository.deleteRefreshToken(token);
