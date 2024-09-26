@@ -291,17 +291,14 @@ public class UserService {
 
     // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        // 필터에서 유효성 검사를 하기 때문에 따로 토큰 검사 필요 없음
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Cookie[] cookies = request.getCookies();
-        String token="";
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                token = cookie.getValue();
-            }
-        }
+        String authorization = request.getHeader("Authorization");
+
+        String token = authorization.substring(7);
         String userNo= jwtUtil.getUserNo(token);
         System.out.println("userNo = " + userNo);
-
+        
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
