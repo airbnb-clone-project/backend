@@ -33,7 +33,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성 (토큰 종류, 유저 이름, 유효 기간)
-    public String createJwt(String tokenType, String username, String userNo, Long expiredMs) {
+    public String createJwt(String tokenType, String username, Long userNo, Long expiredMs) {
         // access token
         if (tokenType.equals("Authorization")) {
             String jwt = Jwts.builder()
@@ -71,8 +71,8 @@ public class JwtUtil {
     }
 
     // 검증 : userNo
-    public String getUserNo(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userNo", String.class);
+    public Long getUserNo(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userNo", Long.class);
     }
 
     // 검증 : 유효 기간

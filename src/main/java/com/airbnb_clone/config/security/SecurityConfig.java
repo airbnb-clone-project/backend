@@ -7,6 +7,7 @@ import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.jwt.LoginFilter;
 import com.airbnb_clone.auth.oauth2.CustomSuccessHandler;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
+import com.airbnb_clone.auth.repository.UserRepository;
 import com.airbnb_clone.auth.service.oauth2.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class SecurityConfig {
     }
 
     @Bean // 필터체인
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, UserRepository userRepository) throws Exception {
 
         // corf 설정
         http
@@ -155,7 +156,7 @@ public class SecurityConfig {
          *  LoginFilter(), JWTUtil
          */
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userRepository), UsernamePasswordAuthenticationFilter.class);
 
 
         /*

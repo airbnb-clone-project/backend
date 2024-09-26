@@ -114,7 +114,7 @@ public class ReissueService {
 
         // 토큰에 문제가 없을 때 실행
         String username = jwtUtil.getUsername(givenToken);
-        String userNo = jwtUtil.getUserNo(givenToken);
+        Long userNo = jwtUtil.getUserNo(givenToken);
 
         // 새로운 토큰 발급
         String newAccess = jwtUtil.createJwt("Authorization", username, userNo, 600000L); // 10분
