@@ -84,9 +84,8 @@ public class PinRealServiceTest {
             namedParameterJdbcTemplate.update(insertTagQuery, new MapSqlParameterSource());
 
             Pin savePin = Pin.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
-            Pin savePin2 = Pin.of(2L, "http://example.com/image2.jpg", "핀 제목2", "핀 설명2", "핀 링크2", Set.of(), 1L, true, LocalDateTime.now(), LocalDateTime.now(), false, ImageClassificationEnum.ART);
 
-            pinMySQLRepository.saveAll(List.of(savePin, savePin2));
+            pinMySQLRepository.savePinAndGetId(savePin);
 
             final int CACHE_SIZE = 1;
             final int offset = 0;
