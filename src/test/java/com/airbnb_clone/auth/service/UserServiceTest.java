@@ -95,9 +95,9 @@ class UserServiceTest {
         // 1234를 인코딩 할 경우 -> endocded1234
         when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
         // access 생성시 Authorization=accessToken
-        when(jwtUtil.createJwt(eq("Authorization"), eq("test@test.com"), anyLong())).thenReturn("accessToken");
+        when(jwtUtil.createJwt(eq("Authorization"), eq("test@test.com"),anyLong(), anyLong())).thenReturn("accessToken");
         // refresh 생성시 refresh=refreshToken
-        when(jwtUtil.createJwt(eq("refresh"), eq("test@test.com"), anyLong())).thenReturn("refreshToken");
+        when(jwtUtil.createJwt(eq("refresh"), eq("test@test.com"), anyLong(), anyLong())).thenReturn("refreshToken");
         // Mock the createCookie method
         // refresh는 쿠키 안에 담겨 있어야 함
         Cookie mockCookie = new Cookie("refresh", "refreshToken");
