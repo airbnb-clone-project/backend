@@ -78,7 +78,7 @@ public class ProfileImageService {
                     .body(errorResponse);
         }
 
-        userRepository.updateUserProfileImage(username,imageUrl);
+        userRepository.updateUserProfileImageByUserName(username,imageUrl);
 
         ErrorResponse errorResponse = new ErrorResponse(200, "이미지가 업데이트 되었습니다.");
         return ResponseEntity

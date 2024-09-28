@@ -41,7 +41,7 @@ public class UserRepository {
     }
 
     // 계정 삭제
-    public void deleteAccount(String username) {
+    public void deleteUser(String username) {
         String sql = "DELETE FROM users WHERE username = ?";
         try {
             jdbcTemplate.update(sql, username);
@@ -68,7 +68,7 @@ public class UserRepository {
         }
     }
 
-    public void updateUserProfileImage(String username, String imageUrl) {
+    public void updateUserProfileImageByUserName(String username, String imageUrl) {
         String sql = "UPDATE users SET profile_img_url = ? WHERE username = ?";
         jdbcTemplate.update(sql, imageUrl, username);
     }
@@ -118,7 +118,7 @@ public class UserRepository {
         }
     }
 
-    public String findOldPasswordByUsername(String username) {
+    public String findCurrnetPasswordByUsername(String username) {
         String sql = "SELECT password FROM users WHERE username = ?";
         try {
             return jdbcTemplate.queryForObject(sql, String.class, username);
@@ -138,7 +138,7 @@ public class UserRepository {
         jdbcTemplate.update(sql, newFirstName, username);
     }
 
-    public void saveMoreUserInformation(MoreUserRegisterRequest request) {
+    public void saveAdditionalUserInformation(MoreUserRegisterRequest request) {
         String sql = "UPDATE users SET birthday = ?, gender = ?, spoken_language = ?, country = ? " +
                 "WHERE username = ?";
         try {
