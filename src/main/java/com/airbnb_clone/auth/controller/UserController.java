@@ -42,7 +42,7 @@ public class UserController {
         return userService.registerUser(request, response);
     }
 
-    @PostMapping("/Additional-information") // username, birthday, gender, spokenLanguage, country
+    @PostMapping("/additional-information") // username, birthday, gender, spokenLanguage, country
     public ResponseEntity<?> addAdditionalUserInformation(@RequestBody MoreUserRegisterRequest request) {
         return userService.saveAdditionalUserInformation(request);
     }

@@ -170,7 +170,7 @@ class UserServiceTest {
         assertNotNull(body);
         assertEquals(200, body.getStatus());
         assertEquals("추가정보 등록이 완료 되었습니다.", body.getMessage());
-        verify(userRepository, times(1)).saveMoreUserInformation(request);
+        verify(userRepository, times(1)).saveAdditionalUserInformation(request);
     }
 
     @Test
@@ -207,7 +207,7 @@ class UserServiceTest {
         assertEquals(401, body.getStatus());
         assertEquals("없는 사용자입니다.", body.getMessage());
         // 조회 없어야됨
-        verify(userRepository, times(0)).saveMoreUserInformation(any());
+        verify(userRepository, times(0)).saveAdditionalUserInformation(any());
     }
 
     @Test
@@ -230,7 +230,7 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
 
-        when(userRepository.findOldPasswordByUsername(username)).thenReturn(null);
+        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(null);
         when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
 
         // when
@@ -263,7 +263,7 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // 바꾸기 전
-        when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedOldOne);
+        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(encodedOldOne);
         // 옛날 비밀번호 정확히 입력 했는지 확인
         when(bCryptPasswordEncoder.matches(oldPassword, encodedOldOne)).thenReturn(true);
 
@@ -272,11 +272,11 @@ class UserServiceTest {
         // when
         ResponseEntity<?> changePasswordResult = userService.changePassword(newPasswordRequest);
         // 바꾼 후
-        when(userRepository.findOldPasswordByUsername(username)).thenReturn(encodedNewOne);
+        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(encodedNewOne);
 
         // Then
         assertEquals(changePasswordResult.getStatusCode(), HttpStatus.OK);
-        assertEquals(encodedNewOne, userRepository.findOldPasswordByUsername(username));
+        assertEquals(encodedNewOne, userRepository.findCurrnetPasswordByUsername(username));
 
 
         // response body 확인, 업데이트 1회 사용, 사용시 username과 encodedNewOne 사용
@@ -307,9 +307,9 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // db 안의 유저 비밀번호 조회시 -> dbPassword
-        when(userRepository.findOldPasswordByUsername(username)).thenReturn("dbPassword");
+        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn("dbPassword");
 
-        String dbPassword = userRepository.findOldPasswordByUsername(username);
+        String dbPassword = userRepository.findCurrnetPasswordByUsername(username);
 
         // 유저가 입력한 비밀번호와 저장되어있던 비밀번호 비교시 -> false(다르다)
         when(bCryptPasswordEncoder.matches(oldPassword, dbPassword)).thenReturn(false);

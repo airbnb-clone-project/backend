@@ -145,7 +145,7 @@ public class UserService {
             }
         }
 
-        userRepository.saveMoreUserInformation(request);
+        userRepository.saveAdditionalUserInformation(request);
 
         ErrorResponse errorResponse = new ErrorResponse(200, "추가정보 등록이 완료 되었습니다.");
         return ResponseEntity
@@ -172,7 +172,7 @@ public class UserService {
             없을경우 그냥 업데이트(소셜유저인데 일반 로그인을 하지 않은 유저)
             request에 옛날 비밀번호가 있을경우 비교 후 비밀번호 문제 없는지 확인 후 업데이트
          */
-        String oldPasswordInDb = userRepository.findOldPasswordByUsername(username);
+        String oldPasswordInDb = userRepository.findCurrnetPasswordByUsername(username);
         if (oldPasswordInDb == null) {
             userRepository.updatePassword(username, newPassword);
         } else if (bCryptPasswordEncoder.matches(oldPassword, oldPasswordInDb)) {
@@ -272,7 +272,7 @@ public class UserService {
         // refresh_token 삭제
         refreshTokenRepository.deleteRefreshToken(givenToken);
         // users 삭제
-        userRepository.deleteAccount(username);
+        userRepository.deleteUser(username);
         // social_user 삭제
         if (userNo != null) {
             System.out.println("userNo = " + userNo);
