@@ -108,4 +108,5 @@ public class PinController {
                 ApiResponse.of("모든 핀이 정상적으로 강제로 레디스에 업데이트되었습니다.. (부하 주의)", HttpStatus.OK.value(), Optional.empty())
         );
     }
+
 }

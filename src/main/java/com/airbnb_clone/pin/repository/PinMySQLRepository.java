@@ -31,6 +31,45 @@ import java.util.Objects;
 public class PinMySQLRepository {
     private final NamedParameterJdbcTemplate jt;
 
+    public Pin findPinByNo(Long pinNo) {
+        String sql = """
+                SELECT NO, USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, IMAGE_CLASSIFICATION, CREATED_AT, UPDATED_AT \
+                FROM PIN \
+                WHERE NO = :no AND IS_PIN_DELETED = FALSE""";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("no", pinNo);
+
+        /*    public static Pin of(Long userNo, String imgUrl, String title, String description, String link, Set<Tag> tags, Long boardNo, boolean isCommentAllowed, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isPinDeleted, ImageClassificationEnum imageClassification) {
+        return Pin.builder()
+                .userNo(userNo)
+                .imgUrl(imgUrl)
+                .title(title)
+                .description(description)
+                .link(link)
+                .tags(tags)
+                .boardNo(boardNo)
+                .isCommentAllowed(isCommentAllowed)
+                .likeCount(0)
+                .imageClassification(imageClassification.getKoreanName())
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .isPinDeleted(isPinDeleted)
+                .build();
+    }*/
+
+        return jt.queryForObject(sql, parameters, (rs, rowNum) -> Pin.of(
+                rs.getLong("USER_NO"),
+                rs.getString("IMG_URL"),
+                rs.getString("TITLE"),
+                rs.getString("DESCRIPTION"),
+                rs.getString("LINK"),
+
+
+
+        ));
+    }
+
     public boolean existsPinByNo(Long pinNo) {
         String sql = "SELECT COUNT(NO) FROM PIN WHERE NO = :no";
 
