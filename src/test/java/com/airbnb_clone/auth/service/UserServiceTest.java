@@ -104,7 +104,7 @@ class UserServiceTest {
         when(reissueService.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
 
         // When
-        ResponseEntity<?> result = userService.register(request, response);
+        ResponseEntity<?> result = userService.registerUser(request, response);
 
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -132,7 +132,7 @@ class UserServiceTest {
         when(userRepository.isUsernameNotExist("test@test2.com")).thenReturn(false);
 
         // when
-        ResponseEntity<?> result = userService.register(request, response);
+        ResponseEntity<?> result = userService.registerUser(request, response);
 
         // then
         ErrorResponse body = (ErrorResponse) result.getBody();
@@ -163,7 +163,7 @@ class UserServiceTest {
         when(userRepository.isUsernameNotExist(username)).thenReturn(false);
 
         // when
-        ResponseEntity<?> result = userService.saveMoreUserInformation(request);
+        ResponseEntity<?> result = userService.saveAdditionalUserInformation(request);
 
         // then
         ErrorResponse body = (ErrorResponse) result.getBody();
@@ -199,7 +199,7 @@ class UserServiceTest {
         when(userRepository.isUsernameNotExist(wrongUsername)).thenReturn(true);
 
         // when
-        ResponseEntity<?> result = userService.saveMoreUserInformation(request);
+        ResponseEntity<?> result = userService.saveAdditionalUserInformation(request);
 
         // then
         ErrorResponse body = (ErrorResponse) result.getBody();

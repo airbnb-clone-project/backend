@@ -39,12 +39,12 @@ public class UserController {
 
     @PostMapping("/register") // username, password
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request, HttpServletResponse response) {
-        return userService.register(request, response);
+        return userService.registerUser(request, response);
     }
 
-    @PostMapping("/more") // username, birthday, gender, spokenLanguage, country
-    public ResponseEntity<?> more(@RequestBody MoreUserRegisterRequest request) {
-        return userService.saveMoreUserInformation(request);
+    @PostMapping("/Additional-information") // username, birthday, gender, spokenLanguage, country
+    public ResponseEntity<?> addAdditionalUserInformation(@RequestBody MoreUserRegisterRequest request) {
+        return userService.saveAdditionalUserInformation(request);
     }
 
     @PostMapping("/new-password") // password, newPassword
@@ -53,13 +53,13 @@ public class UserController {
     }
 
     // profile 불러오기
-    @GetMapping("/profiles") // description, lastName, firstName
+    @GetMapping("/profile") // description, lastName, firstName
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         return userService.getProfile(request);
     }
 
     // profile 저장
-    @PostMapping("/profiles") // description, lastName, firstName
+    @PostMapping("/profile") // description, lastName, firstName
     public ResponseEntity<?> setProfile(@RequestBody UsersProfileRequest usersProfileRequest, HttpServletRequest request) {
         return userService.setProfile(request, usersProfileRequest);
     }
@@ -71,19 +71,19 @@ public class UserController {
         return userService.eraseAccounts(request);
     }
 
-    @GetMapping("/accounts")
+    @GetMapping("/account")
     public ResponseEntity<?> getAccount(HttpServletRequest request) {
         return userService.getAccount(request);
     }
 
     // 이미지 저장
     @ResponseBody
-    @PostMapping("/profile-images")
+    @PostMapping("/profile-image")
     public ResponseEntity<?> profileImageUpload(@RequestParam String profileImageUrl) {
         return profileImageService.saveProfileImageMetadata(profileImageUrl);
     }
 
-    @GetMapping("/profile-images")
+    @GetMapping("/profile-image")
     public ResponseEntity<?> getProfileImage() {
         return profileImageService.getProfileImage();
     }

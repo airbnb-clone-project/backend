@@ -35,6 +35,6 @@ public class ReissueController {
      */
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueUserToken(HttpServletResponse response, HttpServletRequest request) {
-        return reissueService.reissue(request, response);
+        return reissueService.reissueRefreshToken(request, response);
     }
 }

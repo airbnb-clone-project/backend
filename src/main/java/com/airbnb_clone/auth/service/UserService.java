@@ -64,12 +64,10 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final SocialUserRepository socialUserRepository;
-    private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailService customUserDetailService;
 
 
     @Transactional
-    public ResponseEntity<?> register(UserRegisterRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> registerUser(UserRegisterRequest request, HttpServletResponse response) {
 
         String username = request.getUsername();
         String password = bCryptPasswordEncoder.encode(request.getPassword());
@@ -122,7 +120,7 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> saveMoreUserInformation(MoreUserRegisterRequest request) {
+    public ResponseEntity<?> saveAdditionalUserInformation(MoreUserRegisterRequest request) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -292,11 +290,6 @@ public class UserService {
     // access token 입력
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // access token에서 userNo 가져오는 예
-//        String token = request.getHeader("Authorization");
-//        String modifiedToken = token.substring(7);
-//        Long userNo= jwtUtil.getUserNo(modifiedToken);
 
 
         // username과 일치하는 username 있는지 확인

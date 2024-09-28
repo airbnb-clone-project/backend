@@ -4,7 +4,6 @@ import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,7 +37,7 @@ public class ReissueService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
 
         // 쿠키에서 refresh token 을 가져온다.
         String givenToken = null;

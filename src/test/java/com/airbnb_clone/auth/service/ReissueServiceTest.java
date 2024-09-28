@@ -77,7 +77,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -112,7 +112,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
         verify(refreshTokenRepository, never()).deleteRefreshToken(any());
@@ -146,7 +146,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
         verify(refreshTokenRepository, never()).deleteRefreshToken(any());
@@ -181,7 +181,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
         verify(refreshTokenRepository, never()).deleteRefreshToken(any());
@@ -214,7 +214,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
         verify(refreshTokenRepository, never()).deleteRefreshToken(any());
@@ -247,7 +247,7 @@ class ReissueServiceTest {
         // username 변수
         when(jwtUtil.getUsername(oldToken)).thenReturn(username);
 
-        ResponseEntity<?> result = reissueService.reissue(request, response);
+        ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
         verify(refreshTokenRepository, times(1)).existsByRefresh(oldToken);
