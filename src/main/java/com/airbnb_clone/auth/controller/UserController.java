@@ -54,14 +54,14 @@ public class UserController {
 
     // profile 불러오기
     @GetMapping("/profile") // description, lastName, firstName
-    public ResponseEntity<?> getProfile(HttpServletRequest request) {
-        return userService.getProfile(request);
+    public ResponseEntity<?> getProfile() {
+        return userService.getProfile();
     }
 
     // profile 저장
     @PostMapping("/profile") // description, lastName, firstName
-    public ResponseEntity<?> setProfile(@RequestBody UsersProfileRequest usersProfileRequest, HttpServletRequest request) {
-        return userService.setProfile(request, usersProfileRequest);
+    public ResponseEntity<?> setProfile(@RequestBody UsersProfileRequest usersProfileRequest) {
+        return userService.setProfile(usersProfileRequest);
     }
 
     // cascade 관련 문제가 있기 때문에 수정이 필요, 호출하지 않는 한 에러 메세지가 나오진 않음
@@ -72,8 +72,8 @@ public class UserController {
     }
 
     @GetMapping("/account")
-    public ResponseEntity<?> getAccount(HttpServletRequest request) {
-        return userService.getAccount(request);
+    public ResponseEntity<?> getAccount() {
+        return userService.getAccount();
     }
 
     // 이미지 저장

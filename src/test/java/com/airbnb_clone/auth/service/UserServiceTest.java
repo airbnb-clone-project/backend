@@ -350,7 +350,7 @@ class UserServiceTest {
         when(userRepository.findProfileByUsername(username)).thenReturn(Optional.ofNullable(user));
 
         // when
-        ResponseEntity<?> result = userService.getProfile(request);
+        ResponseEntity<?> result = userService.getProfile();
 
         // then
         String body = result.getBody().toString();
@@ -381,7 +381,7 @@ class UserServiceTest {
         when(userRepository.isUsernameNotExist(username)).thenReturn(false);
 
         // when
-        ResponseEntity<?> result = userService.setProfile(request, usersProfileRequest);
+        ResponseEntity<?> result = userService.setProfile(usersProfileRequest);
 
         // then
         verify(userRepository, times(1)).isUsernameNotExist(username);
@@ -414,7 +414,7 @@ class UserServiceTest {
         when(userRepository.findAccountByUsername(username)).thenReturn(Optional.ofNullable(user));
 
         // when
-        ResponseEntity<?> result = userService.getAccount(request);
+        ResponseEntity<?> result = userService.getAccount();
 
         // then
         String body = result.getBody().toString();
