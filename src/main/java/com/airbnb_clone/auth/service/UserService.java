@@ -288,7 +288,7 @@ public class UserService {
     }
 
     // access token 입력
-    public ResponseEntity<?> getProfile(HttpServletRequest request) {
+    public ResponseEntity<?> getProfile() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
 
@@ -318,7 +318,7 @@ public class UserService {
     }
 
     // access/json
-    public ResponseEntity<?> setProfile(HttpServletRequest request, UsersProfileRequest usersProfileRequest) {
+    public ResponseEntity<?> setProfile(UsersProfileRequest usersProfileRequest) {
 
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -344,7 +344,7 @@ public class UserService {
     }
 
     // 이메일 생일 성별 국가 언어
-    public ResponseEntity<?> getAccount(HttpServletRequest request) {
+    public ResponseEntity<?> getAccount() {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
