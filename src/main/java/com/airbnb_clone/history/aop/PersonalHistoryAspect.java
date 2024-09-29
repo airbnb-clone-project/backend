@@ -33,9 +33,7 @@ public class PersonalHistoryAspect {
     public void saveHistoryAfterGetDetilPin(Long pinId, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         //TODO FIX -> 토큰 파싱 방법 수정 (DK님)
-        String modifiedToken = authorization.substring(7);
-        Long userNo = jwtUtil.getUserNo(modifiedToken);
-
+        Long userNo = jwtUtil.getUserNoFromAccessToken(authorization);
         personalHistoryService.saveHistory(userNo, pinId);
     }
 }
