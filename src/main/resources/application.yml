@@ -20,3 +20,21 @@ spring:
             scope: profile,email
 server:
   port: 8008
+
+management:
+  server:
+    port: 8008
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+logging:
+  file:
+    name: log/airbnb.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: airbnb.%d{yyyy-MM-dd}-%i.log
+      max-file-size: 10KB
+  pattern:
+    dateformat: Asia/Seoul
