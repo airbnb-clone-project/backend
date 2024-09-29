@@ -42,10 +42,6 @@ public class CustomUserDetails implements UserDetails {
         return Collections.emptyList();
     }
 
-    public String getUsersNo() {
-        return users.getNo().toString();
-    }
-
     @Override
     public boolean isEnabled() {
         return true;

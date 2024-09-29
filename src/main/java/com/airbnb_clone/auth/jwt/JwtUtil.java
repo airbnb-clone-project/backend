@@ -71,8 +71,13 @@ public class JwtUtil {
     }
 
     // 검증 : userNo
-    public Long getUserNo(String token) {
+    public Long getUserNoFromRefreshToken(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userNo", Long.class);
+    }
+
+    public Long getUserNoFromAccessToken(String token) {
+        String modifiedToken = token.substring(7);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(modifiedToken).getPayload().get("userNo", Long.class);
     }
 
     // 검증 : 유효 기간
