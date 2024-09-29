@@ -2,10 +2,7 @@ package com.airbnb_clone.pin.domain.pin;
 
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -26,11 +23,17 @@ public class PinTemp {
     private ObjectId id;
 
     @Field(value = "user_no")
+    @Indexed
     private Long userNo;
 
     @Field(value = "temp_pins")
-    @Indexed
+    @Builder.Default
     private Set<InnerTempPin> innerTempPins = new LinkedHashSet<>();
+
+    public boolean isOwner(@NonNull Long userNo, @NonNull ObjectId tempPinId) {
+        return Objects.equals(this.userNo, userNo) && innerTempPins.stream()
+                .anyMatch(innerTempPin -> Objects.equals(innerTempPin.get_id(), tempPinId));
+    }
 
     public static PinTemp of(Long userNo, Set<InnerTempPin> innerTempPins) {
         return PinTemp.builder()

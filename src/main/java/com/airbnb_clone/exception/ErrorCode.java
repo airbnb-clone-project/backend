@@ -17,6 +17,8 @@ public enum ErrorCode {
 
     //Pin
     PIN_NOT_FOUND(BAD_REQUEST.value(), "존재하지 않는 핀입니다."),
+    PIN_AUTH_ERROR(HttpStatus.BAD_REQUEST.value(), "핀 권한이 없습니다."),
+
     UPDATE_PIN_NOT_FOUND(BAD_REQUEST.value(), "수정할 핀을 찾을 수 없습니다."),
     DELETE_PIN_NOT_FOUND(BAD_REQUEST.value(), "삭제할 핀을 찾을 수 없습니다."),
 
