@@ -1,6 +1,6 @@
 ### 임시 핀 생성
 POST {{url}}/api/pins/pin/temp/v1
-Content-Type: multipart/form-data; boundary=WebAppBoundary
+Content-Type: multipart/form-data; boundary=--WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="userNo"
@@ -16,14 +16,17 @@ Content-Type: image/jpeg
 
 
 ### 임시 핀 조회
+# @no-redirect
 GET {{url}}/api/pins/pin/temp/66db19ab780f854bb2e0f8a8/v1
 Content-Type: application/json
 
 ### 임시 핀 리스트 조회
+# @no-redirect
 GET {{url}}/api/pins/pin/temps/1/v1
 Content-Type: application/json
 
 ### 임시 핀 업데이트
+# @no-redirect
 PUT {{url}}/api/pins/pin/temp/66db19ab780f854bb2e0f8a8/v1
 Content-Type: application/json
 
@@ -36,6 +39,7 @@ Content-Type: application/json
 }
 
 ### 핀 생성 테스트
+# @no-redirect
 POST {{url}}/api/pins/pin/v1
 Content-Type: application/json
 
@@ -52,6 +56,7 @@ Content-Type: application/json
 }
 
 ### 핀 수정 테스트
+# @no-redirect
 PUT {{url}}/api/pins/pin/1/v1
 Content-Type: application/json
 
@@ -64,5 +69,6 @@ Content-Type: application/json
 }
 
 ### 핀 삭제 테스트
+# @no-redirect
 DELETE {{url}}/api/pins/pin/1/v1
 Content-Type: application/json
