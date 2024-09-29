@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -46,6 +47,14 @@ import java.util.Collections;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    public static final String[] PERMIT_ALL_PATTERNS = {"/api/**",
+            "/ws/**",
+            "/h2-console/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/v3/api-docs/**",
+            "/webjars/**"};
 
     // AuthenticationManager 가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -103,21 +112,21 @@ public class SecurityConfig {
          *  실제 서비스 환경에서도 CSRF 는 disable 하는 경우가 많음
          */
         http
-                .csrf((auth) -> auth.disable());
+                .csrf(AbstractHttpConfigurer::disable);
 
         /*
          *  Form 로그인 방식 disable
             토큰 기반 인증이나 OAuth2 등을 사용할 때 Form 로그인을 비활성화할 수 있다.
          */
         http
-                .formLogin((auth) -> auth.disable());
+                .formLogin(AbstractHttpConfigurer::disable);
 
         /*
          *  http basic 인증 방식 disable
          *  HTTP Basic 인증: HTTP Basic 인증은 사용자 이름과 비밀번호를 Base64로 인코딩하여 HTTP 헤더에 포함시키는 방식. 간단하지만 보안에 취약할 수 있습니다. -> disable
          */
         http
-                .httpBasic((auth) -> auth.disable());
+                .httpBasic(AbstractHttpConfigurer::disable);
 
         /*
             OAuth2
@@ -158,7 +167,8 @@ public class SecurityConfig {
         http
                 // 모든 경로 권한 허용
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/**", "/ws/**").permitAll()
+                        .requestMatchers(PERMIT_ALL_PATTERNS)
+                        .permitAll()
                         .anyRequest().authenticated()
                 );
 //                .authorizeHttpRequests((auth) -> auth
