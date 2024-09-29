@@ -1,9 +1,7 @@
 package com.airbnb_clone.history.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinHistoryResponseDTO;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -27,10 +25,15 @@ import java.time.LocalDateTime;
 public class PersonalHistoryHash {
     @Id
     private String id;
-
     private Long userNo;
-
     private String visitedHistoryClassification;
-
     private LocalDateTime visitedAt;
+
+    public static PersonalHistoryHash from(@NonNull PinHistoryResponseDTO foundPin, @NonNull Long userNo) {
+        return PersonalHistoryHash.builder()
+                .userNo(userNo)
+                .visitedHistoryClassification(foundPin.getImageClassification())
+                .visitedAt(foundPin.getCreatedAt())
+                .build();
+    }
 }

@@ -1,6 +1,7 @@
-package com.airbnb_clone.history.service;
+package com.airbnb_clone.history.aop;
 
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.history.service.PersonalHistoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class PersonalHistoryAspect {
     @AfterReturning(pointcut = "execution(* com.airbnb_clone.detile.controller.DetailPageController.getDetailPage(..) && args(pinId)", argNames = "pinId")
     public void saveHistoryAfterGetDetilPin(Long pinId, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
+        //TODO FIX -> 토큰 파싱 방법 수정 (DK님)
         String modifiedToken = authorization.substring(7);
         Long userNo = jwtUtil.getUserNo(modifiedToken);
 

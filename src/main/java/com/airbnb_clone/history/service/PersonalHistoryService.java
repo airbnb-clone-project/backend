@@ -2,10 +2,12 @@ package com.airbnb_clone.history.service;
 
 import com.airbnb_clone.history.domain.PersonalHistoryHash;
 import com.airbnb_clone.history.repository.PersonalHistoryRedisRepository;
-import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinHistoryResponseDTO;
 import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * packageName    : com.airbnb_clone.history.service
@@ -21,15 +23,25 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PersonalHistoryService {
+    public static final int HISTORY_LIMIT = 10;
     private final PersonalHistoryRedisRepository personalHistoryRedisRepository;
     private final PinMySQLRepository pinMySQLRepository;
 
-    //TODO 레디스에 해당 회원에 대한 방문 이력을 저장하는 메서드
     public void saveHistory(Long userNo, Long pinNo) {
-        //TODO FIX -> 레디스에 저장하는 로직 추가
+        PinHistoryResponseDTO foundPin = pinMySQLRepository.findPinForHistoryByNo(pinNo);
 
-        PinMainResponseDTO foundPin = pinMySQLRepository.findPinByNo(pinNo);
-        //
-        personalHistoryRedisRepository.save(new PersonalHistoryHash(userNo, pinNo));
+        List<PersonalHistoryHash> existingHistories = personalHistoryRedisRepository.findByUserNoOrderByVisitedAtDesc(userNo);
+
+        deleteIfHistoryOverLimit(existingHistories);
+
+        // 새로운 방문 이력 저장
+        personalHistoryRedisRepository.save(PersonalHistoryHash.from(foundPin, userNo));
+    }
+
+    private void deleteIfHistoryOverLimit(List<PersonalHistoryHash> existingHistories) {
+        if(existingHistories.size() >= HISTORY_LIMIT) {
+            PersonalHistoryHash oldestHistory = existingHistories.get(0);
+            personalHistoryRedisRepository.delete(oldestHistory);
+        }
     }
 }
