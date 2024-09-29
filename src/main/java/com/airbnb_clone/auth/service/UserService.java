@@ -3,7 +3,6 @@ package com.airbnb_clone.auth.service;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
-import com.airbnb_clone.auth.dto.users.CustomUserDetails;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
@@ -11,31 +10,21 @@ import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.SocialUserRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
-import com.airbnb_clone.config.s3.AwsS3Config;
-import com.airbnb_clone.image.helper.S3UniqueKeyGenerator;
-import com.airbnb_clone.image.validator.ContentTypeValidator;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -112,7 +101,6 @@ public class UserService {
         response.addCookie(reissueService.createCookie("refresh", refresh));
 
         // 응답  body 생성
-
         ErrorResponse errorResponse = new ErrorResponse(200, "일반 회원가입이 완료 되었습니다.");
         return ResponseEntity
                 .ok()
@@ -136,12 +124,12 @@ public class UserService {
 
         // 입력 정보에 생일이 없고 db에 값이 있을경우 값이 바뀌면 안됨
         // 입력 생일 없음
-        if (request.getBirthday() == null) {
-            // db 생일 있음
-            LocalDate birthday = userRepository.findBirthdayByUsername(username);
-            if (birthday != null) {
+        if (doesNotHaveBirthday(request)) {
+            // db 생일 있음 db에서 가져온다.
+            LocalDate birthdayFromDb = userRepository.findBirthdayByUsername(username);
+            if (doesHaveBirthday(birthdayFromDb)) {
                 // 입력정보에 db 정보 업데이트
-                request.setBirthday(birthday);
+                request.setBirthday(birthdayFromDb);
             }
         }
 
@@ -153,6 +141,14 @@ public class UserService {
                 .body(errorResponse);
     }
 
+    private static boolean doesHaveBirthday(LocalDate birthday) {
+        return birthday != null;
+    }
+
+    private static boolean doesNotHaveBirthday(MoreUserRegisterRequest request) {
+        return request.getBirthday() == null;
+    }
+
     // 유저 비밀번호 변경
     @Transactional
     public ResponseEntity<?> changePassword(NewPasswordRequest request) {
@@ -161,7 +157,7 @@ public class UserService {
         String oldPassword = request.getPassword();
         String newPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
 
-        if (username.equals("anonymousUser")) {
+        if (isAnonymousUser(username)) {
             ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다 ㅎㅎ.");
             return ResponseEntity
                     .status(401)
@@ -172,10 +168,10 @@ public class UserService {
             없을경우 그냥 업데이트(소셜유저인데 일반 로그인을 하지 않은 유저)
             request에 옛날 비밀번호가 있을경우 비교 후 비밀번호 문제 없는지 확인 후 업데이트
          */
-        String oldPasswordInDb = userRepository.findCurrnetPasswordByUsername(username);
-        if (oldPasswordInDb == null) {
+        String oldPasswordFromDb = userRepository.findCurrnetPasswordByUsername(username);
+        if (oldPasswordNotExist(oldPasswordFromDb)) {
             userRepository.updatePassword(username, newPassword);
-        } else if (bCryptPasswordEncoder.matches(oldPassword, oldPasswordInDb)) {
+        } else if (inputOldPasswordMatchedPasswordFromDb(oldPassword, oldPasswordFromDb)) {
             userRepository.updatePassword(username, newPassword);
         } else {
             ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다.");
@@ -188,6 +184,18 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(errorResponse);
+    }
+
+    private boolean inputOldPasswordMatchedPasswordFromDb(String oldPassword, String oldPasswordFromDb) {
+        return bCryptPasswordEncoder.matches(oldPassword, oldPasswordFromDb);
+    }
+
+    private static boolean oldPasswordNotExist(String oldPasswordFromDb) {
+        return oldPasswordFromDb == null;
+    }
+
+    private static boolean isAnonymousUser(String username) {
+        return username.equals("anonymousUser");
     }
 
     public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
@@ -291,7 +299,6 @@ public class UserService {
     public ResponseEntity<?> getProfile() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
             ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
@@ -302,6 +309,14 @@ public class UserService {
 
         Users users = userRepository.findProfileByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
 
+        Map<String, Object> jsonBody = getJsonProfileOutput(users);
+
+        return ResponseEntity
+                .ok()
+                .body(jsonBody);
+    }
+
+    private static Map<String, Object> getJsonProfileOutput(Users users) {
         Map<String, Object> jsonBody = new HashMap<>();
         jsonBody.put("message", "프로필 정보 불러오기 성공 했습니다.");
         jsonBody.put("status", 200);
@@ -311,15 +326,11 @@ public class UserService {
         data.put("firstName", users.getFirstName());
         data.put("lastName", users.getLastName());
         jsonBody.put("data", data);
-
-        return ResponseEntity
-                .ok()
-                .body(jsonBody);
+        return jsonBody;
     }
 
     // access/json
     public ResponseEntity<?> setProfile(UsersProfileRequest usersProfileRequest) {
-
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -358,6 +369,14 @@ public class UserService {
 
         Users users = userRepository.findAccountByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
 
+        Map<String, Object> jsonBody = getJsonAccountOutPut(users);
+
+        return ResponseEntity
+                .ok()
+                .body(jsonBody);
+    }
+
+    private static Map<String, Object> getJsonAccountOutPut(Users users) {
         Map<String, Object> jsonBody = new HashMap<>();
         jsonBody.put("message", "계정 정보 불러오기 성공 했습니다.");
         jsonBody.put("status", 200);
@@ -369,16 +388,8 @@ public class UserService {
         data.put("gender", users.getGender());
         data.put("spokenLanguage", users.getSpokenLanguage());
         jsonBody.put("data", data);
-
-        return ResponseEntity
-                .ok()
-                .body(jsonBody);
+        return jsonBody;
     }
-
-
-    /*
-        api를 만들지 않는 methods
-     */
 
     // username(email)에서 first name 생성
     private String makeFirstName(String username) {
