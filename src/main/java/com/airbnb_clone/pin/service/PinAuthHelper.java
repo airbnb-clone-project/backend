@@ -4,8 +4,10 @@ import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinAuthException;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
 import com.airbnb_clone.pin.repository.PinMongoRepository;
+import com.airbnb_clone.pin.repository.PinMySQLRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PinAuthHelper {
+    private final PinMySQLRepository pinMySQLRepository;
     private final PinMongoRepository pinMongoRepository;
     private final JwtUtil jwtUtil;
 
@@ -35,13 +38,29 @@ public class PinAuthHelper {
                 .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
         boolean isOwner = foundPinTemp.isOwner(usersNo, new ObjectId(tempPinNo));
-        if(!isOwner) {
+        if (!isOwner) {
+            throw new PinAuthException(ErrorCode.PIN_AUTH_ERROR);
+        }
+    }
+
+    public void isPinOwnerForPin(Long pinNo, HttpServletRequest servletRequest) {
+        Long usersNo = getUsersNoFromJwt(servletRequest);
+
+        Pin foundPin = pinMySQLRepository.findPinByNo(pinNo)
+                .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+
+        boolean isOwner = foundPin.isOwner(usersNo);
+        if (!isOwner) {
             throw new PinAuthException(ErrorCode.PIN_AUTH_ERROR);
         }
     }
 
     private Long getUsersNoFromJwt(HttpServletRequest servletRequest) {
         String authorization = servletRequest.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new PinAuthException(ErrorCode.PIN_AUTH_ERROR);
+        }
+
         return jwtUtil.getUserNoFromAccessToken(authorization);
     }
 }

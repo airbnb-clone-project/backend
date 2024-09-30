@@ -86,7 +86,10 @@ public class PinController {
      */
     @Operation(summary = "임시핀 생성", description = "임시핀 생성")
     @PostMapping("/pin/temp/v1")
-    public Mono<HttpEntity<ApiResponse<String>>> uploadImage(@ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+    public Mono<HttpEntity<ApiResponse<String>>> uploadImage(
+            @ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO,
+            HttpServletRequest request
+    ) {
         return pinService.createTempPin(temporaryPinCreateRequestDTO)
                 .map(objectId -> ResponseEntity.ok(
                         ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), objectId.toString())
@@ -105,7 +108,9 @@ public class PinController {
     //TODO : 향후 헤더의 토큰을 가져와서 유저번호를 추출하여 저장하는 로직으로 변경해야한다.
     @Operation(summary = "핀 수정", description = "핀 수정")
     @PutMapping("/pin/{pin-no}/v1")
-    public HttpEntity<ApiResponse<Long>> updatePin(@PathVariable("pin-no") Long pinNo, @RequestBody @Valid PinUpdateRequestDTO pinUpdateRequestDTO) {
+    public HttpEntity<ApiResponse<Long>> updatePin(@PathVariable("pin-no") Long pinNo, @RequestBody @Valid PinUpdateRequestDTO pinUpdateRequestDTO, HttpServletRequest request) {
+        pinAuthHelper.isPinOwnerForPin(pinNo, request);
+
         return ResponseEntity.ok(
                 ApiResponse.of("핀이 정상적으로 수정되었습니다.", HttpStatus.OK.value(), pinService.updatePin(pinNo, pinUpdateRequestDTO))
         );
@@ -113,7 +118,9 @@ public class PinController {
 
     @Operation(summary = "핀 삭제", description = "핀 삭제")
     @DeleteMapping("/pin/{pin-no}/v1")
-    public HttpEntity<ApiResponse<?>> deletePin(@PathVariable("pin-no") Long pinNo) {
+    public HttpEntity<ApiResponse<?>> deletePin(@PathVariable("pin-no") Long pinNo, HttpServletRequest request) {
+        pinAuthHelper.isPinOwnerForPin(pinNo, request);
+
         pinService.deletePinSoftly(pinNo);
 
         return ResponseEntity.ok(

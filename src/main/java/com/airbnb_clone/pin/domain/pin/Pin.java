@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -46,5 +47,9 @@ public class Pin extends BaseTime {
                 .updatedAt(updatedAt)
                 .isPinDeleted(isPinDeleted)
                 .build();
+    }
+
+    public boolean isOwner(Long usersNo) {
+        return Objects.equals(this.userNo, usersNo);
     }
 }

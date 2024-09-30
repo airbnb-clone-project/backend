@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * packageName    : com.airbnb_clone.pin.repository
@@ -153,5 +154,29 @@ public class PinMySQLRepository {
                 .toList();
 
         jt.batchUpdate(sql, parameters.toArray(new MapSqlParameterSource[0]));
+    }
+
+    public Optional<Pin> findPinByNo(Long pinNo) {
+        String sql = """
+                SELECT NO, USER_NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, IMAGE_CLASSIFICATION, CREATED_AT, UPDATED_AT \
+                FROM PIN \
+                WHERE NO = :no AND IS_PIN_DELETED = FALSE""";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("no", pinNo);
+
+        return Optional.ofNullable(jt.queryForObject(sql, parameters, (rs, rowNum) -> Pin.builder()
+                .no(rs.getLong("NO"))
+                .userNo(rs.getLong("USER_NO"))
+                .imgUrl(rs.getString("IMG_URL"))
+                .title(rs.getString("TITLE"))
+                .description(rs.getString("DESCRIPTION"))
+                .link(rs.getString("LINK"))
+                .boardNo(rs.getLong("BOARD_NO"))
+                .isCommentAllowed(rs.getBoolean("IS_COMMENT_ALLOWED"))
+                .imageClassification(rs.getString("IMAGE_CLASSIFICATION"))
+                .createdAt(rs.getTimestamp("CREATED_AT").toLocalDateTime())
+                .updatedAt(rs.getTimestamp("UPDATED_AT").toLocalDateTime())
+                .build()));
     }
 }
