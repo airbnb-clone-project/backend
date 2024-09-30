@@ -1,0 +1,9 @@
+### 회원가입
+POST http://localhost:8008/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "qkrtkdwns3410@gmail.com",
+  "password": "Tkd1wns1!@#",
+  "birthday": "1995-11-03"
+}
