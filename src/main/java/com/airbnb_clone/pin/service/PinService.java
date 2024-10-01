@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -78,11 +79,11 @@ public class PinService {
     }
 
     public List<TemporaryPinsResponseDTO> getTempPins(@NotNull Long userNo) {
-        PinTemp foundTempPin = pinMongoRepository.findPinTempByUserNo(userNo).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
+        Optional<PinTemp> foundTempOpt = pinMongoRepository.findPinTempByUserNo(userNo);
 
-        return foundTempPin.getInnerTempPins().stream()
+        return foundTempOpt.map(pinTemp -> pinTemp.getInnerTempPins().stream()
                 .map(InnerTempPin::toTemporaryPinsResponseDTO)
-                .toList();
+                .toList()).orElseGet(List::of);
     }
 
     @Transactional(readOnly = false)
