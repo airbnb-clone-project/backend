@@ -42,13 +42,13 @@ public class DetailPageRepository {
             public DetailPageDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new DetailPageDto(
                         rs.getLong("pinNo"),
-                        rs.getString("imgUrl"),
+                        rs.getString("img_url"),
                         rs.getString("title"),
                         rs.getString("description"),
                         rs.getString("link"),
                         rs.getLong("userNo"),
-                        rs.getString("first_Name"),
-                        rs.getString("last_Name"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
                         rs.getString("profile_img_url")
                 );
             }
@@ -73,12 +73,12 @@ public class DetailPageRepository {
                 JOIN pin p ON pl.target_pin_no = p.no \
                 JOIN users u ON pl.liker = u.no \
                 WHERE p.no = ? \
-                ORDER BY pl.created_at DESC\s""";
+                ORDER BY pl.created_at DESC""";
 
         return jdbcTemplate.query(sql, new Object[]{pinId}, new RowMapper<PinLikeDto>() {
                     @Override
                     public PinLikeDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Instant createdAt = rs.getTimestamp("createdAt").toInstant();
+                        Instant createdAt = rs.getTimestamp("created_at").toInstant();
 
                         return new PinLikeDto(
                                 rs.getLong("pinLikeNo"),
