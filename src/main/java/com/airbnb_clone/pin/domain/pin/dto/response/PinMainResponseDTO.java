@@ -25,20 +25,22 @@ public class PinMainResponseDTO {
     private Long pinNo;
     private String imageUrl;
     private String link;
+    private String imageClassification;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PinMainResponseDTO of(Long pinNo, String imageUrl, String link, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public static PinMainResponseDTO of(Long pinNo, String imageUrl, String link, String imageClassification, LocalDateTime createdAt, LocalDateTime updatedAt) {
         return PinMainResponseDTO.builder()
                 .pinNo(pinNo)
                 .imageUrl(imageUrl)
                 .link(link)
+                .imageClassification(imageClassification)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
     }
 
     public MainPinHash toMainPinHash() {
-        return MainPinHash.of(pinNo, imageUrl, link, createdAt, updatedAt);
+        return MainPinHash.of(pinNo, imageUrl, link, imageClassification, createdAt, updatedAt);
     }
 }

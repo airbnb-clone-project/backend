@@ -75,7 +75,7 @@ public class PinRedisServiceTest extends RedisTestContainer {
         @DisplayName("메인 화면 레디스에 올바르게 저장되는지 테스트")
         void saveMainPin() {
             // given
-            given(pinService.findPinsToCached(anyInt(), anyInt())).willReturn(List.of(
+            given(pinService.findPinsToCached(anyInt())).willReturn(List.of(
                     PinMainResponseDTO.of(1L, "http://example.com/image.jpg", "http://example.com", LocalDateTime.now(), LocalDateTime.now()))).willReturn(List.of());
 
             // when

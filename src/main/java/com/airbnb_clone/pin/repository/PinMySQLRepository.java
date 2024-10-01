@@ -113,22 +113,26 @@ public class PinMySQLRepository {
         jt.update(sql, parameters);
     }
 
-    public List<PinMainResponseDTO> findPinsToCached(int offset, int cacheSize) {
+    public List<PinMainResponseDTO> findPinsToCached(int limitPerCategory) {
         String sql = """
-                SELECT NO, IMG_URL, LINK, CREATED_AT, UPDATED_AT \
-                FROM PIN \
-                WHERE IS_PIN_DELETED = FALSE \
-                ORDER BY CREATED_AT DESC \
-                LIMIT :cacheSize OFFSET :offset""";
+                SELECT NO, IMG_URL, LINK, IMAGE_CLASSIFICATION, CREATED_AT, UPDATED_AT
+                FROM (
+                    SELECT NO, IMG_URL, LINK, IMAGE_CLASSIFICATION, CREATED_AT, UPDATED_AT,
+                           ROW_NUMBER() OVER (PARTITION BY IMAGE_CLASSIFICATION ORDER BY CREATED_AT DESC) AS rn
+                    FROM PIN
+                    WHERE IS_PIN_DELETED = FALSE
+                ) sub
+                WHERE sub.rn <= :limitPerCategory
+                """;
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
-                .addValue("offset", offset)
-                .addValue("cacheSize", cacheSize);
+                .addValue("limitPerCategory", limitPerCategory);
 
         return jt.query(sql, parameters, (rs, rowNum) -> PinMainResponseDTO.of(
                 rs.getLong("NO"),
                 rs.getString("IMG_URL"),
                 rs.getString("LINK"),
+                rs.getString("IMAGE_CLASSIFICATION"),
                 rs.getTimestamp("CREATED_AT").toLocalDateTime(),
                 rs.getTimestamp("UPDATED_AT").toLocalDateTime()
         ));
