@@ -10,9 +10,11 @@ import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
 import com.airbnb_clone.auth.service.oauth2.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +27,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -68,7 +71,7 @@ public class SecurityConfig {
     @Bean // 필터체인
     public SecurityFilterChain filterChain(HttpSecurity http, UserRepository userRepository) throws Exception {
 
-        // corf 설정
+        // cors 설정
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
 
@@ -76,8 +79,11 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000 포트 허용
+//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000 포트 허용
+                        configuration.setAllowedOrigins(Arrays.asList(
+                                "http://localhost:3000",
+                                "http://localhost:3100"
+                        ));
                         configuration.setAllowedMethods(Collections.singletonList("*")); // 모든 종류의 요청 가능
                         configuration.setAllowCredentials(true); // 크리덴셜 가능
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -123,6 +129,27 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)))
                         .successHandler(customSuccessHandler));
 
+        /*
+            api 오류 메세지
+         */
+        http
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            int status = response.getStatus();
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            String errorMessage = authException.getMessage();
+                            String jsonResponse = String.format(
+                                    "{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\", \"path\": \"%s\"}",
+                                    status,
+                                    HttpStatus.valueOf(status).getReasonPhrase(),
+                                    errorMessage,
+                                    request.getRequestURI()
+                            );
+
+                            response.getWriter().write(jsonResponse);
+                        })
+                );
         /*
          *  controller 의 인가 작업을 위한 코드
          *  접근 권한 설정

@@ -20,7 +20,6 @@ import java.time.LocalDate;
  */
 @Setter @Getter
 public class UserRegisterRequest {
-    private Long no;
     private String username;
     private String password;
     private LocalDate birthday;
