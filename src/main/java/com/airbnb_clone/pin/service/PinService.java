@@ -3,6 +3,7 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.exception.tag.TagNotFoundException;
+import com.airbnb_clone.history.domain.PersonalHistory;
 import com.airbnb_clone.history.service.PersonalHistoryService;
 import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
@@ -179,7 +180,7 @@ public class PinService {
         Map<String, Integer> historyCounts = personalHistoryService.getHistoryCounts(userNo);
 
         //TODO히스토리 분류에 따라 핀을 선택하는 로직 추가
-
+        PersonalHistory calculatedHistory = PersonalHistory.from(historyCounts);
 
 
     }
