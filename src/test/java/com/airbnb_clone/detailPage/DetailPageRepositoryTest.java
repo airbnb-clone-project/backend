@@ -73,13 +73,13 @@ class DetailPageRepositoryTest {
         Assertions.assertThat(pinLikeDtos).hasSize(1);
 
         PinLikeDto pinLikeDto = pinLikeDtos.get(0);
-//        Assertions.assertThat(pinLikeDto.getPinLikeNo()).isEqualTo(1L);
-//        Assertions.assertThat(pinLikeDto.getPinNo()).isEqualTo(1L);
-//        Assertions.assertThat(pinLikeDto.getEmojiNo()).isEqualTo(1);
-//        Assertions.assertThat(pinLikeDto.getLiker()).isEqualTo(1L);
-//        Assertions.assertThat(pinLikeDto.getFirstname()).isEqualTo("first");
-//        Assertions.assertThat(pinLikeDto.getLastname()).isEqualTo("last");
-//        Assertions.assertThat(pinLikeDto.getUserProfileImg()).isEqualTo("profile1.jpg");
-//        Assertions.assertThat(pinLikeDto.getCreatedAt()).isNotNull();
+        Assertions.assertThat(pinLikeDto.getPinLikeNo()).isEqualTo(1L);
+        Assertions.assertThat(pinLikeDto.getPinNo()).isEqualTo(1L);
+        Assertions.assertThat(pinLikeDto.getEmojiNo()).isEqualTo(1);
+        Assertions.assertThat(pinLikeDto.getLiker()).isEqualTo(1L);
+        Assertions.assertThat(pinLikeDto.getFirstname()).isEqualTo("first");
+        Assertions.assertThat(pinLikeDto.getLastname()).isEqualTo("last");
+        Assertions.assertThat(pinLikeDto.getUserProfileImg()).isEqualTo("profile1.jpg");
+        Assertions.assertThat(pinLikeDto.getCreatedAt()).isNotNull();
     }
 }
