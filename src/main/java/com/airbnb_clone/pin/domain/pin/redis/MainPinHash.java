@@ -29,14 +29,16 @@ public class MainPinHash {
     private Long pinNo;
     private String imageUrl;
     private String link;
+    private String imageClassification;
     private Long createdAt;
     private Long updatedAt;
 
-    public static MainPinHash of(Long pinNo, String imageUrl, String link, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public static MainPinHash of(Long pinNo, String imageUrl, String link, String imageClassification, LocalDateTime createdAt, LocalDateTime updatedAt) {
         return MainPinHash.builder()
                 .pinNo(pinNo)
                 .imageUrl(imageUrl)
                 .link(link)
+                .imageClassification(imageClassification)
                 .createdAt(createdAt.toInstant(ZoneOffset.UTC).toEpochMilli())
                 .updatedAt(updatedAt.toInstant(ZoneOffset.UTC).toEpochMilli())
                 .build();

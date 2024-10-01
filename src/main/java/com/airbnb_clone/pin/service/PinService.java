@@ -3,6 +3,7 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.exception.tag.TagNotFoundException;
+import com.airbnb_clone.history.service.PersonalHistoryService;
 import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
@@ -19,6 +20,7 @@ import com.airbnb_clone.pin.repository.PinRedisRepository;
 import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,9 +49,11 @@ import java.util.Set;
 @Transactional(readOnly = true)
 @Validated
 public class PinService {
-    private static final int CACHE_SIZE = 1000;
+    private static final int CACHE_SIZE_PER_CATEGORY = 100;
 
     private final S3ImageFacade s3ImageFacade;
+
+    private final PersonalHistoryService personalHistoryService;
 
     private final PinMongoRepository pinMongoRepository;
     private final PinMySQLRepository pinMySQLRepository;
@@ -148,27 +153,34 @@ public class PinService {
         pinMySQLRepository.deletePinSoftly(pinNo);
     }
 
-    public List<PinMainResponseDTO> findPinsToCached(int offset, int limit) {
-        return pinMySQLRepository.findPinsToCached(offset, limit);
+    public List<PinMainResponseDTO> findPinsToCached(int limitPerCategory) {
+        return pinMySQLRepository.findPinsToCached(limitPerCategory);
     }
 
     /**
-     * 적절한 개수의 핀을 Redis에 캐싱
+     * 분류별 | 최신순으로 핀을 레디스에 특정 개수만큼 캐싱한다.
      */
     @Transactional(readOnly = false)
     public void cacheAllPinsToRedis() {
-        int offset = 0;
-        while (true) {
-            List<PinMainResponseDTO> pinsToCached = findPinsToCached(offset, CACHE_SIZE);
-            if (pinsToCached.isEmpty()) {
-                break;
-            }
+        List<PinMainResponseDTO> pins = findPinsToCached(CACHE_SIZE_PER_CATEGORY);
 
-            pinRedisRepository.saveAll(pinsToCached.stream()
+        // 캐싱할 핀이 존재할 경우 레디스에 저장
+        if (!pins.isEmpty()) {
+            pinRedisRepository.saveAll(pins.stream()
                     .map(PinMainResponseDTO::toMainPinHash)
                     .toList());
-
-            offset += CACHE_SIZE;
         }
+    }
+
+    /**
+     * 메인에 노출할 핀을 레디스에서 조회한다. 히스토리 분류에 따라 노출할 핀의 % 를 조절한다.
+     */
+    public void getMainPins(@NonNull Long userNo) {
+        Map<String, Integer> historyCounts = personalHistoryService.getHistoryCounts(userNo);
+
+        //TODO히스토리 분류에 따라 핀을 선택하는 로직 추가
+
+
+
     }
 }

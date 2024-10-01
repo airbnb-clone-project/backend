@@ -91,7 +91,7 @@ public class PinRealServiceTest {
             final int offset = 0;
 
             // when
-            List<PinMainResponseDTO> actualMainPinResponses = pinService.findPinsToCached(offset, CACHE_SIZE);
+            List<PinMainResponseDTO> actualMainPinResponses = pinService.findPinsToCached(offset);
 
             // then
             assertThat(actualMainPinResponses).isNotNull();
