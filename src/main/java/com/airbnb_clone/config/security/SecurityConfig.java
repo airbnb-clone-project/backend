@@ -91,7 +91,8 @@ public class SecurityConfig {
 //                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000 포트 허용
                         configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
-                                "http://localhost:8008/swagger-ui/index.html"
+                                "http://localhost:8008/swagger-ui/index.html",
+                                "http://34.171.110.81:8008"
                         ));
                         configuration.setAllowedMethods(Collections.singletonList("*")); // 모든 종류의 요청 가능
                         configuration.setAllowCredentials(true); // 크리덴셜 가능
