@@ -1,5 +1,6 @@
 package com.airbnb_clone.config.db.redis;
 
+import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -32,8 +33,27 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-
         template.setConnectionFactory(connectionFactory);
+
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
+
+        template.setValueSerializer(serializer);
+        template.setHashValueSerializer(serializer);
+
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+
+        template.afterPropertiesSet();
+
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, MainPinHash> mainPinHashRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, MainPinHash> template = new RedisTemplate<>();
+
+        template.setConnectionFactory(redisConnectionFactory);
+
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 

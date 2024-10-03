@@ -140,7 +140,7 @@ public class PinController {
     }
 
     @GetMapping("/pin/v1")
-    public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam Long userNo, @RequestParam int page, @RequestParam int pageSize) {
+    public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam Long userNo, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize) {
         return ResponseEntity.ok(
                 ApiResponse.of("메인 화면에 노출할 핀 조회 성공", HttpStatus.OK.value(), pinService.getMainPins(userNo, page, pageSize))
         );

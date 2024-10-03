@@ -5,6 +5,7 @@ import com.airbnb_clone.exception.ErrorResponse;
 import com.airbnb_clone.exception.chatting.DuplicateChatRoomException;
 import com.airbnb_clone.exception.image.ContentTypeNotMatchException;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.exception.pin.PinRetrievalException;
 import com.airbnb_clone.exception.tag.TagNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -45,6 +46,14 @@ public class CustomExceptionHandler {
     protected HttpEntity<ErrorResponse> handleTagNotFoundException(TagNotFoundException e) {
         log.error("handleTagNotFoundException", e);
         ErrorResponse response = ErrorResponse.of(ErrorCode.TAG_NOT_FOUND);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PinRetrievalException.class)
+    protected HttpEntity<ErrorResponse> handlePinRetrievalException(PinRetrievalException e) {
+        log.error("handlePinRetrievalException", e);
+        ErrorResponse response = ErrorResponse.of(ErrorCode.PIN_RETRIEVAL_EXCEPTION);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

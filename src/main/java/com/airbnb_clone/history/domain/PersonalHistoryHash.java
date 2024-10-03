@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @RedisHash("personal_history")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder(access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class PersonalHistoryHash {
     @Id
@@ -39,4 +39,13 @@ public class PersonalHistoryHash {
                 .visitedAt(foundPin.getCreatedAt())
                 .build();
     }
+
+    public static PersonalHistoryHash of(Long userNo, String visitedHistoryClassification) {
+        return PersonalHistoryHash.builder()
+                .userNo(userNo)
+                .visitedHistoryClassification(visitedHistoryClassification)
+                .visitedAt(LocalDateTime.now())
+                .build();
+    }
+
 }
