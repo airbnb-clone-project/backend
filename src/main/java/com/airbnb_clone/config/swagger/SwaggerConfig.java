@@ -4,10 +4,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import java.util.List;
 
 /**
  * packageName    : com.st.eighteen_be.config.openapi
@@ -29,6 +32,9 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+        Server localServer = setCustomServer("http://localhost:8008", "Local Server");
+        Server devServer = setCustomServer("http://34.46.135.133", "Dev Server");
+
         return new OpenAPI()
                        .info(
                                new Info()
@@ -52,7 +58,17 @@ public class SwaggerConfig {
                                         .in(SecurityScheme.In.HEADER) // 헤더에 포함
                                         .name("Refresh") // 헤더 이름
                         )
-                );
+                )
+                .servers(List.of(localServer, devServer));
+    }
+
+    private static Server setCustomServer(String url, String description) {
+        Server localServer = new Server();
+
+        localServer.setUrl(url);
+        localServer.setDescription(description);
+
+        return localServer;
     }
 
     @Bean
