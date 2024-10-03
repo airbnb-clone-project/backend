@@ -3,6 +3,8 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataMongoTestAnnotation;
 import com.airbnb_clone.common.testcontainer.MongoDBTestContainer;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.history.service.PersonalHistoryService;
+import com.airbnb_clone.history.strategy.PinRetrievalStrategyFactory;
 import com.airbnb_clone.image.dto.response.ImageClassificationResponseDTO;
 import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.image.facade.S3ImageFacade;
@@ -60,6 +62,12 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     @MockBean
     private PinRedisRepository pinRedisRepository;
 
+    @MockBean
+    private PinRetrievalStrategyFactory pinRetrievalStrategyFactory;
+
+    @MockBean
+    private PersonalHistoryService personalHistoryService;
+
     @Autowired
     private MongoTemplate mt;
     private PinMongoRepository pinMongoRepository;
@@ -68,10 +76,12 @@ public class PinTempServiceTest extends MongoDBTestContainer {
     private TemporaryPinCreateRequestDTO FirstImageRequestOfFirstUser;
     private TemporaryPinCreateRequestDTO SecondImageRequestOfFirstUser;
 
+
+
     @BeforeEach
     void setUp() {
         pinMongoRepository = new PinMongoRepository(mt);
-        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+        pinService = new PinService(s3ImageFacade, pinRetrievalStrategyFactory, personalHistoryService, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
 
         MockMultipartFile mockFile = new MockMultipartFile(
                 "imageFile",
