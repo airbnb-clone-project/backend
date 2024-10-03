@@ -1,6 +1,8 @@
 package com.airbnb_clone.pin.service;
 
 import com.airbnb_clone.common.testcontainer.RedisTestContainer;
+import com.airbnb_clone.history.service.PersonalHistoryService;
+import com.airbnb_clone.history.strategy.PinRetrievalStrategyFactory;
 import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
@@ -58,14 +60,19 @@ public class PinRedisServiceTest extends RedisTestContainer {
     @Autowired
     private PinRedisRepository pinRedisRepository;
 
+    @Autowired
+    private PinRetrievalStrategyFactory pinRetrievalStrategyFactory;
+
     @MockBean
     private S3ImageFacade s3ImageFacade;
+    @Autowired
+    private PersonalHistoryService personalHistoryService;
 
     @BeforeEach
     void setUp() {
         pinRedisRepository.deleteAll();
 
-        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+        pinService = new PinService(s3ImageFacade, pinRetrievalStrategyFactory, personalHistoryService, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
     }
 
     @Nested
@@ -93,5 +100,12 @@ public class PinRedisServiceTest extends RedisTestContainer {
             assertThat(firstMainPin.getCreatedAt()).isNotNull();
             assertThat(firstMainPin.getUpdatedAt()).isNotNull();
         }
+    }
+
+    @Nested
+    @DisplayName("핀 메인 조회 테스트")
+    class MainPinServiceTest {
+
+
     }
 }

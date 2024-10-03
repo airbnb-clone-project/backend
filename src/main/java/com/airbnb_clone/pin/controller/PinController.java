@@ -5,6 +5,7 @@ import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.TemporaryPinUpdateRequestDTO;
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.service.PinAuthHelper;
@@ -138,4 +139,10 @@ public class PinController {
         );
     }
 
+    @GetMapping("/pin/v1")
+    public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam Long userNo, @RequestParam int page, @RequestParam int pageSize) {
+        return ResponseEntity.ok(
+                ApiResponse.of("메인 화면에 노출할 핀 조회 성공", HttpStatus.OK.value(), pinService.getMainPins(userNo, page, pageSize))
+        );
+    }
 }

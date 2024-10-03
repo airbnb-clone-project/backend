@@ -1,8 +1,10 @@
 package com.airbnb_clone.pin.domain.pin.redis;
 
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -29,6 +31,8 @@ public class MainPinHash {
     private Long pinNo;
     private String imageUrl;
     private String link;
+
+    @Indexed
     private String imageClassification;
     private Long createdAt;
     private Long updatedAt;
@@ -53,4 +57,8 @@ public class MainPinHash {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(updatedAt), ZoneOffset.UTC);
     }
     //에포크 밀리초 시간을 LocalDateTime으로 변환 - end
+
+    public static PinMainResponseDTO toPinMainResponseDTO(MainPinHash mainPinHash) {
+        return PinMainResponseDTO.of(mainPinHash.getPinNo(), mainPinHash.getImageUrl(), mainPinHash.getLink(), mainPinHash.getImageClassification(), mainPinHash.getCreatedAt(), mainPinHash.getUpdatedAt());
+    }
 }
