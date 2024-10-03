@@ -28,20 +28,22 @@ import java.time.ZoneOffset;
 @Builder(access = AccessLevel.PRIVATE)
 public class MainPinHash {
     @Id
-    private Long pinNo;
+    private String pinNo;
     private String imageUrl;
     private String link;
+    private Long userNo;
 
     @Indexed
     private String imageClassification;
     private Long createdAt;
     private Long updatedAt;
 
-    public static MainPinHash of(Long pinNo, String imageUrl, String link, String imageClassification, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public static MainPinHash of(String pinNo, String imageUrl, String link, Long userNo, String imageClassification, LocalDateTime createdAt, LocalDateTime updatedAt) {
         return MainPinHash.builder()
                 .pinNo(pinNo)
                 .imageUrl(imageUrl)
                 .link(link)
+                .userNo(userNo)
                 .imageClassification(imageClassification)
                 .createdAt(createdAt.toInstant(ZoneOffset.UTC).toEpochMilli())
                 .updatedAt(updatedAt.toInstant(ZoneOffset.UTC).toEpochMilli())
@@ -59,6 +61,6 @@ public class MainPinHash {
     //에포크 밀리초 시간을 LocalDateTime으로 변환 - end
 
     public static PinMainResponseDTO toPinMainResponseDTO(MainPinHash mainPinHash) {
-        return PinMainResponseDTO.of(mainPinHash.getPinNo(), mainPinHash.getImageUrl(), mainPinHash.getLink(), mainPinHash.getImageClassification(), mainPinHash.getCreatedAt(), mainPinHash.getUpdatedAt());
+        return PinMainResponseDTO.of(Long.parseLong(mainPinHash.getPinNo()), mainPinHash.getImageUrl(), mainPinHash.getLink(), mainPinHash.getImageClassification(), mainPinHash.getCreatedAt(), mainPinHash.getUpdatedAt());
     }
 }

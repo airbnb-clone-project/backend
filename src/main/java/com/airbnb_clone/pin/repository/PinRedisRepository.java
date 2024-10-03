@@ -1,8 +1,10 @@
 package com.airbnb_clone.pin.repository;
 
-import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,8 +21,8 @@ import java.util.List;
  * 24. 9. 10.        ipeac       최초 생성
  */
 @Repository
-public interface PinRedisRepository extends CrudRepository<MainPinHash, Long> {
-    List<PinMainResponseDTO> findAllPins(int limitPerCategory);
+public interface PinRedisRepository extends CrudRepository<MainPinHash, Long>, ListPagingAndSortingRepository<MainPinHash, Long> {
+    Page<MainPinHash> findAll(Pageable pageable);
 
-    List<MainPinHash> findPinsByImageClassification(String category, int offset, int limit);
+    List<MainPinHash> findMainPinHashByImageClassification(String category, Pageable pageable);
 }
