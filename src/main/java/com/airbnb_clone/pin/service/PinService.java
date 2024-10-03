@@ -3,8 +3,9 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.exception.tag.TagNotFoundException;
-import com.airbnb_clone.history.domain.PersonalHistory;
 import com.airbnb_clone.history.service.PersonalHistoryService;
+import com.airbnb_clone.history.strategy.PinRetrievalStrategy;
+import com.airbnb_clone.history.strategy.PinRetrievalStrategyFactory;
 import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.InnerTempPin;
 import com.airbnb_clone.pin.domain.pin.PinTemp;
@@ -50,9 +51,10 @@ import java.util.Set;
 @Transactional(readOnly = true)
 @Validated
 public class PinService {
-    private static final int CACHE_SIZE_PER_CATEGORY = 100;
+    public static final int CACHE_SIZE_PER_CATEGORY = 100;
 
     private final S3ImageFacade s3ImageFacade;
+    private final PinRetrievalStrategyFactory pinRetrievalStrategyFactory;
 
     private final PersonalHistoryService personalHistoryService;
 
@@ -174,14 +176,20 @@ public class PinService {
     }
 
     /**
-     * 메인에 노출할 핀을 레디스에서 조회한다. 히스토리 분류에 따라 노출할 핀의 % 를 조절한다.
+     * 메인에 노출할 핀을 레디스에서 조회한다. 히스토리 분류에 따라 노출할 핀의 % 에 따라 메인 노출 핀 가져오기
+     *
+     * @param userNo 사용자 번호
+     * @param page 페이징 페이지
+     * @param pageSize 페이징 페이지 크기
+     *
+     * @return 메인 화면에 노출할 핀 목록
      */
-    public void getMainPins(@NonNull Long userNo) {
+    public List<PinMainResponseDTO> getMainPins(@NonNull Long userNo, int page, int pageSize) {
         Map<String, Integer> historyCounts = personalHistoryService.getHistoryCounts(userNo);
 
-        //TODO히스토리 분류에 따라 핀을 선택하는 로직 추가
-        PersonalHistory calculatedHistory = PersonalHistory.from(historyCounts);
+        // 핀 가져오기 전략 선택
+        PinRetrievalStrategy pinRetrievalStrategy = pinRetrievalStrategyFactory.getPinRetrievalStrategy(historyCounts);
 
-
+        return pinRetrievalStrategy.retrievePins(historyCounts, userNo, page, pageSize);
     }
 }

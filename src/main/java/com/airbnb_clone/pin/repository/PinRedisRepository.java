@@ -1,8 +1,11 @@
 package com.airbnb_clone.pin.repository;
 
+import com.airbnb_clone.pin.domain.pin.dto.response.PinMainResponseDTO;
 import com.airbnb_clone.pin.domain.pin.redis.MainPinHash;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * packageName    : com.airbnb_clone.pin.repository
@@ -17,4 +20,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PinRedisRepository extends CrudRepository<MainPinHash, Long> {
+    List<PinMainResponseDTO> findAllPins(int limitPerCategory);
+
+    List<MainPinHash> findPinsByImageClassification(String category, int offset, int limit);
 }
