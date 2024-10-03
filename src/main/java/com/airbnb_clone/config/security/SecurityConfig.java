@@ -92,16 +92,18 @@ public class SecurityConfig {
                         configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://localhost:8008",
-                                "http://localhost:8008/swagger-ui/index.html",
-                                "http://34.171.110.81:8008"
+                                "http://34.171.110.81:8008",
+                                "http://34.46.135.133",
+                                "http://34.46.135.133:8008",
+                                "http://34.46.135.133:8080"
                         ));
                         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 종류의 요청 가능
                         configuration.setAllowCredentials(true); // 크리덴셜 가능
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
-
-                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+//                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+//                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
                         return configuration;
                     }
