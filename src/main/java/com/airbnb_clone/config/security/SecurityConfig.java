@@ -63,8 +63,8 @@ public class SecurityConfig {
     // RefreshTokenRepository : refresh token 을 저장할 클래스
     private final RefreshTokenRepository refreshTokenRepository;
     // CustomOAuth2UserService: social 로그인 요청에 대해 구분 하고 필드를 다루는 클래스
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
+//    private final CustomOAuth2UserService customOAuth2UserService;
+//    private final CustomSuccessHandler customSuccessHandler;
 
     @Bean // password encoder 등록
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
