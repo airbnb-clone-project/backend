@@ -3,6 +3,8 @@ package com.airbnb_clone.pin.service;
 import com.airbnb_clone.common.annotation.DataJdbcTestAnnotation;
 import com.airbnb_clone.exception.ErrorCode;
 import com.airbnb_clone.exception.pin.PinNotFoundException;
+import com.airbnb_clone.history.service.PersonalHistoryService;
+import com.airbnb_clone.history.strategy.PinRetrievalStrategyFactory;
 import com.airbnb_clone.image.enums.ImageClassificationEnum;
 import com.airbnb_clone.image.facade.S3ImageFacade;
 import com.airbnb_clone.pin.domain.pin.Pin;
@@ -59,14 +61,21 @@ public class PinRealServiceTest {
     @MockBean
     private S3ImageFacade s3ImageFacade;
 
+    @MockBean
+    private PinRetrievalStrategyFactory pinRetrievalStrategyFactory;
+
+    @MockBean
+    private PersonalHistoryService personalHistoryService;
+
     private PinCreateRequestDTO firstPinCreateRequestDTO;
+
 
     @BeforeEach
     void setUp() {
         tagMySQLRepository = new TagMySQLRepository(namedParameterJdbcTemplate);
         pinMySQLRepository = new PinMySQLRepository(namedParameterJdbcTemplate);
 
-        pinService = new PinService(s3ImageFacade, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
+        pinService = new PinService(s3ImageFacade, pinRetrievalStrategyFactory, personalHistoryService, pinMongoRepository, pinMySQLRepository, pinRedisRepository, tagMySQLRepository);
 
         firstPinCreateRequestDTO = PinCreateRequestDTO.of(1L, "http://example.com/image.jpg", "핀 제목", "핀 설명", "핀 링크", 1L, true, Set.of(1L), ImageClassificationEnum.ART);
     }
@@ -87,17 +96,14 @@ public class PinRealServiceTest {
 
             pinMySQLRepository.savePinAndGetId(savePin);
 
-            final int CACHE_SIZE = 1;
-            final int offset = 0;
-
             // when
-            List<PinMainResponseDTO> actualMainPinResponses = pinService.findPinsToCached(offset);
+            List<PinMainResponseDTO> actualMainPinResponses = pinService.findPinsToCached(1);
 
             // then
             assertThat(actualMainPinResponses).isNotNull();
             assertSoftly(
                     softly -> {
-                        softly.assertThat(actualMainPinResponses.size()).isEqualTo(CACHE_SIZE);
+                        softly.assertThat(actualMainPinResponses.size()).isEqualTo(1);
                         softly.assertThat(actualMainPinResponses.get(0).getLink()).isEqualTo(savePin.getLink());
                         softly.assertThat(actualMainPinResponses.get(0).getImageUrl()).isEqualTo(savePin.getImgUrl());
                         softly.assertThat(actualMainPinResponses.get(0).getCreatedAt()).isNotNull();
