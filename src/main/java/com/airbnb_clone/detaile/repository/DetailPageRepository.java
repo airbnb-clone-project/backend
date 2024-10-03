@@ -94,18 +94,3 @@ public class DetailPageRepository {
         });
     }
 }
-
-
-
-
-
-
-//    //임시메서드
-//    public Pin save(Pin pin) {
-//        String sql = "INSERT INTO pin(NO, IMG_URL, TITLE, DESCRIPTION, LINK, BOARD_NO, IS_COMMENT_ALLOWED, LIKE_COUNT)" +
-//                "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-//        jdbcTemplate.update(sql, pin.getNo(), pin.getImgUrl(), pin.getTitle(), pin.getDescription(), pin.getLink(), pin.getBoardNo(), pin.isCommentAllowed(), pin.getLikeCount());
-//        return pin;
-//
-//    }
-//}

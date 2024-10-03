@@ -15,7 +15,6 @@ public class PinLikeDto {
     private Long pinNo;
     private int emojiNo;
     private Long liker;
-//    private String userNickname;
     private String firstname;
     private String lastname;
     private String userProfileImg;
