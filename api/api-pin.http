@@ -50,7 +50,7 @@ Content-Type: application/json
     "isCommentAllowed": true,
     "link": "https://www.airbnb.co.kr/rooms/2",
     "imgUrl": "https://www.airbnb.co.kr/rooms/1000",
-    "imageClassification": "음식",
+    "imageClassification": "야경",
     "tagNos": [1, 2],
     "userNo": 1
 }
@@ -74,3 +74,14 @@ Authorization: Bearer {{token}}
 DELETE {{url}}/api/pins/pin/1/v1
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+### 핀 히스토리 강제 저장
+# @no-redirect
+POST {{url}}/api/pin-history/v1?userNo=1&pinNo=1
+Content-Type: application/json
+
+### DB 핀을 메모리에 올리기
+POST http://localhost:8008/api/pins/pin/force-update-to-redis-batch/v1
+
+### 핀 메인 조회
+GET {{url}}/api/pins/pin/v1?userNo=1&page=0&pageSize=10

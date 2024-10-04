@@ -139,6 +139,7 @@ public class PinController {
         );
     }
 
+    @Operation(summary = "메인 화면에 노출할 핀 조회", description = "메인 화면에 노출할 핀 조회")
     @GetMapping("/pin/v1")
     public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam Long userNo, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize) {
         return ResponseEntity.ok(
