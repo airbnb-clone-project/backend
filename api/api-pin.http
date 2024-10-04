@@ -85,3 +85,4 @@ POST http://localhost:8008/api/pins/pin/force-update-to-redis-batch/v1
 
 ### 핀 메인 조회
 GET {{url}}/api/pins/pin/v1?userNo=1&page=0&pageSize=10
+Content-Type: application/json

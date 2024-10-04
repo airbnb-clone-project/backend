@@ -55,7 +55,7 @@ public class PinAuthHelper {
         }
     }
 
-    private Long getUsersNoFromJwt(HttpServletRequest servletRequest) {
+    public Long getUsersNoFromJwt(HttpServletRequest servletRequest) {
         String authorization = servletRequest.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new PinAuthException(ErrorCode.PIN_AUTH_ERROR);
