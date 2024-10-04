@@ -22,7 +22,6 @@ import com.airbnb_clone.pin.repository.PinRedisRepository;
 import com.airbnb_clone.pin.repository.TagMySQLRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -178,14 +177,18 @@ public class PinService {
     /**
      * 메인에 노출할 핀을 레디스에서 조회한다. 히스토리 분류에 따라 노출할 핀의 % 에 따라 메인 노출 핀 가져오기
      *
-     * @param userNo 사용자 번호
-     * @param page 페이징 페이지
+     * @param page     페이징 페이지
      * @param pageSize 페이징 페이지 크기
-     *
+     * @param userNo
      * @return 메인 화면에 노출할 핀 목록
      */
-    public List<PinMainResponseDTO> getMainPins(@NonNull Long userNo, int page, int pageSize) {
-        Map<String, Integer> historyCounts = personalHistoryService.getHistoryCounts(userNo);
+    public List<PinMainResponseDTO> getMainPins(int page, int pageSize, Long userNo) {
+        Map<String, Integer> historyCounts = Map.of();
+
+        // 유저 정보가 있는 경우 히스토리 분류 수를 가져온다.
+        if (userNo != null) {
+            historyCounts = personalHistoryService.getHistoryCounts(userNo);
+        }
 
         // 핀 가져오기 전략 선택
         PinRetrievalStrategy pinRetrievalStrategy = pinRetrievalStrategyFactory.getPinRetrievalStrategy(historyCounts);
