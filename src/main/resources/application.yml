@@ -34,7 +34,7 @@ logging:
     name: log/airbnb.log
   logback:
     rollingpolicy:
-      file-name-pattern: airbnb.%d{yyyy-MM-dd}-%i.log
+      file-name-pattern: log/airbnb.%d{yyyy-MM-dd}-%i.log
       max-file-size: 10KB
   pattern:
     dateformat: Asia/Seoul
