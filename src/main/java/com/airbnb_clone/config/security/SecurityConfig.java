@@ -49,12 +49,10 @@ import java.util.Collections;
 public class SecurityConfig {
 
     public static final String[] CORS_PERMISSION={
-            "http://39.115.84.63", //
+            "http://39.115.84.63", // personal address SP
             "http://localhost:3000",
             "http://localhost:8008",
             "http://34.46.135.133", // swagger
-            "http://34.46.135.133:8008",
-            "http://34.46.135.133:8080"
     };
     public static final String[] PERMIT_ALL_PATTERNS = {
             "/api/**",
