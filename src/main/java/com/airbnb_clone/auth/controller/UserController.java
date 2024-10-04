@@ -1,6 +1,6 @@
 package com.airbnb_clone.auth.controller;
 
-import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.oauth2.AdditionalUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
@@ -11,9 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartRequest;
-
-import java.util.Map;
 
 
 /**
@@ -43,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/additional-information") // username, birthday, gender, spokenLanguage, country
-    public ResponseEntity<?> addAdditionalUserInformation(@RequestBody MoreUserRegisterRequest request) {
+    public ResponseEntity<?> addAdditionalUserInformation(@RequestBody AdditionalUserRegisterRequest request) {
         return userService.saveAdditionalUserInformation(request);
     }
 

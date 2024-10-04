@@ -17,7 +17,7 @@ import java.time.LocalDate;
  * 2024. 8. 24.        doungukkim       최초 생성
  */
 @Getter @Setter
-public class MoreUserRegisterRequest {
+public class AdditionalUserRegisterRequest {
     private String username;
     private LocalDate birthday;
     private String gender;
