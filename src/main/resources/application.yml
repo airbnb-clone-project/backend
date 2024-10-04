@@ -38,3 +38,8 @@ logging:
       max-file-size: 10KB
   pattern:
     dateformat: Asia/Seoul
+
+springdoc:
+  show-login-endpoint: true
+
+
