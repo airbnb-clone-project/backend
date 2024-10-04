@@ -48,13 +48,21 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    public static final String[] PERMIT_ALL_PATTERNS = {"/api/**",
+    public static final String[] PERMIT_ALL_PATTERNS = {
+            "/api/**",
             "/ws/**",
             "/h2-console/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/v3/api-docs/**",
-            "/webjars/**"};
+            "/webjars/**",
+
+            "/login-failed",
+            "/api/auth/login",
+            "/",
+            "/api/auth/register",
+            "/api/auth/reissue" // access가 없을테니 허용해야함
+    };
 
     // AuthenticationManager 가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -63,8 +71,8 @@ public class SecurityConfig {
     // RefreshTokenRepository : refresh token 을 저장할 클래스
     private final RefreshTokenRepository refreshTokenRepository;
     // CustomOAuth2UserService: social 로그인 요청에 대해 구분 하고 필드를 다루는 클래스
-//    private final CustomOAuth2UserService customOAuth2UserService;
-//    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
 
     @Bean // password encoder 등록
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -88,11 +96,9 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000 포트 허용
                         configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://localhost:8008",
-                                "http://34.171.110.81:8008",
                                 "http://34.46.135.133",
                                 "http://34.46.135.133:8008",
                                 "http://34.46.135.133:8080"
@@ -102,8 +108,6 @@ public class SecurityConfig {
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
                         configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
-//                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-//                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
                         return configuration;
                     }
@@ -136,11 +140,11 @@ public class SecurityConfig {
             OAuth2
             소셜 로그인시 사용될 service 주입
          */
-//        http
-//                .oauth2Login((oAuth2)-> oAuth2
-//                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
-//                                .userService(customOAuth2UserService)))
-//                        .successHandler(customSuccessHandler));
+        http
+                .oauth2Login((oAuth2)-> oAuth2
+                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)))
+                        .successHandler(customSuccessHandler));
 
         /*
             api 오류 메세지
