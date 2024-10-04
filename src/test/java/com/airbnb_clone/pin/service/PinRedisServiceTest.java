@@ -154,7 +154,7 @@ public class PinRedisServiceTest extends RedisTestContainer {
             pinRedisRepository.saveAll(mainPinHashes);
 
             //when
-            List<PinMainResponseDTO> foundPins = pinService.getMainPins(1L, 0, 5);
+            List<PinMainResponseDTO> foundPins = pinService.getMainPins(0, 5, 1L);
 
             assertThat(foundPins).hasSize(5)
                     .satisfies(pins -> {
@@ -192,7 +192,7 @@ public class PinRedisServiceTest extends RedisTestContainer {
             pinRedisRepository.saveAll(mainPinHashes);
 
             //when
-            List<PinMainResponseDTO> foundPins = pinService.getMainPins(1L, 0, 5);
+            List<PinMainResponseDTO> foundPins = pinService.getMainPins(0, 5, 1L);
 
             // then
             assertThat(foundPins).hasSize(5)

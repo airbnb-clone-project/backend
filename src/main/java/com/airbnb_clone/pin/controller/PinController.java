@@ -1,5 +1,6 @@
 package com.airbnb_clone.pin.controller;
 
+import com.airbnb_clone.auth.dto.users.CustomUserDetails;
 import com.airbnb_clone.common.global.response.ApiResponse;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinCreateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -141,9 +143,13 @@ public class PinController {
 
     @Operation(summary = "메인 화면에 노출할 핀 조회", description = "메인 화면에 노출할 핀 조회")
     @GetMapping("/pin/v1")
-    public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam Long userNo, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize) {
+    public HttpEntity<ApiResponse<List<PinMainResponseDTO>>> getMainPins(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize, @AuthenticationPrincipal  CustomUserDetails userDetails) {
+        Long userNo = Optional.ofNullable(userDetails)
+                .map(CustomUserDetails::getUserNo)
+                .orElse(null);
+
         return ResponseEntity.ok(
-                ApiResponse.of("메인 화면에 노출할 핀 조회 성공", HttpStatus.OK.value(), pinService.getMainPins(userNo, page, pageSize))
+                ApiResponse.of("메인 화면에 노출할 핀 조회 성공", HttpStatus.OK.value(), pinService.getMainPins(page, pageSize, userNo))
         );
     }
 }
