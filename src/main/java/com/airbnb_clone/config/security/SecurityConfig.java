@@ -48,6 +48,14 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String[] CORS_PERMISSION={
+            "http://39.115.84.63", //
+            "http://localhost:3000",
+            "http://localhost:8008",
+            "http://34.46.135.133", // swagger
+            "http://34.46.135.133:8008",
+            "http://34.46.135.133:8080"
+    };
     public static final String[] PERMIT_ALL_PATTERNS = {
             "/api/**",
             "/ws/**",
@@ -96,14 +104,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Arrays.asList(
-                                "http://39.115.84.63",
-                                "http://localhost:3000",
-                                "http://localhost:8008",
-                                "http://34.46.135.133",
-                                "http://34.46.135.133:8008",
-                                "http://34.46.135.133:8080"
-                        ));
+                        configuration.setAllowedOrigins(Arrays.asList(CORS_PERMISSION));
                         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 종류의 요청 가능
                         configuration.setAllowCredentials(true); // 크리덴셜 가능
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
