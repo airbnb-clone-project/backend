@@ -10,7 +10,6 @@ import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
 import com.airbnb_clone.auth.service.oauth2.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,6 +67,9 @@ public class SecurityConfig {
             "/",
             "/api/auth/register",
             "/api/auth/reissue" // access가 없을테니 허용해야함
+
+            // 스프링 엑추에이터 엔드포인트 허용 설정
+            ,"/actuator/**"
     };
 
     // AuthenticationManager 가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
