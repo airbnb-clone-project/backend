@@ -41,5 +41,7 @@ logging:
 
 springdoc:
   show-login-endpoint: true
+  swagger-ui:
+    path: /swagger-ui.html
 
 
