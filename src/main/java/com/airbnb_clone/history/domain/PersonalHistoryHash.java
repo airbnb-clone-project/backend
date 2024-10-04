@@ -36,7 +36,7 @@ public class PersonalHistoryHash {
         return PersonalHistoryHash.builder()
                 .userNo(userNo)
                 .visitedHistoryClassification(foundPin.getImageClassification())
-                .visitedAt(foundPin.getCreatedAt())
+                .visitedAt(LocalDateTime.now())
                 .build();
     }
 
