@@ -1,25 +1,20 @@
 package com.airbnb_clone.auth.service;
 
-import com.airbnb_clone.auth.controller.UserController;
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
-import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.oauth2.AdditionalUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
-import org.apache.catalina.security.SecurityUtil;
-import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -145,7 +140,7 @@ class UserServiceTest {
     @DisplayName("유저 추가정보 입력 - 성공")
     void addMoreUserInfoSuccess() {
 
-        MoreUserRegisterRequest request = new MoreUserRegisterRequest();
+        AdditionalUserRegisterRequest request = new AdditionalUserRegisterRequest();
         request.setBirthday(LocalDate.of(2000, 4, 29));
         request.setCountry("Korea");
         request.setGender("assert helicopter");
@@ -179,7 +174,7 @@ class UserServiceTest {
         // given
         String wrongUsername = "wrong@test.com";
 
-        MoreUserRegisterRequest request = new MoreUserRegisterRequest();
+        AdditionalUserRegisterRequest request = new AdditionalUserRegisterRequest();
         request.setBirthday(LocalDate.of(2000, 4, 29));
         request.setCountry("Korea");
         request.setGender("assert helicopter");

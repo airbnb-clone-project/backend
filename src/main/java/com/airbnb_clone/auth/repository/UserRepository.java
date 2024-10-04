@@ -1,7 +1,7 @@
 package com.airbnb_clone.auth.repository;
 
 import com.airbnb_clone.auth.domain.Users;
-import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.oauth2.AdditionalUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -38,6 +38,10 @@ public class UserRepository {
         String readSql = "SELECT * FROM users WHERE username = ?"; // username 있는지 여부 확인
         // 값이 있으면 0을 반환한다. 그리고 이걸 List로 반환한다. [0] 없으면 비어있다. 비어있을때 .isEmpty를 사용해서 true를 반환
         return jdbcTemplate.query(readSql, (rs, rowNum) -> 0, username).isEmpty(); // 실제 데이터를 값을 저장
+    }
+
+    public boolean isUsernameExist(String username) {
+        return !isUsernameNotExist(username);
     }
 
     // 계정 삭제
@@ -138,7 +142,7 @@ public class UserRepository {
         jdbcTemplate.update(sql, newFirstName, username);
     }
 
-    public void saveAdditionalUserInformation(MoreUserRegisterRequest request) {
+    public void saveAdditionalUserInformation(AdditionalUserRegisterRequest request) {
         String sql = "UPDATE users SET birthday = ?, gender = ?, spoken_language = ?, country = ? " +
                 "WHERE username = ?";
         try {

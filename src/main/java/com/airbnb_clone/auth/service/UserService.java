@@ -2,7 +2,7 @@ package com.airbnb_clone.auth.service;
 
 import com.airbnb_clone.auth.domain.Users;
 import com.airbnb_clone.auth.dto.ErrorResponse;
-import com.airbnb_clone.auth.dto.oauth2.MoreUserRegisterRequest;
+import com.airbnb_clone.auth.dto.oauth2.AdditionalUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
@@ -63,7 +63,7 @@ public class UserService {
 
 
         // 유저정보 있을경우 예외처리
-        if (!userRepository.isUsernameNotExist(username)) {
+        if (userRepository.isUsernameExist(username)) {
             ErrorResponse errorResponse = new ErrorResponse(401, "이미 존재하는 사용자입니다.");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
@@ -108,7 +108,7 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> saveAdditionalUserInformation(MoreUserRegisterRequest request) {
+    public ResponseEntity<?> saveAdditionalUserInformation(AdditionalUserRegisterRequest request) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -124,6 +124,7 @@ public class UserService {
 
         // 입력 정보에 생일이 없고 db에 값이 있을경우 값이 바뀌면 안됨
         // 입력 생일 없음
+
         if (doesNotHaveBirthday(request)) {
             // db 생일 있음 db에서 가져온다.
             LocalDate birthdayFromDb = userRepository.findBirthdayByUsername(username);
@@ -145,7 +146,7 @@ public class UserService {
         return birthday != null;
     }
 
-    private static boolean doesNotHaveBirthday(MoreUserRegisterRequest request) {
+    private static boolean doesNotHaveBirthday(AdditionalUserRegisterRequest request) {
         return request.getBirthday() == null;
     }
 
@@ -169,11 +170,17 @@ public class UserService {
             request에 옛날 비밀번호가 있을경우 비교 후 비밀번호 문제 없는지 확인 후 업데이트
          */
         String oldPasswordFromDb = userRepository.findCurrnetPasswordByUsername(username);
+
+        // 비번 아직 없을 때 - 저장
         if (oldPasswordNotExist(oldPasswordFromDb)) {
             userRepository.updatePassword(username, newPassword);
-        } else if (inputOldPasswordMatchedPasswordFromDb(oldPassword, oldPasswordFromDb)) {
+        }
+        // 변경하려는 비번과 입력 인풋이 같을 때 - 저장
+        else if (inputOldPasswordMatchedPasswordFromDb(oldPassword, oldPasswordFromDb)) {
             userRepository.updatePassword(username, newPassword);
-        } else {
+        }
+        // 그 외엔 변경 실패
+        else {
             ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다.");
             return ResponseEntity
                     .status(401)

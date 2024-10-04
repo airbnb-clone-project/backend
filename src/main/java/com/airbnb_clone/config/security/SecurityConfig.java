@@ -57,8 +57,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/webjars/**",
 
-            "/login-failed",
-            "/api/auth/login",
+            "/login-failed", // CustomSuccessHandler.onAuthenticationSuccess
+            "/api/auth/login", // LoginFilter
             "/",
             "/api/auth/register",
             "/api/auth/reissue" // access가 없을테니 허용해야함
@@ -97,6 +97,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
                         configuration.setAllowedOrigins(Arrays.asList(
+                                "http://39.115.84.63",
                                 "http://localhost:3000",
                                 "http://localhost:8008",
                                 "http://34.46.135.133",
@@ -183,11 +184,6 @@ public class SecurityConfig {
 //                        .requestMatchers("/").permitAll()
 //                        .anyRequest().authenticated()
 //                );
-        // 권한 허용에 관해 정리되면 추가
-//                .authorizeHttpRequests((auth) -> auth
-//                        // 이 경로는 권안 허용, reissue: access가 만료되어 로그인이 안되어있는 상태기 때문에 permitAll()
-//                        .requestMatchers("/login-failed","/api/auth/login", "/", "/api/auth/register", "/api/auth/reissue").permitAll()
-//                        .anyRequest().authenticated()); // 나머지 다른 요청에 대해서는 로그인 한 사람만 가능
 
         /*
          *  OAuth2 적용시 로그인에서 무한 루프가 일어날 경우 .addFilterBefore() -> .addFilterAfter()
