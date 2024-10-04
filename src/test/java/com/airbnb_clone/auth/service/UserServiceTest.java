@@ -86,7 +86,7 @@ class UserServiceTest {
 
         // Mock
         // test@test.com 없음 -> true
-        when(userRepository.isUsernameNotExist("test@test.com")).thenReturn(true);
+        when(userRepository.isUsernameExist("test@test.com")).thenReturn(false);
         // 1234를 인코딩 할 경우 -> endocded1234
         when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
         // access 생성시 Authorization=accessToken
@@ -124,7 +124,7 @@ class UserServiceTest {
         request.setUsername("test@test2.com");
         request.setPassword("2222");
 
-        when(userRepository.isUsernameNotExist("test@test2.com")).thenReturn(false);
+        when(userRepository.isUsernameExist("test@test2.com")).thenReturn(true);
 
         // when
         ResponseEntity<?> result = userService.registerUser(request, response);
