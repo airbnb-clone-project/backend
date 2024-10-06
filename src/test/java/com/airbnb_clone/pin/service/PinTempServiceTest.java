@@ -90,8 +90,8 @@ public class PinTempServiceTest extends MongoDBTestContainer {
                 "test image content".getBytes()
         );
 
-        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L, mockFile);
-        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(1L, mockFile);
+        FirstImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(mockFile);
+        SecondImageRequestOfFirstUser = TemporaryPinCreateRequestDTO.of(mockFile);
 
         mt.dropCollection(PinTemp.class);
     }
@@ -112,10 +112,10 @@ public class PinTempServiceTest extends MongoDBTestContainer {
 
             InnerTempPin expectedInnerTempPin = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
 
-            PinTemp expectedPinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(expectedInnerTempPin));
+            PinTemp expectedPinTemp = PinTemp.of(1L, Set.of(expectedInnerTempPin));
 
             // when
-            Mono<ObjectId> result = pinService.createTempPin(FirstImageRequestOfFirstUser);
+            Mono<ObjectId> result = pinService.createTempPin(FirstImageRequestOfFirstUser, 1L);
 
             // then
             StepVerifier.create(result)
@@ -146,12 +146,12 @@ public class PinTempServiceTest extends MongoDBTestContainer {
             InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
-            PinTemp alreadySavedPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
+            PinTemp alreadySavedPin = PinTemp.of(1L, Set.of(e1));
 
             mt.save(alreadySavedPin);
 
             // when
-            Mono<ObjectId> result = pinService.createTempPin(SecondImageRequestOfFirstUser);
+            Mono<ObjectId> result = pinService.createTempPin(SecondImageRequestOfFirstUser, 1L);
 
             // when - 비동기 처리를 위한 StepVerifier 사용
             StepVerifier.create(result)
@@ -180,7 +180,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
             InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
-            PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
+            PinTemp pinTemp = PinTemp.of(1L, Set.of(e1));
             mt.save(pinTemp);
 
             // when
@@ -199,7 +199,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
             InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             InnerTempPin e2 = InnerTempPin.of("http://example2.com", ImageClassificationEnum.ART);
 
-            PinTemp pinTemp = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1, e2));
+            PinTemp pinTemp = PinTemp.of(1L, Set.of(e1, e2));
             mt.save(pinTemp);
 
             // when
@@ -230,7 +230,7 @@ public class PinTempServiceTest extends MongoDBTestContainer {
             InnerTempPin e1 = InnerTempPin.of("http://example.com", ImageClassificationEnum.ART);
             mt.save(e1);
 
-            PinTemp savedTempPin = PinTemp.of(FirstImageRequestOfFirstUser.getUserNo(), Set.of(e1));
+            PinTemp savedTempPin = PinTemp.of(1L, Set.of(e1));
             mt.save(savedTempPin);
 
             ObjectId savedInnerPinObjectId = savedTempPin.getInnerTempPins().stream().findFirst().get().get_id();

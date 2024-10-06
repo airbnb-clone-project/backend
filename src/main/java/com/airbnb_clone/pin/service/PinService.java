@@ -64,14 +64,14 @@ public class PinService {
     private final TagMySQLRepository tagMySQLRepository;
 
     @Transactional(readOnly = false)
-    public Mono<ObjectId> createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO) {
+    public Mono<ObjectId> createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO, Long userNo) {
         return s3ImageFacade.uploadAndClassifyImage(temporaryPinCreateRequestDTO.getImageFile())
-                .map(imageClassificationResponseDTO -> pinMongoRepository.findPinTempByUserNo(temporaryPinCreateRequestDTO.getUserNo())
-                        .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(temporaryPinCreateRequestDTO.getUserNo(), imageClassificationResponseDTO.getImageUrl(),imageClassificationResponseDTO.getImageCategory()))
+                .map(imageClassificationResponseDTO -> pinMongoRepository.findPinTempByUserNo(userNo)
+                        .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(userNo, imageClassificationResponseDTO.getImageUrl(),imageClassificationResponseDTO.getImageCategory()))
                         .orElseGet(() -> {
                             InnerTempPin insertedInnserTempPin = InnerTempPin.of(imageClassificationResponseDTO.getImageUrl(), imageClassificationResponseDTO.getImageCategory());
 
-                            PinTemp createdTempPin = PinTemp.of(temporaryPinCreateRequestDTO.getUserNo(), Set.of(insertedInnserTempPin));
+                            PinTemp createdTempPin = PinTemp.of(userNo, Set.of(insertedInnserTempPin));
 
                             pinMongoRepository.saveAndGetPinId(createdTempPin);
 

@@ -29,7 +29,6 @@ Content-Type: application/json
 # @no-redirect
 PUT {{url}}/api/pins/pin/temp/66faa20f0893f5746fdb91d0/v1
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 {
     "description": "임시 핀 수정",

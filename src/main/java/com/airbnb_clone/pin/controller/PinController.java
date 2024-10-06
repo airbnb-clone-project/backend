@@ -11,7 +11,11 @@ import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinDetailResponseDT
 import com.airbnb_clone.pin.domain.pin.dto.response.TemporaryPinsResponseDTO;
 import com.airbnb_clone.pin.service.PinAuthHelper;
 import com.airbnb_clone.pin.service.PinService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,12 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 /**
  * packageName    : com.airbnb_clone.pin.controller
@@ -50,7 +57,10 @@ public class PinController {
 
     @Operation(summary = "임시핀 조회", description = "임시핀 조회")
     @GetMapping("/pin/temp/{temp-pin-no}/v1")
-    public HttpEntity<ApiResponse<TemporaryPinDetailResponseDTO>> getTempPin(@PathVariable("temp-pin-no") String tempPinNo) {
+    public HttpEntity<ApiResponse<TemporaryPinDetailResponseDTO>> getTempPin(
+            @Parameter(description = "임시핀 번호", example = "66faa20f0893f5746fdb91d0", required = true)
+            @PathVariable("temp-pin-no") String tempPinNo
+    ) {
         return ResponseEntity.ok(
                 ApiResponse.of("임시핀 조회 성공", HttpStatus.OK.value(), pinService.getTempPin(tempPinNo))
         );
@@ -59,11 +69,16 @@ public class PinController {
     @Operation(summary = "임시핀 수정", description = "임시핀 수정")
     @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/pin/temp/{temp-pin-no}/v1")
+    @PreAuthorize("isAuthenticated()")
     public HttpEntity<ApiResponse<String>> updateTempPin(
+            @Parameter(description = "임시핀 번호", example = "66faa20f0893f5746fdb91d0", required = true)
             @PathVariable("temp-pin-no") String tempPinNo,
+
             @RequestBody TemporaryPinUpdateRequestDTO temporaryPinCreateRequestDTO,
-            HttpServletRequest request) {
-        pinAuthHelper.isPinOwnerForTempPin(tempPinNo, request);
+
+            @AuthenticationPrincipal(errorOnInvalidType = true)  CustomUserDetails userDetails
+    ) {
+        pinAuthHelper.isPinOwnerForTempPin(tempPinNo, userDetails.getUserNo());
 
         pinService.updateTempPin(tempPinNo, temporaryPinCreateRequestDTO);
 
@@ -87,13 +102,19 @@ public class PinController {
      * @param temporaryPinCreateRequestDTO 임시핀 생성 요청 DTO
      * @return 생성된 임시핀의 ObjectId
      */
-    @Operation(summary = "임시핀 생성", description = "임시핀 생성")
+    @Operation(summary = "임시핀 생성", description = "임시핀 생성",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MULTIPART_FORM_DATA_VALUE,
+                    schema = @Schema(implementation = TemporaryPinCreateRequestDTO.class))),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            })
     @PostMapping("/pin/temp/v1")
+    @PreAuthorize("isAuthenticated()")
     public Mono<HttpEntity<ApiResponse<String>>> uploadImage(
-            @ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO,
-            HttpServletRequest request
+            @ModelAttribute TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO, @AuthenticationPrincipal(errorOnInvalidType = true)  CustomUserDetails userDetails
     ) {
-        return pinService.createTempPin(temporaryPinCreateRequestDTO)
+        return pinService.createTempPin(temporaryPinCreateRequestDTO,userDetails.getUserNo())
                 .map(objectId -> ResponseEntity.ok(
                         ApiResponse.of("핀이 정상적으로 임시저장되었습니다.", HttpStatus.OK.value(), objectId.toString())
                 ));
@@ -131,6 +152,7 @@ public class PinController {
         );
     }
 
+    @Hidden
     @Operation(summary = "모든 핀 레디스 업데이트 ( 편의 api )", description = "모든 핀 레디스 업데이트")
     @PostMapping("/pin/force-update-to-redis-batch/v1")
     public HttpEntity<ApiResponse<?>> forceUpdateToRedisBatch() {
