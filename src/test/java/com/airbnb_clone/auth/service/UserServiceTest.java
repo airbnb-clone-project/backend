@@ -9,7 +9,6 @@ import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,18 +74,22 @@ class UserServiceTest {
         response = new MockHttpServletResponse();
     }
 
-    String username = "test@test.com";
-    String oldPassword = "1234";
-    String newPassword = "4321";
-    String encodedOldOne = "encoded1234";
-    String encodedNewOne = "encoded4321";
+    static final String USERNAME = "test@test.com";
+    static final String PASSWORD = "1234";
+    static final String NEW_PASSWORD = "4321";
+    static final String ENCODED_OLD_ONE = "encoded1234";
+    static final String ENCODED_NEW_ONE = "encoded4321";
+    static final String ACCESS_TOKEN_NAME = "Authorization";
+    static final String REFRESH_TOKEN_NAME = "refresh";
+    static final String ACCESS_TOKEN_VALUE = "accessToken";
+    static final String REFRESH_TOKEN_VALUE = "refreshToken";
 
     @Test
     @DisplayName("이메일 회원가입 -성공")
     void registerSuccess() {
         UserRegisterRequest request = new UserRegisterRequest();
-        request.setUsername("test@test.com");
-        request.setPassword("1234");
+        request.setUsername(USERNAME);
+        request.setPassword(PASSWORD);
 
         // Mock
         // test@test.com 없음 -> true
@@ -94,9 +97,9 @@ class UserServiceTest {
         // 1234를 인코딩 할 경우 -> endocded1234
         when(bCryptPasswordEncoder.encode("1234")).thenReturn("encoded1234");
         // access 생성시 Authorization=accessToken
-        when(jwtUtil.createJwt(eq("Authorization"), eq("test@test.com"),anyLong(), anyLong())).thenReturn("accessToken");
+        when(jwtUtil.createJwt(eq(ACCESS_TOKEN_NAME), eq(USERNAME),anyLong(), anyLong())).thenReturn(ACCESS_TOKEN_VALUE);
         // refresh 생성시 refresh=refreshToken
-        when(jwtUtil.createJwt(eq("refresh"), eq("test@test.com"), anyLong(), anyLong())).thenReturn("refreshToken");
+        when(jwtUtil.createJwt(eq(REFRESH_TOKEN_NAME), eq(USERNAME), anyLong(), anyLong())).thenReturn(REFRESH_TOKEN_VALUE);
 
         // When
         ResponseEntity<?> result = userService.registerUser(request, response);
@@ -104,9 +107,9 @@ class UserServiceTest {
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
         verify(userRepository).registerUser(any(Users.class));
-        verify(reissueService).addRefreshToken(eq("test@test.com"), eq("refreshToken"), anyLong());
-        verify(tokenUtil).addAccessInHeader(response, "accessToken");
-        verify(tokenUtil).addRefreshInCookie(response, "refreshToken");
+        verify(reissueService).addRefreshToken(eq(USERNAME), eq(REFRESH_TOKEN_VALUE), anyLong());
+        verify(tokenUtil).addAccessInHeader(response, ACCESS_TOKEN_VALUE);
+        verify(tokenUtil).addRefreshInCookie(response, REFRESH_TOKEN_VALUE);
 
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
@@ -121,10 +124,10 @@ class UserServiceTest {
 
         // given
         UserRegisterRequest request = new UserRegisterRequest();
-        request.setUsername("test@test2.com");
-        request.setPassword("2222");
+        request.setUsername(USERNAME);
+        request.setPassword(PASSWORD);
 
-        when(userRepository.isUsernameExist("test@test2.com")).thenReturn(true);
+        when(userRepository.isUsernameExist(USERNAME)).thenReturn(true);
 
         // when
         ResponseEntity<?> result = userService.registerUser(request, response);
@@ -151,11 +154,11 @@ class UserServiceTest {
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         SecurityContextHolder.setContext(securityContext);
 
-        when(userRepository.isUsernameNotExist(username)).thenReturn(false);
+        when(userRepository.isUsernameNotExist(USERNAME)).thenReturn(false);
 
         // when
         ResponseEntity<?> result = userService.saveAdditionalUserInformation(request);
@@ -210,8 +213,8 @@ class UserServiceTest {
     void changePasswordSuccess2() {
 
         NewPasswordRequest request = new NewPasswordRequest();
-        request.setPassword(oldPassword);
-        request.setNewPassword(newPassword);
+        request.setPassword(PASSWORD);
+        request.setNewPassword(NEW_PASSWORD);
 
 
         // SecurityContext와 Authentication 모킹
@@ -219,14 +222,14 @@ class UserServiceTest {
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         // SecurityContextHolder에 모킹된 SecurityContext 설정
         SecurityContextHolder.setContext(securityContext);
 
 
-        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(null);
-        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
+        when(userRepository.findCurrnetPasswordByUsername(USERNAME)).thenReturn(null);
+        when(bCryptPasswordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_NEW_ONE);
 
         // when
         ResponseEntity<?> result = userService.changePassword(request);
@@ -235,7 +238,7 @@ class UserServiceTest {
         assertNotNull(body);
         assertEquals(200, body.getStatus());
         assertEquals("비밀번호 변경 되었습니다.", body.getMessage());
-        verify(userRepository, times(1)).updatePassword(username, encodedNewOne);
+        verify(userRepository, times(1)).updatePassword(USERNAME, ENCODED_NEW_ONE);
 
     }
 
@@ -244,34 +247,34 @@ class UserServiceTest {
     void changePasswordSuccess() {
 
         NewPasswordRequest newPasswordRequest = new NewPasswordRequest();
-        newPasswordRequest.setPassword(oldPassword);
-        newPasswordRequest.setNewPassword(newPassword);
+        newPasswordRequest.setPassword(PASSWORD);
+        newPasswordRequest.setNewPassword(NEW_PASSWORD);
 
         // SecurityContext와 Authentication 모킹
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         // SecurityContextHolder에 모킹된 SecurityContext 설정
         SecurityContextHolder.setContext(securityContext);
 
         // 바꾸기 전
-        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(encodedOldOne);
+        when(userRepository.findCurrnetPasswordByUsername(USERNAME)).thenReturn(ENCODED_OLD_ONE);
         // 옛날 비밀번호 정확히 입력 했는지 확인
-        when(bCryptPasswordEncoder.matches(oldPassword, encodedOldOne)).thenReturn(true);
+        when(bCryptPasswordEncoder.matches(PASSWORD, ENCODED_OLD_ONE)).thenReturn(true);
 
-        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedNewOne);
+        when(bCryptPasswordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_NEW_ONE);
 
         // when
         ResponseEntity<?> changePasswordResult = userService.changePassword(newPasswordRequest);
         // 바꾼 후
-        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn(encodedNewOne);
+        when(userRepository.findCurrnetPasswordByUsername(USERNAME)).thenReturn(ENCODED_NEW_ONE);
 
         // Then
         assertEquals(changePasswordResult.getStatusCode(), HttpStatus.OK);
-        assertEquals(encodedNewOne, userRepository.findCurrnetPasswordByUsername(username));
+        assertEquals(ENCODED_NEW_ONE, userRepository.findCurrnetPasswordByUsername(USERNAME));
 
 
         // response body 확인, 업데이트 1회 사용, 사용시 username과 encodedNewOne 사용
@@ -279,7 +282,7 @@ class UserServiceTest {
         assertNotNull(body);
         assertEquals(body.getMessage(), "비밀번호 변경 되었습니다.");
         assertEquals(body.getStatus(), 200);
-        verify(userRepository, times(1)).updatePassword(username, encodedNewOne);
+        verify(userRepository, times(1)).updatePassword(USERNAME, ENCODED_NEW_ONE);
 
     }
 
@@ -288,26 +291,26 @@ class UserServiceTest {
     void changePasswordFailure() {
 
         NewPasswordRequest request = new NewPasswordRequest();
-        request.setPassword(oldPassword);
-        request.setNewPassword(newPassword);
+        request.setPassword(PASSWORD);
+        request.setNewPassword(NEW_PASSWORD);
 
         // SecurityContext와 Authentication 모킹
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         // SecurityContextHolder에 모킹된 SecurityContext 설정
         SecurityContextHolder.setContext(securityContext);
 
         // db 안의 유저 비밀번호 조회시 -> dbPassword
-        when(userRepository.findCurrnetPasswordByUsername(username)).thenReturn("dbPassword");
+        when(userRepository.findCurrnetPasswordByUsername(USERNAME)).thenReturn("dbPassword");
 
-        String dbPassword = userRepository.findCurrnetPasswordByUsername(username);
+        String dbPassword = userRepository.findCurrnetPasswordByUsername(USERNAME);
 
         // 유저가 입력한 비밀번호와 저장되어있던 비밀번호 비교시 -> false(다르다)
-        when(bCryptPasswordEncoder.matches(oldPassword, dbPassword)).thenReturn(false);
+        when(bCryptPasswordEncoder.matches(PASSWORD, dbPassword)).thenReturn(false);
 
         ResponseEntity<?> result = userService.changePassword(request);
 
@@ -326,7 +329,7 @@ class UserServiceTest {
 
         // given
         Users user = Users.builder()
-                .username(username)
+                .username(USERNAME)
                 .firstName("test")
                 .lastName("")
                 .description("description here")
@@ -338,11 +341,11 @@ class UserServiceTest {
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         SecurityContextHolder.setContext(securityContext);
 
-        when(userRepository.findProfileByUsername(username)).thenReturn(Optional.ofNullable(user));
+        when(userRepository.findProfileByUsername(USERNAME)).thenReturn(Optional.ofNullable(user));
 
         // when
         ResponseEntity<?> result = userService.getProfile();
@@ -357,7 +360,7 @@ class UserServiceTest {
         assertTrue(body.contains("message=프로필 정보 불러오기 성공 했습니다."));
         assertTrue(body.contains("status=200"));
 
-        verify(userRepository, times(1)).findProfileByUsername(username);
+        verify(userRepository, times(1)).findProfileByUsername(USERNAME);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 
@@ -372,14 +375,14 @@ class UserServiceTest {
 
         String access = "Bearer access";
         when(request.getHeader("Authorization")).thenReturn(access);
-        when(jwtUtil.getUsername("access")).thenReturn(username);
-        when(userRepository.isUsernameNotExist(username)).thenReturn(false);
+        when(jwtUtil.getUsername("access")).thenReturn(USERNAME);
+        when(userRepository.isUsernameNotExist(USERNAME)).thenReturn(false);
 
         // when
         ResponseEntity<?> result = userService.setProfile(usersProfileRequest);
 
         // then
-        verify(userRepository, times(1)).isUsernameNotExist(username);
+        verify(userRepository, times(1)).isUsernameNotExist(USERNAME);
         ErrorResponse errorResponse = (ErrorResponse) result.getBody();
         assertEquals(200, errorResponse.getStatus());
         assertEquals("유저 프로필 정보 업데이트 했습니다.", errorResponse.getMessage());
@@ -391,7 +394,7 @@ class UserServiceTest {
     void getAccountSuccess() {
         // given
         Users user = Users.builder()
-                .username(username)
+                .username(USERNAME)
                 .birthday(LocalDate.of(1995,4,28))
                 .gender("male")
                 .spokenLanguage("Korean")
@@ -402,11 +405,11 @@ class UserServiceTest {
         Authentication authentication = mock(Authentication.class);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn(USERNAME);
 
         SecurityContextHolder.setContext(securityContext);
 
-        when(userRepository.findAccountByUsername(username)).thenReturn(Optional.ofNullable(user));
+        when(userRepository.findAccountByUsername(USERNAME)).thenReturn(Optional.ofNullable(user));
 
         // when
         ResponseEntity<?> result = userService.getAccount();
@@ -422,7 +425,7 @@ class UserServiceTest {
         assertTrue(body.contains("status=200"));
 
 
-        verify(userRepository, times(1)).findAccountByUsername(username);
+        verify(userRepository, times(1)).findAccountByUsername(USERNAME);
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
     }

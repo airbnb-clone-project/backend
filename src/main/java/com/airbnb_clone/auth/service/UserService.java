@@ -65,13 +65,14 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> registerUser(UserRegisterRequest request, HttpServletResponse response) {
 
+        ErrorResponse errorResponse = new ErrorResponse();
         String username = request.getUsername();
         String password = bCryptPasswordEncoder.encode(request.getPassword());
 
 
         // 유저정보 있을경우 예외처리
         if (userRepository.isUsernameExist(username)) {
-            return new ErrorResponse().ofUnauthorized("이미 존재하는 사용자입니다.");
+            return errorResponse.ofUnauthorized("이미 존재하는 사용자입니다.");
         }
 
         // build 방식 유저 정보 저장을 위한 user 생성
@@ -104,11 +105,12 @@ public class UserService {
         tokenUtil.addRefreshInCookie(response, refresh);
 
         // 응답  body 생성
-        return new ErrorResponse().ofSuccessBody("일반 회원가입이 완료 되었습니다.");
+        return errorResponse.ofSuccessBody("일반 회원가입이 완료 되었습니다.");
     }
 
     @Transactional
     public ResponseEntity<?> saveAdditionalUserInformation(AdditionalUserRegisterRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -116,7 +118,7 @@ public class UserService {
 
         // 유저정보 없을경우 예외처리
         if (userRepository.isUsernameNotExist(username)) {
-            return new ErrorResponse().ofUnauthorized("없는 사용자입니다.");
+            return errorResponse.ofUnauthorized("없는 사용자입니다.");
 
         }
 
@@ -134,7 +136,7 @@ public class UserService {
 
         userRepository.saveAdditionalUserInformation(request);
 
-        return new ErrorResponse().ofSuccessBody("추가정보 등록이 완료 되었습니다.");
+        return errorResponse.ofSuccessBody("추가정보 등록이 완료 되었습니다.");
     }
 
     // 유저 비밀번호 변경
