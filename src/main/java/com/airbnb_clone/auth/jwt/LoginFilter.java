@@ -111,7 +111,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 응답 설정 4v2
         tokenUtil.addAccessInHeader(response, access);
-        tokenUtil.addRefreshCookie(response, refresh);
+        tokenUtil.addRefreshInCookie(response, refresh);
 
         setBody(response,200,"일반 로그인이 완료 되었습니다.");
     }
@@ -148,17 +148,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
     }
 
-    // refresh token을 담기위한 쿠키 생성 메소드 4v2
-//    private Cookie createCookie(String key, String value) {
-//
-//        Cookie cookie = new Cookie(key, value);
-//        cookie.setMaxAge(24 * 60 * 60); // 24시간
-//        // cookie.setSecure(true);  // https 통신시 사용
-//        cookie.setPath("/");    // 쿠키가 적용될 범위
-//        cookie.setHttpOnly(true);
-//
-//        return cookie;
-//    }
 
     public void setBody(HttpServletResponse response, int status, String message) throws IOException {
 

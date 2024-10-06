@@ -3,6 +3,7 @@ package com.airbnb_clone.auth.oauth2;
 import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.dto.oauth2.CustomOAuth2User;
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -36,8 +37,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenUtil tokenUtil;
 
     @Override
+
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomOAuth2User customUserDetails = ((CustomOAuth2User) authentication.getPrincipal());
 
@@ -46,10 +49,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             return;
         }
 
-
         String username = customUserDetails.getUsername();
         Long userNo = customUserDetails.getUserNo();
-
 
         // 두가지의 토큰 생성 -> 생성에 3개의 값(토큰, 이메일, 토큰 만료 길이)이 필요
 //        String access = jwtUtil.createJwt("Authorization", username, 600000L); // 10분
@@ -65,8 +66,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         saveRefresh(username, refresh, 84600000L);
 
         // 응답 설정 4v2
-//        response.setHeader("Authorization", access); // access: header의 access key에다 넣어서 넘겨준다.
-        response.addCookie(createCookie("refresh", refresh)); // refresh: cookie에 담아 헤더로 넘겨준다.
+        tokenUtil.addRefreshInCookie(response, refresh);
         response.sendRedirect("http://localhost:3000/"); // 리디렉션 주소
 
     }
@@ -91,17 +91,5 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
 
 
-    }
-
-    // refresh token을 담기위한 쿠키 생성 메소드 4v2
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60); // 24시간
-        // cookie.setSecure(true);  // https 통신시 사용
-        cookie.setPath("/");    // 쿠키가 적용될 범위
-        cookie.setHttpOnly(true);
-
-        return cookie;
     }
 }

@@ -46,6 +46,7 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -54,7 +55,6 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final SocialUserRepository socialUserRepository;
-    private final TokenUtil customToken;
     private final TokenUtil tokenUtil;
 
 
@@ -67,10 +67,7 @@ public class UserService {
 
         // 유저정보 있을경우 예외처리
         if (userRepository.isUsernameExist(username)) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "이미 존재하는 사용자입니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return new ErrorResponse().ofUnauthorized("이미 존재하는 사용자입니다.");
         }
 
         // build 방식 유저 정보 저장을 위한 user 생성
@@ -91,24 +88,19 @@ public class UserService {
         Long userNo = userRepository.findNoByUsername(username);
 
 
-        // access token 생성
+        // access, refresh token 생성
         String access = jwtUtil.createJwt("Authorization", username, userNo, 600000L);
-        // refresh token 생성
         String refresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L);
         // refresh token 저장
         reissueService.addRefreshToken(username, refresh, 86400000L);
 
         // header 에 access token 추가
         // cookie에 refresh token 담아 헤더에 추가
-        response.setHeader("Authorization", access);
-        response.addCookie(tokenUtil.createCookie("refresh",refresh));
-//        response.addCookie(reissueService.createCookie("refresh", refresh));
+        tokenUtil.addAccessInHeader(response,access);
+        tokenUtil.addRefreshInCookie(response, refresh);
 
         // 응답  body 생성
-        ErrorResponse errorResponse = new ErrorResponse(200, "일반 회원가입이 완료 되었습니다.");
-        return ResponseEntity
-                .ok()
-                .body(errorResponse);
+        return new ErrorResponse().ofSuccessBody("일반 회원가입이 완료 되었습니다.");
     }
 
     @Transactional
@@ -120,10 +112,8 @@ public class UserService {
 
         // 유저정보 없을경우 예외처리
         if (userRepository.isUsernameNotExist(username)) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "없는 사용자입니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return new ErrorResponse().ofUnauthorized("없는 사용자입니다.");
+
         }
 
         // 입력 정보에 생일이 없고 db에 값이 있을경우 값이 바뀌면 안됨
@@ -140,18 +130,7 @@ public class UserService {
 
         userRepository.saveAdditionalUserInformation(request);
 
-        ErrorResponse errorResponse = new ErrorResponse(200, "추가정보 등록이 완료 되었습니다.");
-        return ResponseEntity
-                .ok()
-                .body(errorResponse);
-    }
-
-    private static boolean doesHaveBirthday(LocalDate birthday) {
-        return birthday != null;
-    }
-
-    private static boolean doesNotHaveBirthday(AdditionalUserRegisterRequest request) {
-        return request.getBirthday() == null;
+        return new ErrorResponse().ofSuccessBody("추가정보 등록이 완료 되었습니다.");
     }
 
     // 유저 비밀번호 변경
@@ -162,11 +141,10 @@ public class UserService {
         String oldPassword = request.getPassword();
         String newPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
 
+        ErrorResponse errorResponse = new ErrorResponse();
+
         if (isAnonymousUser(username)) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다 ㅎㅎ.");
-            return ResponseEntity
-                    .status(401)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("비밀번호 변경 실패 했습니다 ㅎㅎ.");
         }
 
         /*
@@ -185,32 +163,16 @@ public class UserService {
         }
         // 그 외엔 변경 실패
         else {
-            ErrorResponse errorResponse = new ErrorResponse(401, "비밀번호 변경 실패 했습니다.");
-            return ResponseEntity
-                    .status(401)
-                    .body(errorResponse);
+
+            return errorResponse.ofUnauthorized("비밀번호 변경 실패 했습니다.");
         }
 
-        ErrorResponse errorResponse = new ErrorResponse(200, "비밀번호 변경 되었습니다.");
-        return ResponseEntity
-                .ok()
-                .body(errorResponse);
+        return errorResponse.ofSuccessBody("비밀번호 변경 되었습니다.");
     }
 
-    private boolean inputOldPasswordMatchedPasswordFromDb(String oldPassword, String oldPasswordFromDb) {
-        return bCryptPasswordEncoder.matches(oldPassword, oldPasswordFromDb);
-    }
-
-    private static boolean oldPasswordNotExist(String oldPasswordFromDb) {
-        return oldPasswordFromDb == null;
-    }
-
-    private static boolean isAnonymousUser(String username) {
-        return username.equals("anonymousUser");
-    }
-
+    @Transactional
     public ResponseEntity<?> eraseAccounts(HttpServletRequest request) {
-        System.out.println("UserService.eraseAccounts");
+        ErrorResponse errorResponse = new ErrorResponse();
         // 쿠키에서 refresh token 을 가져온다.
         String givenToken = null;
 
@@ -218,10 +180,7 @@ public class UserService {
         Cookie[] cookies = request.getCookies();
 
         if (cookies == null) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 없습니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("refresh token 이 없습니다.");
         }
 
         // 쿠키가 있으니 refresh 가 있을경우 givenToken 에 추가
@@ -236,10 +195,7 @@ public class UserService {
             status : 401 , message : refresh token 이 없습니다.
          */
         if (givenToken == null) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 의 값이 없습니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("refresh token 의 값이 없습니다.");
         }
 
         /*
@@ -248,10 +204,7 @@ public class UserService {
          */
         if (jwtUtil.isExpired(givenToken)) {
             // response status code
-            ErrorResponse errorResponse = new ErrorResponse(401, "리프레시 토큰이 만료되었습니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("리프레시 토큰이 만료되었습니다.");
         }
 
 
@@ -263,10 +216,7 @@ public class UserService {
         if (!tokenType.equals("refresh")) {
 
             // response status code
-            ErrorResponse errorResponse = new ErrorResponse(401, "refresh token 이 아닙니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("refresh token 이 아닙니다.");
         }
 
         /*
@@ -277,10 +227,7 @@ public class UserService {
         if (isNotExist) {
 
             // response status code
-            ErrorResponse errorResponse = new ErrorResponse(401, "인증이 불가능한 토큰 입니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("인증이 불가능한 토큰 입니다.");
         }
 
         // 토큰에 문제가 없을 때 실행
@@ -298,24 +245,16 @@ public class UserService {
             socialUserRepository.deleteSocialAccount(userNo);
         }
 
-
-
-        ErrorResponse errorResponse = new ErrorResponse(200, "토큰이 재발급 되었습니다.");
-        return ResponseEntity
-                .ok()
-                .body(errorResponse);
+        return new ErrorResponse().ofSuccessBody("토큰이 재발급 되었습니다.");
     }
 
     // access token 입력
     public ResponseEntity<?> getProfile() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
+        ErrorResponse errorResponse = new ErrorResponse();
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("일치하는 유저 정보가 없습니다.");
         }
 
         Users users = userRepository.findProfileByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username + "아이디를 찾을 수 없습니다."));
@@ -327,30 +266,15 @@ public class UserService {
                 .body(jsonBody);
     }
 
-    private static Map<String, Object> getJsonProfileOutput(Users users) {
-        Map<String, Object> jsonBody = new HashMap<>();
-        jsonBody.put("message", "프로필 정보 불러오기 성공 했습니다.");
-        jsonBody.put("status", 200);
-
-        Map<String, String> data = new HashMap<>();
-        data.put("description", users.getDescription());
-        data.put("firstName", users.getFirstName());
-        data.put("lastName", users.getLastName());
-        jsonBody.put("data", data);
-        return jsonBody;
-    }
-
     // access/json
+    @Transactional
     public ResponseEntity<?> setProfile(UsersProfileRequest usersProfileRequest) {
-
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        ErrorResponse errorResponse = new ErrorResponse();
 
         // username과 일치하는 username 있는지 확인
         if (userRepository.isUsernameNotExist(username)) {
-            ErrorResponse errorResponse = new ErrorResponse(401, "일치하는 유저 정보가 없습니다.");
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(errorResponse);
+            return errorResponse.ofUnauthorized("일치하는 유저 정보가 없습니다.");
         }
 
         // dto에 유저이름 추가
@@ -359,10 +283,7 @@ public class UserService {
         // repository를 통해 저장
         userRepository.updateUserProfile(usersProfileRequest);
 
-        ErrorResponse errorResponse = new ErrorResponse(200, "유저 프로필 정보 업데이트 했습니다.");
-        return ResponseEntity
-                .ok()
-                .body(errorResponse);
+        return new ErrorResponse().ofSuccessBody("유저 프로필 정보 업데이트 했습니다.");
     }
 
     // 이메일 생일 성별 국가 언어
@@ -385,6 +306,39 @@ public class UserService {
         return ResponseEntity
                 .ok()
                 .body(jsonBody);
+    }
+
+    private static boolean doesHaveBirthday(LocalDate birthday) {
+        return birthday != null;
+    }
+
+    private static boolean doesNotHaveBirthday(AdditionalUserRegisterRequest request) {
+        return request.getBirthday() == null;
+    }
+
+    private boolean inputOldPasswordMatchedPasswordFromDb(String oldPassword, String oldPasswordFromDb) {
+        return bCryptPasswordEncoder.matches(oldPassword, oldPasswordFromDb);
+    }
+
+    private static boolean oldPasswordNotExist(String oldPasswordFromDb) {
+        return oldPasswordFromDb == null;
+    }
+
+    private static boolean isAnonymousUser(String username) {
+        return username.equals("anonymousUser");
+    }
+
+    private static Map<String, Object> getJsonProfileOutput(Users users) {
+        Map<String, Object> jsonBody = new HashMap<>();
+        jsonBody.put("message", "프로필 정보 불러오기 성공 했습니다.");
+        jsonBody.put("status", 200);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("description", users.getDescription());
+        data.put("firstName", users.getFirstName());
+        data.put("lastName", users.getLastName());
+        jsonBody.put("data", data);
+        return jsonBody;
     }
 
     private static Map<String, Object> getJsonAccountOutPut(Users users) {
