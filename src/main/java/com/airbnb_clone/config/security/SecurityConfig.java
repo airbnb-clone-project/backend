@@ -17,14 +17,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -45,15 +48,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    public static final String[] CORS_PERMISSION={
-            "http://39.115.84.63",
-            "http://182.219.16.153",
-            "http://localhost:3000",
-            "http://localhost:8008",
-            "http://34.46.135.133",
-            "http://76.76.21.22:443",
-            "https://76.76.21.22:443"
-    };
+
     public static final String[] PERMIT_ALL_PATTERNS = {
             "/api/**",
             "/ws/**",
@@ -95,6 +90,8 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+
+
     @Bean // 필터체인
     public SecurityFilterChain filterChain(HttpSecurity http, UserRepository userRepository) throws Exception {
 
@@ -106,7 +103,8 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Arrays.asList(CORS_PERMISSION));
+//                        configuration.setAllowedOrigins(Arrays.asList(CORS_PERMISSION));
+                        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
                         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 모든 종류의 요청 가능
                         configuration.setAllowCredentials(true); // 크리덴셜 가능
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
