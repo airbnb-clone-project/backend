@@ -7,6 +7,7 @@ import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +60,9 @@ class UserServiceTest {
     private JwtUtil jwtUtil;
 
     @Mock
+    private TokenUtil tokenUtil;
+
+    @Mock
     private ReissueService reissueService;
 
     private MockHttpServletResponse response;
@@ -96,7 +100,8 @@ class UserServiceTest {
         // Mock the createCookie method
         // refresh는 쿠키 안에 담겨 있어야 함
         Cookie mockCookie = new Cookie("refresh", "refreshToken");
-        when(reissueService.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
+        when(tokenUtil.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
+//        when(reissueService.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
 
         // When
         ResponseEntity<?> result = userService.registerUser(request, response);

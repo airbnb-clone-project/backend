@@ -3,6 +3,7 @@ package com.airbnb_clone.auth.service;
 import com.airbnb_clone.auth.domain.RefreshToken;
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import java.time.ZoneId;
 public class ReissueService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenUtil tokenUtil;
 
     @Transactional
     public ResponseEntity<?> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
@@ -128,8 +130,9 @@ public class ReissueService {
             response 생성
             status : 200 , message : 토큰이 재발급 되었습니다.
          */
-        response.setHeader("Authorization", newAccess);
-        response.addCookie(createCookie("refresh", newRefresh));
+//        response.setHeader("Authorization", newAccess);
+        tokenUtil.addAccessInHeader(response, newAccess);
+        tokenUtil.addRefreshCookie(response, newRefresh);
 
         ErrorResponse errorResponse = new ErrorResponse(200, "토큰이 재발급 되었습니다.");
         return ResponseEntity
@@ -139,31 +142,8 @@ public class ReissueService {
 
     @Transactional
     public void addRefreshToken(String username, String refresh, Long expiredMs) {
-
-        LocalDateTime expiration = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(System.currentTimeMillis() + expiredMs),
-                ZoneId.systemDefault()
-        );
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                .username(username)
-                .refreshToken(refresh)
-                .expiration(expiration)
-                .build();
-
+        RefreshToken refreshToken = new RefreshToken(username, refresh, expiredMs);
         refreshTokenRepository.saveRefreshToken(refreshToken);
-    }
-
-    // 쿠키 생성
-    public Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60);
-        // cookie.setSecure(true);  // https통신시 사용
-        // cookeie.setPath("/");    // 쿠키가 적용될 범위
-        cookie.setHttpOnly(true);
-
-        return cookie;
     }
 
 }
