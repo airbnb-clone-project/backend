@@ -141,11 +141,11 @@ public class SecurityConfig {
             OAuth2
             소셜 로그인시 사용될 service 주입
          */
-//        http
-//                .oauth2Login((oAuth2)-> oAuth2
-//                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
-//                                .userService(customOAuth2UserService)))
-//                        .successHandler(customSuccessHandler));
+        http
+                .oauth2Login((oAuth2)-> oAuth2
+                        .userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)))
+                        .successHandler(customSuccessHandler));
 
         /*
             api 오류 메세지

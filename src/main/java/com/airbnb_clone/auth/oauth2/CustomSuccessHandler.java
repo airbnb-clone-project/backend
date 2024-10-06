@@ -39,6 +39,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenUtil tokenUtil;
 
+
     @Override
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -63,7 +64,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String oldToken = token.get();
             refreshTokenRepository.deleteRefreshToken(oldToken);
         }
-        saveRefresh(username, refresh, 84600000L);
+//        saveRefresh(username, refresh, 84600000L);
+
+        RefreshToken refreshToken = new RefreshToken(username, refresh, 84600000L);
+        refreshTokenRepository.saveRefreshToken(refreshToken);
 
         // 응답 설정 4v2
         tokenUtil.addRefreshInCookie(response, refresh);
@@ -72,24 +76,23 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     // refresh token을 DB에 저장 8v2
-    private void saveRefresh(String username, String refresh, Long expiredMs) {
-
-        // 24시간의 유효기간
-        LocalDateTime expirationDate = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(System.currentTimeMillis() + expiredMs),
-                ZoneId.systemDefault()
-        );
-
-        RefreshToken refreshTokenEntity = RefreshToken.builder()
-                .username(username)
-                .expiration(expirationDate)
-                .refreshToken(refresh)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
-
-
-    }
+//    private void saveRefresh(String username, String refresh, Long expiredMs) {
+//
+//
+//        // 24시간의 유효기간
+//        LocalDateTime expirationDate = LocalDateTime.ofInstant(
+//                Instant.ofEpochMilli(System.currentTimeMillis() + expiredMs),
+//                ZoneId.systemDefault()
+//        );
+//
+//        RefreshToken refreshTokenEntity = RefreshToken.builder()
+//                .username(username)
+//                .expiration(expirationDate)
+//                .refreshToken(refresh)
+//                .createdAt(LocalDateTime.now())
+//                .updatedAt(LocalDateTime.now())
+//                .build();
+//
+//        refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
+//    }
 }
