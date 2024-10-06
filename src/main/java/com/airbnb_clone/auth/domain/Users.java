@@ -40,4 +40,5 @@ public class Users extends BaseTime {
         this.country = country;
         this.spokenLanguage = spokenLanguage;
     }
+
 }
