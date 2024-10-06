@@ -57,6 +57,10 @@ public class UserService {
     private final SocialUserRepository socialUserRepository;
     private final TokenUtil tokenUtil;
 
+    private static final String ACCESS_TOKEN_NAME = "Authorization";
+    private static final String REFRESH_TOKEN_NAME = "refresh";
+
+
 
     @Transactional
     public ResponseEntity<?> registerUser(UserRegisterRequest request, HttpServletResponse response) {
@@ -89,14 +93,14 @@ public class UserService {
 
 
         // access, refresh token 생성
-        String access = jwtUtil.createJwt("Authorization", username, userNo, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, userNo, 86400000L);
+        String access = jwtUtil.createJwt(ACCESS_TOKEN_NAME, username, userNo, 600000L);
+        String refresh = jwtUtil.createJwt(REFRESH_TOKEN_NAME, username, userNo, 86400000L);
         // refresh token 저장
         reissueService.addRefreshToken(username, refresh, 86400000L);
 
         // header 에 access token 추가
         // cookie에 refresh token 담아 헤더에 추가
-        tokenUtil.addAccessInHeader(response,access);
+        tokenUtil.addAccessInHeader(response, access);
         tokenUtil.addRefreshInCookie(response, refresh);
 
         // 응답  body 생성
@@ -185,7 +189,7 @@ public class UserService {
 
         // 쿠키가 있으니 refresh 가 있을경우 givenToken 에 추가
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
+            if (cookie.getName().equals(REFRESH_TOKEN_NAME)) {
                 givenToken = cookie.getValue();
             }
         }
@@ -213,7 +217,7 @@ public class UserService {
             status : 401 , message : refresh token이 아닙니다.
          */
         String tokenType = jwtUtil.getTokenType(givenToken);
-        if (!tokenType.equals("refresh")) {
+        if (!tokenType.equals(REFRESH_TOKEN_NAME)) {
 
             // response status code
             return errorResponse.ofUnauthorized("refresh token 이 아닙니다.");

@@ -97,11 +97,6 @@ class UserServiceTest {
         when(jwtUtil.createJwt(eq("Authorization"), eq("test@test.com"),anyLong(), anyLong())).thenReturn("accessToken");
         // refresh 생성시 refresh=refreshToken
         when(jwtUtil.createJwt(eq("refresh"), eq("test@test.com"), anyLong(), anyLong())).thenReturn("refreshToken");
-        // Mock the createCookie method
-        // refresh는 쿠키 안에 담겨 있어야 함
-        Cookie mockCookie = new Cookie("refresh", "refreshToken");
-        when(tokenUtil.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
-//        when(reissueService.createCookie(eq("refresh"), eq("refreshToken"))).thenReturn(mockCookie);
 
         // When
         ResponseEntity<?> result = userService.registerUser(request, response);
@@ -110,8 +105,8 @@ class UserServiceTest {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         verify(userRepository).registerUser(any(Users.class));
         verify(reissueService).addRefreshToken(eq("test@test.com"), eq("refreshToken"), anyLong());
-        assertEquals("accessToken", response.getHeader("Authorization"));
-        assertNotNull(response.getCookie("refresh"));
+        verify(tokenUtil).addAccessInHeader(response, "accessToken");
+        verify(tokenUtil).addRefreshInCookie(response, "refreshToken");
 
         ErrorResponse body = (ErrorResponse) result.getBody();
         assertNotNull(body);
