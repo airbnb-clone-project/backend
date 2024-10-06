@@ -40,6 +40,7 @@ import java.util.Collections;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 24. 8. 22.        DK       최초 생성
+ * 24. 10. 6.        DK       vercel cors 추가
  */
 
 @Configuration
@@ -48,10 +49,13 @@ import java.util.Collections;
 public class SecurityConfig {
 
     public static final String[] CORS_PERMISSION={
-            "http://39.115.84.63", // personal address SP
+            "http://39.115.84.63",
+            "http://182.219.16.153",
             "http://localhost:3000",
             "http://localhost:8008",
-            "http://34.46.135.133", // swagger
+            "http://34.46.135.133",
+            "http://76.76.21.22:443",
+            "https://76.76.21.22:443"
     };
     public static final String[] PERMIT_ALL_PATTERNS = {
             "/api/**",
