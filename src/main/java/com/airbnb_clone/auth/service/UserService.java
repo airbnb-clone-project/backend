@@ -6,6 +6,7 @@ import com.airbnb_clone.auth.dto.oauth2.AdditionalUserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.NewPasswordRequest;
 import com.airbnb_clone.auth.dto.users.UserRegisterRequest;
 import com.airbnb_clone.auth.dto.users.UsersProfileRequest;
+import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.jwt.JwtUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.SocialUserRepository;
@@ -53,6 +54,8 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final SocialUserRepository socialUserRepository;
+    private final TokenUtil customToken;
+    private final TokenUtil tokenUtil;
 
 
     @Transactional
@@ -98,7 +101,8 @@ public class UserService {
         // header 에 access token 추가
         // cookie에 refresh token 담아 헤더에 추가
         response.setHeader("Authorization", access);
-        response.addCookie(reissueService.createCookie("refresh", refresh));
+        response.addCookie(tokenUtil.createCookie("refresh",refresh));
+//        response.addCookie(reissueService.createCookie("refresh", refresh));
 
         // 응답  body 생성
         ErrorResponse errorResponse = new ErrorResponse(200, "일반 회원가입이 완료 되었습니다.");

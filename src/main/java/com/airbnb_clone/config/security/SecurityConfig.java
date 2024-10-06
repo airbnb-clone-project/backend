@@ -1,10 +1,7 @@
 package com.airbnb_clone.config.security;
 
 
-import com.airbnb_clone.auth.jwt.CustomLogoutFilter;
-import com.airbnb_clone.auth.jwt.JwtFilter;
-import com.airbnb_clone.auth.jwt.JwtUtil;
-import com.airbnb_clone.auth.jwt.LoginFilter;
+import com.airbnb_clone.auth.jwt.*;
 import com.airbnb_clone.auth.oauth2.CustomSuccessHandler;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import com.airbnb_clone.auth.repository.UserRepository;
@@ -85,6 +82,7 @@ public class SecurityConfig {
     // CustomOAuth2UserService: social 로그인 요청에 대해 구분 하고 필드를 다루는 클래스
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final TokenUtil tokenUtil;
 
     @Bean // password encoder 등록
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -202,7 +200,7 @@ public class SecurityConfig {
          *  LoginFilter(), JWTUtil
          */
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userRepository, tokenUtil), UsernamePasswordAuthenticationFilter.class);
 
 
         /*

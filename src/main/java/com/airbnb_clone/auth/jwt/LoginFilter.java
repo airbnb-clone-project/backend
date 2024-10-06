@@ -9,14 +9,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StreamUtils;
 
@@ -25,8 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * packageName    : com.airbnb_clone.auth.jwt;
@@ -46,12 +42,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final TokenUtil tokenUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, TokenUtil customToken) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
+        this.tokenUtil = customToken;
         setFilterProcessesUrl("/api/auth/login"); // 엔드포인트 변경
     }
 
@@ -112,8 +110,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         saveRefresh(username, refresh, 84600000L);
 
         // 응답 설정 4v2
-        response.setHeader("Authorization", access); // access: header의 access key에다 넣어서 넘겨준다.
-        response.addCookie(createCookie("refresh", refresh)); // refresh: cookie에 담아 헤더로 넘겨준다.
+        tokenUtil.addAccessInHeader(response, access);
+        tokenUtil.addRefreshCookie(response, refresh);
 
         setBody(response,200,"일반 로그인이 완료 되었습니다.");
     }
@@ -151,16 +149,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     // refresh token을 담기위한 쿠키 생성 메소드 4v2
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60); // 24시간
-        // cookie.setSecure(true);  // https 통신시 사용
-        cookie.setPath("/");    // 쿠키가 적용될 범위
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
+//    private Cookie createCookie(String key, String value) {
+//
+//        Cookie cookie = new Cookie(key, value);
+//        cookie.setMaxAge(24 * 60 * 60); // 24시간
+//        // cookie.setSecure(true);  // https 통신시 사용
+//        cookie.setPath("/");    // 쿠키가 적용될 범위
+//        cookie.setHttpOnly(true);
+//
+//        return cookie;
+//    }
 
     public void setBody(HttpServletResponse response, int status, String message) throws IOException {
 

@@ -1,6 +1,8 @@
 package com.airbnb_clone.auth.jwt;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
 /**
  * packageName    : com.airbnb_clone.auth.jwt
@@ -13,7 +15,12 @@ import jakarta.servlet.http.Cookie;
  * -----------------------------------------------------------
  * 2024. 10. 6.        doungukkim       최초 생성
  */
-public class Token {
+@Component
+public class TokenUtil {
+
+    private static final String ACCESS = "Authorization";
+    private static final String REFRESH = "refresh";
+
 
     public Cookie createCookie(String key, String value) {
 
@@ -24,5 +31,15 @@ public class Token {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    public void addRefreshCookie(HttpServletResponse response, String RefreshToken) {
+        Cookie refresh = createCookie(REFRESH, RefreshToken);
+        response.addCookie(refresh);
+
+    }
+
+    public void addAccessInHeader(HttpServletResponse response, String accessToken) {
+        response.setHeader(ACCESS, accessToken);
     }
 }
