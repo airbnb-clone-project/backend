@@ -73,7 +73,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             * 한번도 소셜 로그인을 하지 않은 경우 새로 생성
             * 로그인 기록이 있을경우 이름만 업데이트
          */
-
         // username으로 db를 조회
         boolean userNotExist = userRepository.isUsernameNotExist(username);
 

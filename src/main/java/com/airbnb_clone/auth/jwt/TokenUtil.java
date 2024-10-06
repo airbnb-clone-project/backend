@@ -33,7 +33,7 @@ public class TokenUtil {
         return cookie;
     }
 
-    public void addRefreshCookie(HttpServletResponse response, String RefreshToken) {
+    public void addRefreshInCookie(HttpServletResponse response, String RefreshToken) {
         Cookie refresh = createCookie(REFRESH, RefreshToken);
         response.addCookie(refresh);
 

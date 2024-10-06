@@ -14,10 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 /**
  * packageName    : com.airbnb_clone.auth.service;
  * fileName       : RefreshTokenRepository
@@ -132,7 +128,7 @@ public class ReissueService {
          */
 //        response.setHeader("Authorization", newAccess);
         tokenUtil.addAccessInHeader(response, newAccess);
-        tokenUtil.addRefreshCookie(response, newRefresh);
+        tokenUtil.addRefreshInCookie(response, newRefresh);
 
         ErrorResponse errorResponse = new ErrorResponse(200, "토큰이 재발급 되었습니다.");
         return ResponseEntity
