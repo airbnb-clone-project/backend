@@ -2,6 +2,7 @@ package com.airbnb_clone.auth.service;
 
 import com.airbnb_clone.auth.dto.ErrorResponse;
 import com.airbnb_clone.auth.jwt.JwtUtil;
+import com.airbnb_clone.auth.jwt.TokenUtil;
 import com.airbnb_clone.auth.repository.RefreshTokenRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,9 @@ class ReissueServiceTest {
     private JwtUtil jwtUtil;
 
     @Mock
+    private TokenUtil tokenUtil;
+
+    @Mock
     private HttpServletRequest request;
 
     @Mock
@@ -51,10 +55,11 @@ class ReissueServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    String refresh = "refresh";
-    String oldToken = "oldToken";
-    String newToken = "newToken";
-    String username = "test@test.com";
+    static final String REFRESH_TOKEN_NAME = "refresh";
+    static final String ACCESS_TOKEN_NAME = "Authorization";
+    static final String OLD_TOKEN = "oldToken";
+    static final String NEW_TOKEN = "newToken";
+    static final String USERNAME = "test@test.com";
 
 
     @Test
@@ -63,26 +68,30 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, oldToken)
+                new Cookie(REFRESH_TOKEN_NAME, OLD_TOKEN)
         };
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(givenCookie);
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(false);
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(false);
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn(refresh);
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn(REFRESH_TOKEN_NAME);
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(false);
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(false);
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
+        when(jwtUtil.getUserNoFromRefreshToken(OLD_TOKEN)).thenReturn(1L);
+
+        when(jwtUtil.createJwt(eq(ACCESS_TOKEN_NAME), anyString(), anyLong(), anyLong())).thenReturn(NEW_TOKEN);
+        when(jwtUtil.createJwt(eq(REFRESH_TOKEN_NAME), anyString(), anyLong(), anyLong())).thenReturn(NEW_TOKEN);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        verify(refreshTokenRepository, times(1)).deleteRefreshToken(oldToken);
-        verify(refreshTokenRepository, times(1)).existsByRefresh(oldToken);
+        verify(refreshTokenRepository, times(1)).deleteRefreshToken(OLD_TOKEN);
+        verify(refreshTokenRepository, times(1)).existsByRefresh(OLD_TOKEN);
         verify(refreshTokenRepository, times(1)).saveRefreshToken(any());
 
         ErrorResponse body = (ErrorResponse) result.getBody();
@@ -97,20 +106,20 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, oldToken)
+                new Cookie(REFRESH_TOKEN_NAME, OLD_TOKEN)
         };
 
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(null); // 토큰 없음
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(false);
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(false);
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn(refresh);
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn(REFRESH_TOKEN_NAME);
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(false);
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(false);
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
@@ -131,20 +140,20 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, null) // 토큰 값이 없음
+                new Cookie(REFRESH_TOKEN_NAME, null) // 토큰 값이 없음
         };
 
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(givenCookie);
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(false);
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(false);
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn(refresh);
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn(REFRESH_TOKEN_NAME);
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(false);
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(false);
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
@@ -166,20 +175,20 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, oldToken)
+                new Cookie(REFRESH_TOKEN_NAME, OLD_TOKEN)
         };
 
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(givenCookie);
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(true); // 만료 상태
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(true); // 만료 상태
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn(refresh);
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn(REFRESH_TOKEN_NAME);
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(false);
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(false);
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
@@ -200,19 +209,19 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, oldToken)
+                new Cookie(REFRESH_TOKEN_NAME, OLD_TOKEN)
         };
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(givenCookie);
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(false);
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(false);
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn("Authorization"); // 리프래시 토큰 패이로드 확인결과 refresh token 이 아님
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn("Authorization"); // 리프래시 토큰 패이로드 확인결과 refresh token 이 아님
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(false);
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(false);
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
@@ -233,24 +242,24 @@ class ReissueServiceTest {
 
         // 요청으로 받는 refresh token 생성
         Cookie[] givenCookie = new Cookie[]{
-                new Cookie(refresh, oldToken)
+                new Cookie(REFRESH_TOKEN_NAME, OLD_TOKEN)
         };
 
         // 리프레시 토큰이 있는지 확인
         when(request.getCookies()).thenReturn(givenCookie);
         // expiration check
-        when(jwtUtil.isExpired(oldToken)).thenReturn(false);
+        when(jwtUtil.isExpired(OLD_TOKEN)).thenReturn(false);
         // refresh token 이 맞는지 확인
-        when(jwtUtil.getTokenType(oldToken)).thenReturn(refresh);
+        when(jwtUtil.getTokenType(OLD_TOKEN)).thenReturn(REFRESH_TOKEN_NAME);
         // db 조회 token 대조
-        when(refreshTokenRepository.existsByRefresh(oldToken)).thenReturn(true); // Db 조회 결과 같은 토큰 없음
+        when(refreshTokenRepository.existsByRefresh(OLD_TOKEN)).thenReturn(true); // Db 조회 결과 같은 토큰 없음
         // username 변수
-        when(jwtUtil.getUsername(oldToken)).thenReturn(username);
+        when(jwtUtil.getUsername(OLD_TOKEN)).thenReturn(USERNAME);
 
         ResponseEntity<?> result = reissueService.reissueRefreshToken(request, response);
 
         assertEquals(HttpStatus.valueOf(401), result.getStatusCode());
-        verify(refreshTokenRepository, times(1)).existsByRefresh(oldToken);
+        verify(refreshTokenRepository, times(1)).existsByRefresh(OLD_TOKEN);
         verify(refreshTokenRepository, never()).deleteRefreshToken(any());
         verify(refreshTokenRepository, never()).saveRefreshToken(any());
 

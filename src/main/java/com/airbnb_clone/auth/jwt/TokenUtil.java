@@ -36,7 +36,6 @@ public class TokenUtil {
     public void addRefreshInCookie(HttpServletResponse response, String RefreshToken) {
         Cookie refresh = createCookie(REFRESH, RefreshToken);
         response.addCookie(refresh);
-
     }
 
     public void addAccessInHeader(HttpServletResponse response, String accessToken) {
