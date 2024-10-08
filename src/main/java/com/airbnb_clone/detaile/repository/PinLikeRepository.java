@@ -3,6 +3,7 @@ package com.airbnb_clone.detaile.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,17 +21,43 @@ public class PinLikeRepository {
         try {
             jdbcTemplate.update(sql, pinNo, userNo, emojiNo);
         } catch (DataAccessException e) {
-            throw new RuntimeException("핀 등록 중 오류 발생", e);
+            throw new RuntimeException("핀반응 등록 중 오류 발생", e);
         }
     }
 
-    public boolean hasUserReactedToPin(Long pinNo, Long userNo) {
+    //추가한 핀반응인지 확인 / 반응이 있는 경우 이모지번호 가져오기
+    public Integer getUserEmojiForPin(Long pinNo, Long userNo) {
         String sql = """
-                SELECT COUNT(*) FROM PIN_LIKE WHERE TARGET_PIN_NO = ? AND LIKER = ?
+                SELECT EMOJI_NO FROM PIN_LIKE WHERE TARGET_PIN_NO = ? AND LIKER = ?
                 """;
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, pinNo, userNo);
-        return count != null && count > 0;
+        try{
+            return jdbcTemplate.queryForObject(sql, Integer.class, pinNo, userNo);
+        }catch (EmptyResultDataAccessException e) {
+            return null;//반응이 없는 경우
+        }
+    }
+
+    //이모지 반응 업데이트
+    public void updatePinLike(Long pinNo, Long userNo, int emojiNo) {
+        String sql = """
+              UPDATE pin_like 
+              SET EMOJI_NO = ?, UPDATED_AT = CURRENT_TIMESTAMP
+              WHERE TARGET_PIN_NO = ? AND LIKER = ?
+                """;
+        try {
+            jdbcTemplate.update(sql, pinNo, userNo, emojiNo);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("핀반응 업데이트 중 오류 발생", e);
+        }
+    }
+
+    //핀반응삭제
+
+    public void deletePinLike(Long pinNo, Long userNo){
 
     }
+
+
+    //핀반응 이모지 변경 or 핀반응 추가에 로직 넣기
 }
 
