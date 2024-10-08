@@ -1,6 +1,7 @@
 ### 임시 핀 생성
 POST {{url}}/api/pins/pin/temp/v1
 Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{token}}
 
 --WebAppBoundary
 Content-Disposition: form-data; name="userNo"
@@ -80,7 +81,7 @@ POST {{url}}/api/pin-history/v1?userNo=1&pinNo=1
 Content-Type: application/json
 
 ### DB 핀을 메모리에 올리기
-POST http://localhost:8008/api/pins/pin/force-update-to-redis-batch/v1
+POST {{url}}/api/pins/pin/force-update-to-redis-batch/v1
 
 ### 핀 메인 조회
 GET {{url}}/api/pins/pin/v1?userNo=1&page=0&pageSize=10
