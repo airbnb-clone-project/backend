@@ -40,10 +40,10 @@ public class PinLikeRepository {
     //이모지 반응 업데이트
     public void updatePinLike(Long pinNo, Long userNo, int emojiNo) {
         String sql = """
-              UPDATE pin_like 
+              UPDATE pin_like
               SET EMOJI_NO = ?, UPDATED_AT = CURRENT_TIMESTAMP
-              WHERE TARGET_PIN_NO = ? AND LIKER = ?
-                """;
+              WHERE TARGET_PIN_NO = ? AND LIKER = ?;
+              """;
         try {
             jdbcTemplate.update(sql, pinNo, userNo, emojiNo);
         } catch (DataAccessException e) {
@@ -52,9 +52,15 @@ public class PinLikeRepository {
     }
 
     //핀반응삭제
-
     public void deletePinLike(Long pinNo, Long userNo){
-
+        String sql = """
+                    DELETE FROM pin_like WHERE TARGET_PIN_NO = ? AND LIKER = ?;
+                """;
+        try{
+            jdbcTemplate.update(sql, pinNo, userNo);
+        }catch (DataAccessException e) {
+            throw new RuntimeException("핀반응 삭제 중 오류 발생");
+        }
     }
 
 
