@@ -12,7 +12,7 @@ public class PinLikeRepository {
     private final JdbcTemplate jdbcTemplate;
 
     //핀반응추가
-    public void addPinlike(Long pinNo, Long userNo, int emojiNo){
+    public void addPinLike(Long pinNo, Long userNo, int emojiNo){
         String sql = """
                 INSERT INTO  pin_like (TARGET_PIN_NO, LIKER, EMOJI_NO, CREATED_AT )\
                         VALUES (?, ?, ?,CURRENT_TIMESTAMP);

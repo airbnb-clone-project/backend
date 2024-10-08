@@ -46,7 +46,7 @@ class DetailPageRepositoryTest {
 
     @Test
     @DisplayName("상세페이지 조회")
-    void join_detail_page() {
+    void join_detail_page__success() {
         Long pinId = 1L;
         DetailPageDto detailPageDto = detailPageRepository.findPageById(pinId);
 
@@ -65,7 +65,7 @@ class DetailPageRepositoryTest {
 
     @Test
     @DisplayName("반응 목록 조회")
-    void joun_pinlike_list() {
+    void joun_pinlike_list__success() {
         Long pinId = 1L;
         List<PinLikeDto> pinLikeDtos = detailPageRepository.findPinlikesById(pinId);
 

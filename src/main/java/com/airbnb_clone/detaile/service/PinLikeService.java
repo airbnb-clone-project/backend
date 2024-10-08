@@ -20,7 +20,7 @@ public class PinLikeService {
         if(alreadyReacted){
             throw new DuplicatePinLikeException("이미 해당 핀에 반응을 추가하셨습니다");
         }
-        pinLikeRepository.addPinlike(pinNo, userNo, emojiNo);
+        pinLikeRepository.addPinLike(pinNo, userNo, emojiNo);
     }
 
 }
