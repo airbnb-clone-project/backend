@@ -18,6 +18,11 @@ spring:
             redirect-uri: ${GOOGLE_REDIRECT_URI}
             authorization-grant-type: authorization_code
             scope: profile,email
+
+springdoc:
+  show-login-endpoint: true
+  show-oauth2-endpoints: false
+
 server:
   port: 8008
 
@@ -39,7 +44,6 @@ logging:
   pattern:
     dateformat: Asia/Seoul
 
-springdoc:
-  show-login-endpoint: true
+
 
 
