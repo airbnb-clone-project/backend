@@ -1,6 +1,7 @@
 package com.airbnb_clone.auth.controller;
 
 import com.airbnb_clone.auth.service.ReissueService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * -----------------------------------------------------------
  * 24. 8. 23.        DK       최초 생성
  */
+@Tag(name = "인증 토큰 발급 API", description = "인증 토큰 발급 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
