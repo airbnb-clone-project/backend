@@ -47,8 +47,8 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-
     public static final String[] PERMIT_ALL_PATTERNS = {
+            "/",
             "/api/**",
             "/ws/**",
             "/h2-console/**",
@@ -59,7 +59,6 @@ public class SecurityConfig {
 
             "/login-failed", // CustomSuccessHandler.onAuthenticationSuccess
             "/api/auth/login", // LoginFilter
-            "/",
             "/api/auth/register",
             "/api/auth/reissue" // access가 없을테니 허용해야함
 
@@ -83,19 +82,34 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean // authenticationManager 등록
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-
-
 
     @Bean // 필터체인
     public SecurityFilterChain filterChain(HttpSecurity http, UserRepository userRepository) throws Exception {
 
         // cors 설정
         http
+                /*
+                 *  csrf disable
+                 *  CSRF: CSRF 공격은 사용자가 인증된 세션을 통해 악의적인 요청을 보내는 공격. Spring Security 는 기본적으로 CSRF 보호를 활성화합니다. -> disable
+                 *  실제 서비스 환경에서도 CSRF 는 disable 하는 경우가 많음
+                 */
+                .csrf(AbstractHttpConfigurer::disable)
+
+                /*
+                 *  Form 로그인 방식 disable
+                 *  토큰 기반 인증이나 OAuth2 등을 사용할 때 Form 로그인을 비활성화할 수 있다.
+                 */
+                .formLogin(AbstractHttpConfigurer::disable)
+
+                /*
+                 *  http basic 인증 방식 disable
+                 *  HTTP Basic 인증: HTTP Basic 인증은 사용자 이름과 비밀번호를 Base64로 인코딩하여 HTTP 헤더에 포함시키는 방식. 간단하지만 보안에 취약할 수 있습니다. -> disable
+                 */
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
 
                     @Override
@@ -116,28 +130,6 @@ public class SecurityConfig {
                 }));
 
         /*
-         *  csrf disable
-         *  CSRF: CSRF 공격은 사용자가 인증된 세션을 통해 악의적인 요청을 보내는 공격. Spring Security 는 기본적으로 CSRF 보호를 활성화합니다. -> disable
-         *  실제 서비스 환경에서도 CSRF 는 disable 하는 경우가 많음
-         */
-        http
-                .csrf(AbstractHttpConfigurer::disable);
-
-        /*
-         *  Form 로그인 방식 disable
-            토큰 기반 인증이나 OAuth2 등을 사용할 때 Form 로그인을 비활성화할 수 있다.
-         */
-        http
-                .formLogin(AbstractHttpConfigurer::disable);
-
-        /*
-         *  http basic 인증 방식 disable
-         *  HTTP Basic 인증: HTTP Basic 인증은 사용자 이름과 비밀번호를 Base64로 인코딩하여 HTTP 헤더에 포함시키는 방식. 간단하지만 보안에 취약할 수 있습니다. -> disable
-         */
-        http
-                .httpBasic(AbstractHttpConfigurer::disable);
-
-        /*
             OAuth2
             소셜 로그인시 사용될 service 주입
          */
@@ -153,6 +145,7 @@ public class SecurityConfig {
         http
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
+//                        }));
                             int status = response.getStatus();
                             response.setContentType("application/json;charset=UTF-8");
 
@@ -166,48 +159,39 @@ public class SecurityConfig {
                             );
 
                             response.getWriter().write(jsonResponse);
-                        })
-                );
+                        }));
+
+
         /*
          *  controller 의 인가 작업을 위한 코드
          *  접근 권한 설정
          *  다른 파트 개발을 위해 모든 요청에 대해 권한 허용
          */
         http
-                // 모든 경로 권한 허용
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PERMIT_ALL_PATTERNS)
                         .permitAll()
                         .anyRequest().authenticated()
                 );
-//                .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers("/").permitAll()
-//                        .anyRequest().authenticated()
-//                );
 
-        /*
-         *  OAuth2 적용시 로그인에서 무한 루프가 일어날 경우 .addFilterBefore() -> .addFilterAfter()
-         *  JWTFilter(),  JWTUtil 사용
-         */
         http
-                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
+                /*
+                 *  JWT 인증 필터
+                 *  OAuth2 적용시 로그인에서 무한 루프가 일어날 경우 .addFilterBefore() -> .addFilterAfter()
+                 *  JWTFilter(),  JWTUtil 사용
+                 */
+                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
+//                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-        /*
-         *  필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-         *  LoginFilter(), JWTUtil
-         */
-        http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userRepository, tokenUtil), UsernamePasswordAuthenticationFilter.class);
-
-
-        /*
-         *  refresh token entity 추가되면 추가
-         *  logout filter 추가
-         */
-        http
+                /*
+                 * 로그인, 로그아웃 필터
+                 * 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
+                 *  LoginFilter(), JWTUtil
+                 * CustomLogoutFilter()
+                 */
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userRepository, tokenUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class)
                 .logout((logout) -> logout.logoutUrl("/api/auth/logout"));
-
 
         // 세션 설정(stateless)
         http
