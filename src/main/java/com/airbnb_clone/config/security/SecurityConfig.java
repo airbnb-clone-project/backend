@@ -164,8 +164,7 @@ public class SecurityConfig {
 
         /*
          *  controller 의 인가 작업을 위한 코드
-         *  접근 권한 설정
-         *  다른 파트 개발을 위해 모든 요청에 대해 권한 허용
+         *  엔드포인트 접근 권한 설정
          */
         http
                 .authorizeHttpRequests((auth) -> auth
@@ -174,6 +173,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
 
+        // 필터 추가
         http
                 /*
                  *  JWT 인증 필터
