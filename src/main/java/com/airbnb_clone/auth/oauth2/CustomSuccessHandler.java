@@ -46,7 +46,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         CustomOAuth2User customUserDetails = ((CustomOAuth2User) authentication.getPrincipal());
 
         if (customUserDetails.getProviderId().equals("notAuthorized")) {
-            response.sendRedirect("http://localhost:3000/login-failed"); // 로그인 실패 리디렉션 주소
+            response.sendRedirect("http://localhost:3000/login-failedㅌ"); // 로그인 실패 리디렉션 주소
             return;
         }
 
@@ -75,24 +75,4 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     }
 
-    // refresh token을 DB에 저장 8v2
-//    private void saveRefresh(String username, String refresh, Long expiredMs) {
-//
-//
-//        // 24시간의 유효기간
-//        LocalDateTime expirationDate = LocalDateTime.ofInstant(
-//                Instant.ofEpochMilli(System.currentTimeMillis() + expiredMs),
-//                ZoneId.systemDefault()
-//        );
-//
-//        RefreshToken refreshTokenEntity = RefreshToken.builder()
-//                .username(username)
-//                .expiration(expirationDate)
-//                .refreshToken(refresh)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
-//                .build();
-//
-//        refreshTokenRepository.saveRefreshToken(refreshTokenEntity);
-//    }
 }

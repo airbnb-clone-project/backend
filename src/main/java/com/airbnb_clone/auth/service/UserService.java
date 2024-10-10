@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -352,10 +353,16 @@ public class UserService {
         jsonBody.put("message", "계정 정보 불러오기 성공 했습니다.");
         jsonBody.put("status", 200);
 
+        LocalDate birthday = users.getBirthday();
         // 이메일 생일 성별 국가 언어
         Map<String, String> data = new HashMap<>();
         data.put("username", users.getUsername());
-        data.put("birthday", users.getBirthday().toString());
+        // 소셜 로그인 때도 birthday 를 받기 때문에 사실 나오면 안되긴 함
+        if (birthday == null) {
+            data.put("birthday", null);
+        } else {
+            data.put("birthday", users.getBirthday().toString());
+        }
         data.put("gender", users.getGender());
         data.put("spokenLanguage", users.getSpokenLanguage());
         jsonBody.put("data", data);

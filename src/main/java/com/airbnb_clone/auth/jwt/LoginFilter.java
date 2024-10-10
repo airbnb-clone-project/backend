@@ -70,7 +70,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             loginRequest = objectMapper.readValue(messageBody, UserLoginRequest.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e+"로그인 필터에서 로그인 시도 실패");
+
         }
 
         String username = loginRequest.getUsername();
