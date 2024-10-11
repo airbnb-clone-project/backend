@@ -18,13 +18,13 @@ public class PinLikeService {
     @Transactional
     public void addPinLike(Long pinNo, Long userNo, int emojiNo ) {
         //사용자가 해당 핀에 반응했는지 확인
-        Integer emogiNo = pinLikeRepository.getUserEmojiForPin(pinNo, userNo);
+        Integer returnEmogiNo = pinLikeRepository.getUserEmojiForPin(pinNo, userNo);
 
-        if(emogiNo == null) {//반응이 없는 경우 : 새로운 반응 추가
+        if(returnEmogiNo == null) {//반응이 없는 경우 : 새로운 반응 추가
             pinLikeRepository.addPinLike(pinNo, userNo, emojiNo);
             log.info("새로운 이모지({}) 추가", emojiNo);
-        } else if (emogiNo == emojiNo) {//같은 이모지로 반응한 경우
-            log.info("같은 이모지가 이미 있음");
+        } else if (returnEmogiNo == emojiNo) {//같은 이모지로 반응한 경우
+            log.info("같은 이모지({})가 이미 있음", emojiNo);
         }else {//다른 이모지로 반응한 경우
             pinLikeRepository.updatePinLike(pinNo, userNo, emojiNo);
             log.info("다른 이모지({})로 업데이트",emojiNo);
