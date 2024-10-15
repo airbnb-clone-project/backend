@@ -64,14 +64,14 @@ public class PinService {
     private final TagMySQLRepository tagMySQLRepository;
 
     @Transactional(readOnly = false)
-    public Mono<ObjectId> createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO, Long userNo) {
+    public Mono<ObjectId> createTempPin(@Valid TemporaryPinCreateRequestDTO temporaryPinCreateRequestDTO, String userEmail) {
         return s3ImageFacade.uploadAndClassifyImage(temporaryPinCreateRequestDTO.getImageFile())
-                .map(imageClassificationResponseDTO -> pinMongoRepository.findPinTempByUserNo(userNo)
-                        .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(userNo, imageClassificationResponseDTO.getImageUrl(),imageClassificationResponseDTO.getImageCategory()))
+                .map(imageClassificationResponseDTO -> pinMongoRepository.findPinTempByUserEmail(userEmail)
+                        .map(pinTemp -> pinMongoRepository.addInnerTempPinAndGetTempPinId(userEmail, imageClassificationResponseDTO.getImageUrl(),imageClassificationResponseDTO.getImageCategory()))
                         .orElseGet(() -> {
                             InnerTempPin insertedInnserTempPin = InnerTempPin.of(imageClassificationResponseDTO.getImageUrl(), imageClassificationResponseDTO.getImageCategory());
 
-                            PinTemp createdTempPin = PinTemp.of(userNo, Set.of(insertedInnserTempPin));
+                            PinTemp createdTempPin = PinTemp.of(userEmail, Set.of(insertedInnserTempPin));
 
                             pinMongoRepository.saveAndGetPinId(createdTempPin);
 
@@ -85,8 +85,8 @@ public class PinService {
         return foundInnerPin.toTemporaryPinDetailResponseDTO();
     }
 
-    public List<TemporaryPinsResponseDTO> getTempPins(@NotNull Long userNo) {
-        Optional<PinTemp> foundTempOpt = pinMongoRepository.findPinTempByUserNo(userNo);
+    public List<TemporaryPinsResponseDTO> getTempPins(@NotNull String userEmail) {
+        Optional<PinTemp> foundTempOpt = pinMongoRepository.findPinTempByUserEmail(userEmail);
 
         return foundTempOpt.map(pinTemp -> pinTemp.getInnerTempPins().stream()
                 .map(InnerTempPin::toTemporaryPinsResponseDTO)

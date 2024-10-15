@@ -4,11 +4,6 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{token}}
 
 --WebAppBoundary
-Content-Disposition: form-data; name="userNo"
-Content-Type: text/plain
-
-1
---WebAppBoundary
 Content-Disposition: form-data; name="imageFile"; filename="img.jpg"
 Content-Type: image/jpeg
 
@@ -18,18 +13,19 @@ Content-Type: image/jpeg
 
 ### 임시 핀 조회
 # @no-redirect
-GET {{url}}/api/pins/pin/temp/66faa20f0893f5746fdb91d0/v1
+GET {{url}}/api/pins/pin/temp/670e6bab9ccc8f0f83552a10/v1
 Content-Type: application/json
 
 ### 임시 핀 리스트 조회
 # @no-redirect
-GET {{url}}/api/pins/pin/temps/1/v1
+GET {{url}}/api/pins/pin/temps/qkrtkdwns3410@gmail.com/v1
 Content-Type: application/json
 
 ### 임시 핀 수정
 # @no-redirect
-PUT {{url}}/api/pins/pin/temp/66faa20f0893f5746fdb91d0/v1
+PUT {{url}}/api/pins/pin/temp/670e6bab9ccc8f0f83552a10/v1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "description": "임시 핀 수정",

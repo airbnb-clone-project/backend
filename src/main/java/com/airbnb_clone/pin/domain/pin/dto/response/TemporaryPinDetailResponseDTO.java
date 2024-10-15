@@ -39,7 +39,7 @@ public class TemporaryPinDetailResponseDTO {
     private boolean isCommentAllowed;
 
     @Schema(description = "게시판 번호", example = "123")
-    private int boardNo;
+    private Integer boardNo;
 
     @Schema(description = "이미지 분류", example = "Nature")
     private String imageClassification;

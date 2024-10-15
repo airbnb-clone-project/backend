@@ -34,8 +34,8 @@ import java.util.Optional;
 public class PinMongoRepository {
     private final MongoTemplate mt;
 
-    public Optional<PinTemp> findPinTempByUserNo(@NotNull Long userNo) {
-        Query query = new Query(Criteria.where("user_no").is(userNo));
+    public Optional<PinTemp> findPinTempByUserEmail(@NotNull String userEmail) {
+        Query query = new Query(Criteria.where("user_email").is(userEmail));
         return Optional.ofNullable(mt.findOne(query, PinTemp.class));
     }
 
@@ -53,8 +53,8 @@ public class PinMongoRepository {
         return pinTemp.getId();
     }
 
-    public ObjectId addInnerTempPinAndGetTempPinId(@NotNull Long userNo, @NotNull String imgUrl, ImageClassificationEnum imageCategory) {
-        Query query = new Query(Criteria.where("user_no").is(userNo));
+    public ObjectId addInnerTempPinAndGetTempPinId(@NotNull String userEmail, @NotNull String imgUrl, ImageClassificationEnum imageCategory) {
+        Query query = new Query(Criteria.where("user_email").is(userEmail));
 
         InnerTempPin insertInnerTempPin = InnerTempPin.of(imgUrl, imageCategory);
 

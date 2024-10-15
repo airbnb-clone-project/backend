@@ -31,11 +31,11 @@ public class PinAuthHelper {
     private final PinMongoRepository pinMongoRepository;
     private final JwtUtil jwtUtil;
 
-    public void isPinOwnerForTempPin(String tempPinNo, Long userNo) {
-        PinTemp foundPinTemp = pinMongoRepository.findPinTempByUserNo(userNo)
+    public void isPinOwnerForTempPin(String tempPinNo, String userEmail) {
+        PinTemp foundPinTemp = pinMongoRepository.findPinTempByUserEmail(userEmail)
                 .orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
 
-        boolean isOwner = foundPinTemp.isOwner(userNo, new ObjectId(tempPinNo));
+        boolean isOwner = foundPinTemp.isOwner(userEmail, new ObjectId(tempPinNo));
         if (!isOwner) {
             throw new PinAuthException(ErrorCode.PIN_AUTH_ERROR);
         }

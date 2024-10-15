@@ -1,5 +1,7 @@
 package com.airbnb_clone.pin.repository;
 
+import com.airbnb_clone.exception.ErrorCode;
+import com.airbnb_clone.exception.pin.PinNotFoundException;
 import com.airbnb_clone.pin.domain.pin.Pin;
 import com.airbnb_clone.pin.domain.pin.dto.request.PinUpdateRequestDTO;
 import com.airbnb_clone.pin.domain.pin.dto.response.PinHistoryResponseDTO;
@@ -41,12 +43,14 @@ public class PinMySQLRepository {
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("no", pinNo);
-
-        return jt.queryForObject(sql, parameters, (rs, rowNum) -> PinHistoryResponseDTO.of(
+        
+        PinHistoryResponseDTO result = jt.queryForObject(sql, parameters, (rs, rowNum) -> PinHistoryResponseDTO.of(
                 rs.getLong("NO"),
                 rs.getString("IMAGE_CLASSIFICATION"),
                 rs.getTimestamp("CREATED_AT").toLocalDateTime()
         ));
+        
+        return Optional.ofNullable(result).orElseThrow(() -> new PinNotFoundException(ErrorCode.PIN_NOT_FOUND));
     }
 
     public boolean existsPinByNo(Long pinNo) {

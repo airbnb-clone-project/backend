@@ -22,22 +22,22 @@ public class PinTemp {
     @Id
     private ObjectId id;
 
-    @Field(value = "user_no")
+    @Field(value = "user_email")
     @Indexed
-    private Long userNo;
+    private String userEmail;
 
     @Field(value = "temp_pins")
     @Builder.Default
     private Set<InnerTempPin> innerTempPins = new LinkedHashSet<>();
 
-    public boolean isOwner(@NonNull Long userNo, @NonNull ObjectId tempPinId) {
-        return Objects.equals(this.userNo, userNo) && innerTempPins.stream()
+    public boolean isOwner(@NonNull String userEmail, @NonNull ObjectId tempPinId) {
+        return Objects.equals(this.userEmail, userEmail) && innerTempPins.stream()
                 .anyMatch(innerTempPin -> Objects.equals(innerTempPin.get_id(), tempPinId));
     }
-
-    public static PinTemp of(Long userNo, Set<InnerTempPin> innerTempPins) {
+    
+    public static PinTemp of(String userEmail, Set<InnerTempPin> innerTempPins) {
         return PinTemp.builder()
-                .userNo(userNo)
+                .userEmail(userEmail)
                 .innerTempPins(innerTempPins)
                 .build();
     }

@@ -3,7 +3,7 @@ POST {{url}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "qkrtkdwns34104@gmail.com",
+  "username": "qkrtkdwns3410@gmail.com",
   "password": "Tkd1wns1!@#",
   "birthday": "1995-11-03"
 }
@@ -11,4 +11,4 @@ Content-Type: application/json
 ### 토큰 재발급
 POST {{url}}/api/auth/reissue
 Content-Type: application/json
-Cookie: refresh=eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJyZWZyZXNoIiwidXNlcm5hbWUiOiJxa3J0a2R3bnMzNDEwNEBnbWFpbC5jb20iLCJ1c2VyTm8iOjQsImV4cCI6MTcyODQ4NTAxOH0.RxMQ0-PHVTNaX_v3d136c_VKQbin4d6FyghYXVgTX2Q; Max-Age=86400; Expires=Wed, 09 Oct 2024 14:43:38 GMT; Path=/; HttpOnly
+Cookie: refresh=eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJBdXRob3JpemF0aW9uIiwidXNlcm5hbWUiOiJxa3J0a2R3bnMzNDEwNEBnbWFpbC5jb20iLCJ1c2VyTm8iOjIsImlhdCI6MTcyODk5NDUxOCwiZXhwIjoxNzI4OTk1MTE4fQ.TZexCriYpFwJKBACTmDC9MOKH54bSYnnNfZUFVpTKRo; Max-Age=86400; Expires=Wed, 09 Oct 2024 14:43:38 GMT; Path=/; HttpOnly

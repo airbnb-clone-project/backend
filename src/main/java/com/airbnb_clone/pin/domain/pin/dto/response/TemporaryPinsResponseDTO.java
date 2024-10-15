@@ -27,7 +27,7 @@ public class TemporaryPinsResponseDTO {
     private String imgUrl;
     private String link;
     private boolean isCommentAllowed;
-    private int boardNo;
+    private Integer boardNo;
     private String imageClassification;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

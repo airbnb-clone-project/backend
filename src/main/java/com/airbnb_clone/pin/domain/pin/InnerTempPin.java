@@ -25,7 +25,7 @@ public class InnerTempPin {
     public ObjectId _id;
 
     @Field(value = "BOARD_NO")
-    public int boardNo;
+    public Integer boardNo;
 
     @Field(value = "DESCRIPTION")
     public String description;
